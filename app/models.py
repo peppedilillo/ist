@@ -1,3 +1,11 @@
 from django.db import models
 
-# Create your models here.
+
+class Post(models.Model):
+    date = models.DateTimeField()
+    title = models.CharField(max_length=120)
+    url = models.CharField(max_length=300)
+    votes = models.IntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.title} ({self.url})"
