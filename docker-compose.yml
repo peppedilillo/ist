@@ -1,10 +1,10 @@
 name: astrowebsite
 
 services:
-  astrowebsite_db:
+  db:
     restart: always
     image: postgres:17rc1-bookworm
-    container_name: astrowebsite_db
+    container_name: db
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
