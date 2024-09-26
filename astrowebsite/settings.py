@@ -77,11 +77,11 @@ WSGI_APPLICATION = "astrowebsite.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
+        'NAME': 'astroweb',
         'USER': 'postgres',
-        'PASSWORD': 'zNPQpwwbxsyvZDtzesjmlFFzHhwhSEcb',
-        'HOST': 'autorack.proxy.rlwy.net',
-        'PORT': '34762',
+        'PASSWORD': 'postgres',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 

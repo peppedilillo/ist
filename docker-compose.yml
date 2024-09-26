@@ -1,0 +1,22 @@
+name: astrowebsite
+
+services:
+  astrowebsite_db:
+    restart: always
+    image: postgres:17rc1-bookworm
+    container_name: astrowebsite_db
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+     - "5432:5432"
+    volumes:
+     - ./postgres/scripts:/docker-entrypoint-initdb.d
+
+  # this is some user interface to the docker database.
+  adminer:
+    restart: always
+    image: adminer
+    ports:
+     - "8080:8080"
+  
