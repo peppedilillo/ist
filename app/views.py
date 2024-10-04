@@ -23,7 +23,6 @@ def check_submission(title: str, url: str, text: str) -> bool:
 
 def submit(request: HttpResponse) -> HttpResponse:
     if request.method == 'POST':
-
         title = request.POST['title'].strip()
         url = request.POST['url']
         text = request.POST['text'].strip()
