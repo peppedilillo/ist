@@ -1,7 +1,9 @@
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render, reverse
+from django.shortcuts import get_object_or_404, render, reverse, redirect
+from django.contrib.auth.decorators import login_required
 
 from . import models
+from .forms import PostForm
 
 
 def index(request: HttpResponse) -> HttpResponse:
@@ -15,24 +17,15 @@ def detail(request: HttpResponse, post_id: int) -> HttpResponse:
     return HttpResponse(f"{post.title} {post.url} ({post.date})")
 
 
-def check_submission(title: str, url: str, text: str) -> bool:
-    if title and url and text:
-        return True
-    return False
-
-
-def submit(request: HttpResponse) -> HttpResponse:
-    if request.method == 'POST':
-        title = request.POST['title'].strip()
-        url = request.POST['url']
-        text = request.POST['text'].strip()
-
-        if not check_submission(title, url, text):
-            return render(request, 'app/submit.html', context={'errors': True})
-
-        post = models.Post(title=title, url=url)
-        post.save()
-        return HttpResponseRedirect(reverse("app:index"))
-
+@login_required
+def submit(request):
+    if request.method == "POST":
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.user = request.user
+            post.save()
+            return redirect("app:index")
     else:
-        return render(request, 'app/submit.html')
+        form = PostForm()
+    return render(request, 'app/submit.html', {'form': form})

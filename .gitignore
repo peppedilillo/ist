@@ -6,3 +6,4 @@ db.sqlite3
 **/.mypy-cache
 .idea
 .coverage
+repopack-output.txt
