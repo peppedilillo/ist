@@ -18,7 +18,7 @@ def detail(request: HttpResponse, post_id: int) -> HttpResponse:
 
 
 @login_required
-def submit(request):
+def submit(request: HttpResponse) -> HttpResponse:
     if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():

@@ -1,18 +1,15 @@
 {% if user.is_authenticated %}
- <li>User: {{ user.get_username }}</li>
-   <form id="logout-form" method="post" action="{% url 'logout' %}">
-     {% csrf_token %}
-     <button type="submit" class="btn btn-link">Logout</button>
-   </form>
- </li>
+    <a href="{% url 'app:submit' %}">submit</a>
+    [user: {{ user.get_username }} |
+    <a href="{% url 'accounts:logout' %}">logout</a>]
 {% else %}
- <li><a href="{% url 'login' %}?next={{ request.path }}">Login</a></li>
+    <a href="{% url 'login' %}">Login</a>
 {% endif %}
 {% if latest_posts %}
     <ul>
-    {% for post in latest_posts %}
-        <li><a href="/{{ post.id }}/">{{ post.title }}</a></li>
-    {% endfor %}
+        {% for post in latest_posts %}
+            <li><a href="/{{ post.id }}/">{{ post.title }}</a></li>
+        {% endfor %}
     </ul>
 {% else %}
     <p>It's empty here!</p>
