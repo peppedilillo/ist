@@ -133,3 +133,6 @@ LOGIN_REDIRECT_URL = '/'
 
 # This will redirect emails to the console.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Custom user model
+AUTH_USER_MODEL = "accounts.CustomUser"
