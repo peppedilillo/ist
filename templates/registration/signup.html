@@ -1,0 +1,31 @@
+{% block content %}
+    <h2>Create a new account</h2>
+
+    {% if form.errors %}
+        There were some problems with your submission:<br>
+        {% for field, errors in form.errors.items %}
+            {{ errors }}
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" action="{% url 'accounts:signup' %}">
+        {% csrf_token %}
+        <table>
+            <tr>
+                <td>{{ form.username.label_tag }}</td>
+                <td>{{ form.username }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.password1.label_tag }}</td>
+                <td>{{ form.password1 }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.password2.label_tag }}</td>
+                <td>{{ form.password2 }}</td>
+            </tr>
+        </table>
+        <input type="submit" value="create">
+    </form>
+
+    <p>Already a user? <a href="{% url 'login' %}">Login</a>.</p>
+{% endblock %}
