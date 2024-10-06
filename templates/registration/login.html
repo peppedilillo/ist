@@ -2,7 +2,9 @@
     <h2>Login</h2>
 
     {% if form.errors %}
-        <p>Your username and password didn't match. Please try again.</p>
+        {% for field, errors in form.errors.items %}
+            {{ errors }}
+        {% endfor %}
     {% endif %}
 
     <form method="post" action="{% url 'login' %}">

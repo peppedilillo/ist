@@ -1,0 +1,27 @@
+{% block content %}
+<h1>{{ post.title }}</h1>
+<p>{{ post.url|urlize }}</p>
+<p>Posted by {{ post.user.username }} on {{ post.date }}</p>
+<p>Votes: {{ post.votes }}</p>
+
+{% if user.is_authenticated %}
+<h3>Add a comment</h3>
+<form method="post" action="{% url 'app:add_comment' post.id %}">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <button type="submit">Submit Comment</button>
+</form>
+{% else %}
+<p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+{% endif %}
+
+<h2>Comments</h2>
+{% for comment in comments %}
+    <div class="comment">
+        <p>{{ comment.content }}</p>
+        <p>By {{ comment.user.username }} on {{ comment.created_at }}</p>
+    </div>
+{% empty %}
+    <p>No comments yet.</p>
+{% endfor %}
+{% endblock %}
