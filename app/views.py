@@ -1,23 +1,21 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from django.core.exceptions import ValidationError
 
-from . import models
+from .models import Post, Comment
 from .forms import PostForm, CommentForm
 
 
 def index(request: HttpResponse) -> HttpResponse:
-    latest_posts = models.Post.objects.order_by("-date")[:5]
+    latest_posts = Post.objects.order_by("-date")[:5]
     context = {"latest_posts": latest_posts}
     return render(request, "app/index.html", context)
 
 
 def detail(request: HttpResponse, post_id: int) -> HttpResponse:
-    post = get_object_or_404(models.Post, pk=post_id)
-    print(post.url)
-    comments = post.comments.order_by("-created_at")
+    post = get_object_or_404(Post, pk=post_id)
+    comments = post.comments.filter(parent=None).order_by("-created_at")
     comment_form = CommentForm()
     context = {
         "post": post,
@@ -25,19 +23,6 @@ def detail(request: HttpResponse, post_id: int) -> HttpResponse:
         "comment_form": comment_form,
     }
     return render(request, "app/detail.html", context)
-
-
-@login_required
-@require_POST
-def add_comment(request, post_id):
-    post = get_object_or_404(models.Post, pk=post_id)
-    form = CommentForm(request.POST)
-    if form.is_valid():
-        comment = form.save(commit=False)
-        comment.post = post
-        comment.user = request.user
-        comment.save()
-    return redirect('app:detail', post_id=post_id)
 
 
 @login_required
@@ -52,3 +37,32 @@ def submit(request: HttpResponse) -> HttpResponse:
     else:
         form = PostForm()
     return render(request, 'app/submit.html', {'form': form})
+
+
+@login_required
+@require_POST
+def add_comment(request: HttpResponse, post_id: int) -> HttpResponse:
+    """Adds a top level comment to a post."""
+    post = get_object_or_404(Post, pk=post_id)
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.post = post
+        comment.user = request.user
+        comment.parent = None
+        comment.save()
+    return redirect('app:detail', post_id=post_id)
+
+
+@login_required
+@require_POST
+def reply(request: HttpResponse, parent_comment_id: int) -> HttpResponse:
+    parent_comment = get_object_or_404(Comment, pk=parent_comment_id)
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit = False)
+        comment.post = parent_comment.post
+        comment.user = parent_comment.user
+        comment.parent = parent_comment
+        comment.save()
+    return redirect("app:detail", post_id=comment.post.id)

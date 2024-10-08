@@ -1,10 +1,6 @@
-{% if user.is_authenticated %}
-    <a href="{% url 'app:submit' %}">submit</a>
-    [user: {{ user.get_username }} |
-    <a href="{% url 'accounts:logout' %}">logout</a>]
-{% else %}
-    <a href="{% url 'login' %}">Login</a>
-{% endif %}
+{% extends 'app/base.html' %}
+
+{% block content %}
 {% if latest_posts %}
     <ul>
         {% for post in latest_posts %}
@@ -14,3 +10,4 @@
 {% else %}
     <p>It's empty here!</p>
 {% endif %}
+{% endblock %}

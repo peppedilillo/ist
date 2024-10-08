@@ -1,0 +1,25 @@
+{% for reply in comment.replies.all %}
+    <ul>
+        <div class="comment">
+            <p>{{ reply.content }}</p>
+            <p>By {{ reply.user.username }} on {{ reply.created_at }}</p>
+        </div>
+
+        {% if user.is_authenticated %}
+            <h3>Reply</h3>
+            <form method="post" action="{% url 'app:reply' reply.id %}">
+                {% csrf_token %}
+                {{ comment_form.as_p }}
+                <button type="submit">Submit Reply</button>
+            </form>
+        {% else %}
+            <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+        {% endif %}
+
+        {% if reply.replies.all|length %}
+            <ul>
+                {% include "app/replies.html" with comment=reply %}
+            </ul>
+        {% endif %}
+    </ul>
+{% endfor %}

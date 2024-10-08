@@ -1,0 +1,13 @@
+<html lang="en">
+{% if user.is_authenticated %}
+    <a href="{% url 'app:submit' %}">submit</a>
+    [user: {{ user.get_username }} |
+    <a href="{% url 'accounts:logout' %}">logout</a>]
+{% else %}
+    <a href="{% url 'login' %}">Login</a>
+{% endif %}
+
+{% block content %}
+{% endblock %}
+
+</html>
