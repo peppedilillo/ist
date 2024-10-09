@@ -6,7 +6,8 @@
     [user: {{ user.get_username }} |
     <a href="{% url 'accounts:logout' %}">logout</a>]
 {% else %}
-    <a href="{% url 'login' %}">Login</a>
+    <a href="{% url 'login' %}">login</a>
+    <a href="{% url 'accounts:signup' %}">signup</a>
 {% endif %}
 
 {% block content %}

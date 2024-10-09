@@ -2,7 +2,13 @@
     <ul>
         <div class="comment">
             <p>{{ reply.content }}</p>
-            <p>By {{ reply.user.username }} on {{ reply.created_at }}</p>
+            <p>
+                {{ reply.votes }} vote{{ reply.votes|pluralize }}
+                by {{ reply.user.username }} on {{ reply.created_at }}
+                {% if reply.user == request.user %}
+                    | <a href="{% url 'app:comment_delete' reply.id %}">delete</a>
+                {% endif %}
+            </p>
         </div>
 
         {% if user.is_authenticated %}

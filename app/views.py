@@ -41,7 +41,7 @@ def submit(request: HttpResponse) -> HttpResponse:
 
 @login_required
 @require_POST
-def add_comment(request: HttpResponse, post_id: int) -> HttpResponse:
+def post_comment(request: HttpResponse, post_id: int) -> HttpResponse:
     """Adds a top level comment to a post."""
     post = get_object_or_404(Post, pk=post_id)
     form = CommentForm(request.POST)
@@ -55,14 +55,43 @@ def add_comment(request: HttpResponse, post_id: int) -> HttpResponse:
 
 
 @login_required
+def post_delete(request: HttpResponse, post_id: int) -> HttpResponse:
+    post = get_object_or_404(Post, pk=post_id)
+    if request.user != post.user:
+        redirect("app:detail", post_id=post_id)
+
+    if request.method == "GET":
+        return render(request, "app/post_delete.html", {"post": post})
+    elif request.method == "POST":
+        post.delete()
+        return redirect('app:index')
+    redirect("app:detail", post_id=post_id)
+
+
+@login_required
 @require_POST
-def reply(request: HttpResponse, parent_comment_id: int) -> HttpResponse:
+def comment_reply(request: HttpResponse, parent_comment_id: int) -> HttpResponse:
+    """Adds a reply to a comment."""
     parent_comment = get_object_or_404(Comment, pk=parent_comment_id)
     form = CommentForm(request.POST)
     if form.is_valid():
         comment = form.save(commit = False)
         comment.post = parent_comment.post
-        comment.user = parent_comment.user
+        comment.user = request.user
         comment.parent = parent_comment
         comment.save()
     return redirect("app:detail", post_id=comment.post.id)
+
+
+@login_required
+def comment_delete(request: HttpResponse, comment_id: int) -> HttpResponse:
+    comment = get_object_or_404(Comment, pk=comment_id)
+    if request.user != comment.user:
+        redirect("app:detail", post_id=comment.post.id)
+
+    if request.method == "GET":
+        return render(request, "app/comment_delete.html", {"comment": comment})
+    elif request.method == "POST":
+        comment.delete()
+        return redirect("app:detail", post_id=comment.post.id)
+    redirect("app:detail", post_id=comment.post.id)

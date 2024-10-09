@@ -2,11 +2,21 @@
 
 {% block content %}
 {% if latest_posts %}
-    <ul>
+    <h1> Latest posts</h1>
         {% for post in latest_posts %}
-            <li><a href="{% url 'app:detail' post.id %}">{{ post.title }}</a></li>
+            <p>
+                <ul>
+                {{ forloop.counter }}.
+                <a href={{ post.url }}>{{ post.title }}</a>
+                ( {{ post.votes }} vote{{ post.votes|pluralize }}
+                by {{ post.user.username }} on {{ post.date }}
+                | <a href="{% url 'app:detail' post.id %}">discuss</a>
+                {% if post.user == request.user %}
+                | <a href="{% url 'app:post_delete' post.id %}">delete</a>
+                {% endif %})
+                </ul>
+            </p>
         {% endfor %}
-    </ul>
 {% else %}
     <p>It's empty here!</p>
 {% endif %}

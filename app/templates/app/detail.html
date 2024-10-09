@@ -1,11 +1,18 @@
 {% extends 'app/base.html' %}
 
 {% block content %}
+<!-- post title and content -->
 <h1>{{ post.title }}</h1>
 <p>{{ post.url|urlize }}</p>
-<p>Posted by {{ post.user.username }} on {{ post.date }}</p>
-<p>Votes: {{ post.votes }}</p>
+<p>
+    {{ post.votes }} vote{{ post.votes|pluralize }}
+    by {{ post.user.username }} on {{ post.date }}
+    | {% if post.user == request.user %}
+    <a href="{% url 'app:post_delete' post.id %}">delete</a>
+    {% endif %}
+</p>
 
+<!-- comment form -->
 {% if user.is_authenticated %}
 <h3>Add a comment</h3>
 <form method="post" action="{% url 'app:add_comment' post.id %}">
@@ -17,12 +24,18 @@
 <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
 {% endif %}
 
+<!-- comment section -->
 <h2>Comments</h2>
 {% for comment in comments %}
-
     <div class="comment">
-        <p>{{ comment.content }}</p>
-        <p>By {{ comment.user.username }} on {{ comment.created_at }}</p>
+        {{ comment.content }}
+        <p>
+            {{ comment.votes }} vote{{ comment.votes|pluralize }}
+            by {{ comment.user.username }} on {{ comment.created_at }}
+            {% if comment.user == request.user %}
+                | <a href="{% url 'app:comment_delete' comment.id %}">delete</a>
+            {% endif %}
+        </p>
     </div>
 
     <h3>Reply</h3>
@@ -38,7 +51,6 @@
     {% endif %}
 
     {% include "app/replies.html" %}
-
 {% empty %}
     <p>No comments yet.</p>
 {% endfor %}
