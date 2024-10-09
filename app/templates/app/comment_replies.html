@@ -1,27 +1,17 @@
 {% for reply in comment.replies.all %}
     <ul>
-        <div class="comment">
-            <p>{{ reply.content }}</p>
-            <p>
-                {{ reply.votes }} vote{{ reply.votes|pluralize }}
-                by {{ reply.user.username }} on {{ reply.created_at }}
-                {% if reply.user == request.user %}
-                    | <a href="{% url 'app:comment_delete' reply.id %}">delete</a>
-                    | <a href="{% url 'app:comment_edit' reply.id %}">edit</a>
-                {% endif %}
-            </p>
-        </div>
-
-        {% if user.is_authenticated %}
-            <h3>Reply</h3>
-            <form method="post" action="{% url 'app:comment_reply' reply.id %}">
-                {% csrf_token %}
-                {{ comment_form.as_p }}
-                <button type="submit">Submit Reply</button>
-            </form>
-        {% else %}
-            <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
-        {% endif %}
+        <p>{{ reply.content }}</p>
+        <p>
+            {{ reply.votes }} vote{{ reply.votes|pluralize }}
+            by {{ reply.user.username }} on {{ reply.created_at }}
+            {% if user.is_authenticated %}
+                | <a href="{% url 'app:comment_reply' reply.id %}">reply</a>
+            {%  endif %}
+            {% if reply.user == request.user %}
+                | <a href="{% url 'app:comment_delete' reply.id %}">delete</a>
+                | <a href="{% url 'app:comment_edit' reply.id %}">edit</a>
+            {% endif %}
+        </p>
 
         {% if reply.replies.all|length %}
             <ul>

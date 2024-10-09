@@ -70,7 +70,7 @@ def post_delete(request: HttpResponse, post_id: int) -> HttpResponse:
 
 
 @login_required
-@require_POST
+@require_POST  # allows for embedding under post detail
 def post_comment(request: HttpResponse, post_id: int) -> HttpResponse:
     """Adds a top level comment to a post."""
     post = get_object_or_404(Post, pk=post_id)
@@ -85,18 +85,20 @@ def post_comment(request: HttpResponse, post_id: int) -> HttpResponse:
 
 
 @login_required
-@require_POST
-def comment_reply(request: HttpResponse, parent_comment_id: int) -> HttpResponse:
-    """Adds a reply to a comment."""
-    parent_comment = get_object_or_404(Comment, pk=parent_comment_id)
-    form = CommentForm(request.POST)
-    if form.is_valid():
-        comment = form.save(commit=False)
-        comment.post = parent_comment.post
-        comment.user = request.user
-        comment.parent = parent_comment
-        comment.save()
-    return redirect("app:post_detail", post_id=comment.post.id)
+def comment_reply(request: HttpResponse, comment_id: int) -> HttpResponse:
+    comment = get_object_or_404(Comment, pk=comment_id)
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            reply = form.save(commit=False)
+            reply.post = comment.post
+            reply.user = request.user
+            reply.parent = comment
+            reply.save()
+            return redirect("app:post_detail", post_id=reply.post.id)
+    else:
+        form = CommentForm()
+    return render(request, "app/comment_reply.html", {"form": form, "comment": comment})
 
 
 @login_required

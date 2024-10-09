@@ -1,4 +1,4 @@
-from django.forms import ModelForm
+from django.forms import ModelForm, Textarea
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 
@@ -36,3 +36,9 @@ class CommentForm(ModelForm):
     class Meta:
         model = Comment
         fields = ["content"]
+        widgets = {
+            'content': Textarea(attrs={
+                'rows': 6,
+                'cols': 60
+            }),
+        }
