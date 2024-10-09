@@ -36,7 +36,7 @@ def post_submit(request: HttpResponse) -> HttpResponse:
             return redirect("app:index")
     else:
         form = PostForm()
-    return render(request, 'app/post_submit.html', {'form': form})
+    return render(request, "app/post_submit.html", {"form": form})
 
 
 @login_required
@@ -48,7 +48,6 @@ def post_edit(request: HttpResponse, post_id: int) -> HttpResponse:
     if request.method == "POST":
         form = PostEditForm(request.POST, instance=post)
         if form.is_valid():
-            # post.title = form.cleaned_data.get('title')
             post.save()
             return redirect("app:detail", post_id=post.id)
     else:
@@ -66,7 +65,7 @@ def post_delete(request: HttpResponse, post_id: int) -> HttpResponse:
         return render(request, "app/post_delete.html", {"post": post})
     elif request.method == "POST":
         post.delete()
-        return redirect('app:index')
+        return redirect("app:index")
     redirect("app:detail", post_id=post_id)
 
 
@@ -82,7 +81,7 @@ def post_comment(request: HttpResponse, post_id: int) -> HttpResponse:
         comment.user = request.user
         comment.parent = None
         comment.save()
-    return redirect('app:detail', post_id=post_id)
+    return redirect("app:detail", post_id=post_id)
 
 
 @login_required
@@ -92,7 +91,7 @@ def comment_reply(request: HttpResponse, parent_comment_id: int) -> HttpResponse
     parent_comment = get_object_or_404(Comment, pk=parent_comment_id)
     form = CommentForm(request.POST)
     if form.is_valid():
-        comment = form.save(commit = False)
+        comment = form.save(commit=False)
         comment.post = parent_comment.post
         comment.user = request.user
         comment.parent = parent_comment
@@ -123,7 +122,6 @@ def comment_edit(request: HttpResponse, comment_id: int) -> HttpResponse:
     if request.method == "POST":
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
-            # comment.content =  form.cleaned_data.get('content')
             comment.save()
             return redirect("app:detail", post_id=comment.post.id)
     else:

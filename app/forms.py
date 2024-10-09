@@ -12,9 +12,9 @@ class PostForm(ModelForm):
 
     def clean_url(self):
         validate = URLValidator()
-        url = self.cleaned_data.get('url')
+        url = self.cleaned_data.get("url")
 
-        if not url.startswith(('http://', 'https://')):
+        if not url.startswith(("http://", "https://")):
             url = f"https://{url}"
 
         try:
