@@ -10,7 +10,7 @@
                 <a href={{ post.url }}>{{ post.title }}</a>
                 ( {{ post.votes }} vote{{ post.votes|pluralize }}
                 by {{ post.user.username }} on {{ post.date }}
-                | <a href="{% url 'app:detail' post.id %}">discuss</a>
+                | <a href="{% url 'app:post_detail' post.id %}">discuss</a>
                 {% if post.user == request.user %}
                 | <a href="{% url 'app:post_delete' post.id %}">delete</a>
                 | <a href="{% url 'app:post_edit' post.id %}">edit</a>

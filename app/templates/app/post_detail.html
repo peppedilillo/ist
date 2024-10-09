@@ -42,7 +42,7 @@
     <h3>Reply</h3>
     {% if user.is_authenticated %}
     <h3>Add a comment</h3>
-    <form method="post" action="{% url 'app:reply' comment.id %}">
+    <form method="post" action="{% url 'app:comment_reply' comment.id %}">
         {% csrf_token %}
         {{ comment_form.as_p }}
         <button type="submit">Submit Comment</button>

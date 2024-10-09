@@ -14,7 +14,7 @@
 
         {% if user.is_authenticated %}
             <h3>Reply</h3>
-            <form method="post" action="{% url 'app:reply' reply.id %}">
+            <form method="post" action="{% url 'app:comment_reply' reply.id %}">
                 {% csrf_token %}
                 {{ comment_form.as_p }}
                 <button type="submit">Submit Reply</button>

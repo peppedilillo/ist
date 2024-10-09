@@ -43,13 +43,13 @@ def post_submit(request: HttpResponse) -> HttpResponse:
 def post_edit(request: HttpResponse, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
     if request.user != post.user:
-        redirect("app:detail", post_id=post_id)
+        redirect("app:post_detail", post_id=post_id)
 
     if request.method == "POST":
         form = PostEditForm(request.POST, instance=post)
         if form.is_valid():
             post.save()
-            return redirect("app:detail", post_id=post.id)
+            return redirect("app:post_detail", post_id=post.id)
     else:
         form = PostEditForm()
     return render(request, "app/post_edit.html", {"form": form, "post": post})
@@ -59,14 +59,14 @@ def post_edit(request: HttpResponse, post_id: int) -> HttpResponse:
 def post_delete(request: HttpResponse, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
     if request.user != post.user:
-        redirect("app:detail", post_id=post_id)
+        redirect("app:post_detail", post_id=post_id)
 
     if request.method == "GET":
         return render(request, "app/post_delete.html", {"post": post})
     elif request.method == "POST":
         post.delete()
         return redirect("app:index")
-    redirect("app:detail", post_id=post_id)
+    redirect("app:post_detail", post_id=post_id)
 
 
 @login_required
@@ -81,7 +81,7 @@ def post_comment(request: HttpResponse, post_id: int) -> HttpResponse:
         comment.user = request.user
         comment.parent = None
         comment.save()
-    return redirect("app:detail", post_id=post_id)
+    return redirect("app:post_detail", post_id=post_id)
 
 
 @login_required
@@ -96,34 +96,34 @@ def comment_reply(request: HttpResponse, parent_comment_id: int) -> HttpResponse
         comment.user = request.user
         comment.parent = parent_comment
         comment.save()
-    return redirect("app:detail", post_id=comment.post.id)
+    return redirect("app:post_detail", post_id=comment.post.id)
 
 
 @login_required
 def comment_delete(request: HttpResponse, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
     if request.user != comment.user:
-        redirect("app:detail", post_id=comment.post.id)
+        redirect("app:post_detail", post_id=comment.post.id)
 
     if request.method == "GET":
         return render(request, "app/comment_delete.html", {"comment": comment})
     elif request.method == "POST":
         comment.delete()
-        return redirect("app:detail", post_id=comment.post.id)
-    redirect("app:detail", post_id=comment.post.id)
+        return redirect("app:post_detail", post_id=comment.post.id)
+    redirect("app:post_detail", post_id=comment.post.id)
 
 
 @login_required
 def comment_edit(request: HttpResponse, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
     if request.user != comment.user:
-        redirect("app:detail", post_id=comment.post.id)
+        redirect("app:post_detail", post_id=comment.post.id)
 
     if request.method == "POST":
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
             comment.save()
-            return redirect("app:detail", post_id=comment.post.id)
+            return redirect("app:post_detail", post_id=comment.post.id)
     else:
         form = CommentForm()
     return render(request, "app/comment_edit.html", {"form": form, "comment": comment})
