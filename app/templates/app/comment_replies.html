@@ -7,6 +7,7 @@
                 by {{ reply.user.username }} on {{ reply.created_at }}
                 {% if reply.user == request.user %}
                     | <a href="{% url 'app:comment_delete' reply.id %}">delete</a>
+                    | <a href="{% url 'app:comment_edit' reply.id %}">edit</a>
                 {% endif %}
             </p>
         </div>

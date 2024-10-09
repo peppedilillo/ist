@@ -34,6 +34,7 @@
             by {{ comment.user.username }} on {{ comment.created_at }}
             {% if comment.user == request.user %}
                 | <a href="{% url 'app:comment_delete' comment.id %}">delete</a>
+                | <a href="{% url 'app:comment_edit' comment.id %}">edit</a>
             {% endif %}
         </p>
     </div>

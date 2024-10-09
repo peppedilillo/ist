@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
 from .models import Post, Comment
-from .forms import PostForm, CommentForm
+from .forms import PostForm, CommentForm, PostEditForm
 
 
 def index(request: HttpResponse) -> HttpResponse:
@@ -13,7 +13,7 @@ def index(request: HttpResponse) -> HttpResponse:
     return render(request, "app/index.html", context)
 
 
-def detail(request: HttpResponse, post_id: int) -> HttpResponse:
+def post_detail(request: HttpResponse, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
     comments = post.comments.filter(parent=None).order_by("-created_at")
     comment_form = CommentForm()
@@ -26,7 +26,7 @@ def detail(request: HttpResponse, post_id: int) -> HttpResponse:
 
 
 @login_required
-def submit(request: HttpResponse) -> HttpResponse:
+def post_submit(request: HttpResponse) -> HttpResponse:
     if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():
@@ -37,6 +37,37 @@ def submit(request: HttpResponse) -> HttpResponse:
     else:
         form = PostForm()
     return render(request, 'app/post_submit.html', {'form': form})
+
+
+@login_required
+def post_edit(request: HttpResponse, post_id: int) -> HttpResponse:
+    post = get_object_or_404(Post, pk=post_id)
+    if request.user != post.user:
+        redirect("app:detail", post_id=post_id)
+
+    if request.method == "POST":
+        form = PostEditForm(request.POST, instance=post)
+        if form.is_valid():
+            # post.title = form.cleaned_data.get('title')
+            post.save()
+            return redirect("app:detail", post_id=post.id)
+    else:
+        form = PostEditForm()
+    return render(request, "app/post_edit.html", {"form": form, "post": post})
+
+
+@login_required
+def post_delete(request: HttpResponse, post_id: int) -> HttpResponse:
+    post = get_object_or_404(Post, pk=post_id)
+    if request.user != post.user:
+        redirect("app:detail", post_id=post_id)
+
+    if request.method == "GET":
+        return render(request, "app/post_delete.html", {"post": post})
+    elif request.method == "POST":
+        post.delete()
+        return redirect('app:index')
+    redirect("app:detail", post_id=post_id)
 
 
 @login_required
@@ -52,20 +83,6 @@ def post_comment(request: HttpResponse, post_id: int) -> HttpResponse:
         comment.parent = None
         comment.save()
     return redirect('app:detail', post_id=post_id)
-
-
-@login_required
-def post_delete(request: HttpResponse, post_id: int) -> HttpResponse:
-    post = get_object_or_404(Post, pk=post_id)
-    if request.user != post.user:
-        redirect("app:detail", post_id=post_id)
-
-    if request.method == "GET":
-        return render(request, "app/post_delete.html", {"post": post})
-    elif request.method == "POST":
-        post.delete()
-        return redirect('app:index')
-    redirect("app:detail", post_id=post_id)
 
 
 @login_required
@@ -95,3 +112,20 @@ def comment_delete(request: HttpResponse, comment_id: int) -> HttpResponse:
         comment.delete()
         return redirect("app:detail", post_id=comment.post.id)
     redirect("app:detail", post_id=comment.post.id)
+
+
+@login_required
+def comment_edit(request: HttpResponse, comment_id: int) -> HttpResponse:
+    comment = get_object_or_404(Comment, pk=comment_id)
+    if request.user != comment.user:
+        redirect("app:detail", post_id=comment.post.id)
+
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            # comment.content =  form.cleaned_data.get('content')
+            comment.save()
+            return redirect("app:detail", post_id=comment.post.id)
+    else:
+        form = CommentForm()
+    return render(request, "app/comment_edit.html", {"form": form, "comment": comment})

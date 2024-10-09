@@ -1,5 +1,4 @@
 from django.forms import ModelForm
-from django.forms import Textarea
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 
@@ -26,13 +25,14 @@ class PostForm(ModelForm):
         return url
 
 
+class PostEditForm(ModelForm):
+    class Meta:
+        model = Post
+        # we do not allow url to be edited to avoid rickrolls
+        fields = ["title"]
+
+
 class CommentForm(ModelForm):
     class Meta:
         model = Comment
         fields = ["content"]
-        widgets = {
-            'content': Textarea(attrs={
-                'rows': 1,
-                'cols': 60
-            }),
-        }
