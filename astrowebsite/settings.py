@@ -136,3 +136,6 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Custom user model
 AUTH_USER_MODEL = "accounts.CustomUser"
+
+# For mobile checking
+ALLOWED_HOSTS = ["192.168.1.57"]
