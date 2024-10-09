@@ -50,7 +50,7 @@
     <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
     {% endif %}
 
-    {% include "app/replies.html" %}
+    {% include "app/comment_replies.html" %}
 {% empty %}
     <p>No comments yet.</p>
 {% endfor %}

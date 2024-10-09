@@ -22,7 +22,7 @@ def detail(request: HttpResponse, post_id: int) -> HttpResponse:
         "comments": comments,
         "comment_form": comment_form,
     }
-    return render(request, "app/detail.html", context)
+    return render(request, "app/post_detail.html", context)
 
 
 @login_required
@@ -36,7 +36,7 @@ def submit(request: HttpResponse) -> HttpResponse:
             return redirect("app:index")
     else:
         form = PostForm()
-    return render(request, 'app/submit.html', {'form': form})
+    return render(request, 'app/post_submit.html', {'form': form})
 
 
 @login_required

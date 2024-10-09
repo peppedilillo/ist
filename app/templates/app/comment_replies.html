@@ -24,7 +24,7 @@
 
         {% if reply.replies.all|length %}
             <ul>
-                {% include "app/replies.html" with comment=reply %}
+                {% include "app/comment_replies.html" with comment=reply %}
             </ul>
         {% endif %}
     </ul>
