@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render, reverse, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
@@ -7,9 +7,16 @@ from .models import Post, Comment
 from .forms import PostForm, CommentForm, PostEditForm
 
 
+INDEX_DISPLAY_NPOSTS = 30
+EMPTY_MESSAGE = "It is empty here!"
+
+
 def index(request: HttpResponse) -> HttpResponse:
-    latest_posts = Post.objects.order_by("-date")[:5]
-    context = {"latest_posts": latest_posts}
+    latest_posts = Post.objects.order_by("-date")[:INDEX_DISPLAY_NPOSTS]
+    context = {
+        "latest_posts": latest_posts,
+        "empty_message": EMPTY_MESSAGE,
+    }
     return render(request, "app/index.html", context)
 
 
