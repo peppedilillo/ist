@@ -54,7 +54,7 @@ def post_submit(request: HttpResponse) -> HttpResponse:
 def post_edit(request: HttpResponse, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
     if request.user != post.user:
-        redirect("app:post_detail", post_id=post_id)
+        return redirect("app:post_detail", post_id=post_id)
 
     if request.method == "POST":
         form = PostEditForm(request.POST, instance=post)
@@ -70,7 +70,7 @@ def post_edit(request: HttpResponse, post_id: int) -> HttpResponse:
 def post_delete(request: HttpResponse, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
     if request.user != post.user:
-        redirect("app:post_detail", post_id=post_id)
+        return redirect("app:post_detail", post_id=post_id)
 
     if request.method == "GET":
         return render(request, "app/post_delete.html", {"post": post})
@@ -116,21 +116,21 @@ def comment_reply(request: HttpResponse, comment_id: int) -> HttpResponse:
 def comment_delete(request: HttpResponse, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
     if request.user != comment.user:
-        redirect("app:post_detail", post_id=comment.post.id)
+        return redirect("app:post_detail", post_id=comment.post.id)
 
     if request.method == "GET":
         return render(request, "app/comment_delete.html", {"comment": comment})
     elif request.method == "POST":
         comment.delete()
         return redirect("app:post_detail", post_id=comment.post.id)
-    redirect("app:post_detail", post_id=comment.post.id)
+    return redirect("app:post_detail", post_id=comment.post.id)
 
 
 @login_required
 def comment_edit(request: HttpResponse, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
     if request.user != comment.user:
-        redirect("app:post_detail", post_id=comment.post.id)
+        return redirect("app:post_detail", post_id=comment.post.id)
 
     if request.method == "POST":
         form = CommentForm(request.POST, instance=comment)
