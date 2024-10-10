@@ -1,11 +1,15 @@
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
 from django.views.decorators.http import require_POST
 
-from .models import Post, Comment
-from .forms import PostForm, CommentForm, PostEditForm
-
+from .forms import CommentForm
+from .forms import PostEditForm
+from .forms import PostForm
+from .models import Comment
+from .models import Post
 
 INDEX_DISPLAY_NPOSTS = 30
 EMPTY_MESSAGE = "It is empty here!"

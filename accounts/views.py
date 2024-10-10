@@ -1,9 +1,10 @@
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
-from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
-from django.shortcuts import render
 from django.contrib.auth.models import Group
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.urls import reverse
 
 from .forms import CustomUserCreationForm
 

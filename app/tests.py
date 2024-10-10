@@ -104,13 +104,13 @@ Template Tests:
 [ ] Test that context variables are correctly passed to templates
 """
 
-from django.test import TestCase
-
 from django.contrib.auth import get_user_model
 from django.db.utils import DataError
+from django.test import TestCase
 from django.urls import reverse
 
-from app.models import Post, Comment
+from app.models import Comment
+from app.models import Post
 
 
 class PostModelTests(TestCase):
@@ -126,7 +126,7 @@ class PostModelTests(TestCase):
     def test_create_invalid_title(self):
         """Creates and save a post with invalid title"""
         try:
-            _ = Post(title="x"*121, url="www.google.it", user=self.user).save()
+            _ = Post(title="x" * 121, url="www.google.it", user=self.user).save()
         except DataError:
             return
         self.assertTrue(False)
@@ -235,4 +235,3 @@ class IndexViewTests(TestCase):
         response = self.client.get(reverse("app:post_detail", args=(self.post.pk,)))
         self.assertContains(response, self.post.title)
         self.assertContains(response, self.post.url)
-
