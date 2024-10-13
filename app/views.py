@@ -74,10 +74,8 @@ def post_delete(request: HttpResponse, post_id: int) -> HttpResponse:
 
     if request.method == "GET":
         return render(request, "app/post_delete.html", {"post": post})
-    elif request.method == "POST":
-        post.delete()
-        return redirect("app:index")
-    redirect("app:post_detail", post_id=post_id)
+    post.delete()
+    return redirect("app:index")
 
 
 @login_required

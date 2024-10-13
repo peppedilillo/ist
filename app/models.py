@@ -14,7 +14,7 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-    content = models.TextField()
+    content = models.TextField(max_length=10_000)
     votes = models.IntegerField(default=1)
     # related_name enable calling like `post.comments.order_by("..")
     post = models.ForeignKey(to=Post, on_delete=models.CASCADE, related_name="comments")
