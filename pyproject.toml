@@ -30,5 +30,6 @@ dev = [
     "black==24.10",
     "isort==5.13",
     "ipython==8.28",
-    "coverage==7.6"
+    "coverage==7.6",
+    "faker==30.3"
 ]
