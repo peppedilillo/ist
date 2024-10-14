@@ -13,17 +13,19 @@
     </p>
 
     <!-- comment form -->
-    {% if user.is_authenticated %}
-        <h3>Add a comment</h3>
-        <form method="post" action="{% url 'app:post_comment' post.id %}">
-            {% csrf_token %}
-            {{ comment_form.content }}
-            <p>
-                <button type="submit">Submit Comment</button>
-            </p>
-        </form>
-    {% else %}
-        <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+    {% if comment_form %}
+        {% if user.is_authenticated %}
+            <h3>Add a comment</h3>
+            <form method="post" action="{% url 'app:post_comment' post.id %}">
+                {% csrf_token %}
+                {{ comment_form.content }}
+                <p>
+                    <button type="submit">Submit Comment</button>
+                </p>
+            </form>
+        {% else %}
+            <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+        {% endif %}
     {% endif %}
 
     <!-- comment section -->
@@ -37,6 +39,7 @@
                 {% if user.is_authenticated %}
                     | <a href="{% url 'app:comment_reply' comment.id %}">reply</a>
                 {% endif %}
+                    | <a href="{% url 'app:comment_detail' comment.id %}">link</a>
                 {% if comment.user == request.user %}
                     | <a href="{% url 'app:comment_delete' comment.id %}">delete</a>
                     | <a href="{% url 'app:comment_edit' comment.id %}">edit</a>
@@ -44,7 +47,7 @@
             </p>
         </div>
         <ul>
-            {% include "app/comment_replies.html" %}
+            {% include "app/comment_replies.html" with depth=1%}
         </ul>
     {% empty %}
         <p>No comments yet.</p>

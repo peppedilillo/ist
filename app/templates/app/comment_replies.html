@@ -6,6 +6,7 @@
         {% if user.is_authenticated %}
             | <a href="{% url 'app:comment_reply' reply.id %}">reply</a>
         {% endif %}
+            | <a href="{% url 'app:comment_detail' reply.id %}">link</a>
         {% if reply.user == request.user %}
             | <a href="{% url 'app:comment_delete' reply.id %}">delete</a>
             | <a href="{% url 'app:comment_edit' reply.id %}">edit</a>
@@ -13,8 +14,12 @@
     </p>
 
     {% if reply.replies.all|length %}
-        <ul>
-            {% include "app/comment_replies.html" with comment=reply %}
-        </ul>
+        {% if depth < max_depth %}
+            <ul>
+                {% include "app/comment_replies.html" with comment=reply depth=depth|add:"1"%}
+            </ul>
+        {%  else %}
+            <p><a href="{% url 'app:comment_detail' reply.id%}">Show more replies...</a></p>
+        {% endif %}
     {% endif %}
 {% endfor %}

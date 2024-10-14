@@ -12,8 +12,9 @@ from .forms import PostForm
 from .models import Comment
 from .models import Post
 
-INDEX_DISPLAY_NPOSTS = 30
 EMPTY_MESSAGE = "It is empty here!"
+INDEX_DISPLAY_NPOSTS = 30
+MAX_DEPTH = 2
 
 
 def index(request) -> HttpResponse:
@@ -36,6 +37,7 @@ def post_detail(request, post_id: int) -> HttpResponse:
         "post": post,
         "comments": comments,
         "comment_form": comment_form,
+        "max_depth": MAX_DEPTH,
     }
     return render(request, "app/post_detail.html", context)
 
@@ -97,6 +99,17 @@ def post_comment(request, post_id: int) -> HttpResponse:
     return redirect("app:post_detail", post_id=post_id)
 
 
+def comment_detail(request, comment_id: int) -> HttpResponse:
+    comment = get_object_or_404(Comment, pk=comment_id)
+    comment_form = CommentForm()
+    context = {
+        "post": comment.post,
+        "comments": [comment],
+        "max_depth": MAX_DEPTH,
+    }
+    return render(request, "app/post_detail.html", context)
+
+
 @login_required
 def comment_reply(request, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
@@ -142,3 +155,4 @@ def comment_edit(request, comment_id: int) -> HttpResponse:
     else:
         form = CommentForm()
     return render(request, "app/comment_edit.html", {"form": form, "comment": comment})
+
