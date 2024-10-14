@@ -1,48 +1,52 @@
 {% extends 'app/base.html' %}
 
 {% block content %}
-<!-- post title and content -->
-<h1>{{ post.title }}</h1>
-<p>{{ post.url|urlize }}</p>
-<p>
-    {{ post.votes }} vote{{ post.votes|pluralize }}
-    by {{ post.user.username }} on {{ post.date }}
-    {% if post.user == request.user %}
-    | <a href="{% url 'app:post_delete' post.id %}">delete</a>
+    <!-- post title and content -->
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.url|urlize }}</p>
+    <p>
+        {{ post.votes }} vote{{ post.votes|pluralize }}
+        by {{ post.user.username }} on {{ post.date }}
+        {% if post.user == request.user %}
+            | <a href="{% url 'app:post_delete' post.id %}">delete</a>
+        {% endif %}
+    </p>
+
+    <!-- comment form -->
+    {% if user.is_authenticated %}
+        <h3>Add a comment</h3>
+        <form method="post" action="{% url 'app:post_comment' post.id %}">
+            {% csrf_token %}
+            {{ comment_form.content }}
+            <p>
+                <button type="submit">Submit Comment</button>
+            </p>
+        </form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
     {% endif %}
-</p>
 
-<!-- comment form -->
-{% if user.is_authenticated %}
-<h3>Add a comment</h3>
-    <form method="post" action="{% url 'app:post_comment' post.id %}">
-        {% csrf_token %}
-        {{ comment_form.content }}
-        <p><button type="submit">Submit Comment</button></p>
-    </form>
-{% else %}
-    <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
-{% endif %}
-
-<!-- comment section -->
-<h2>Comments</h2>
-{% for comment in comments %}
-    <div class="comment">
-        {{ comment.content }}
-        <p>
-            {{ comment.votes }} vote{{ comment.votes|pluralize }}
-            by {{ comment.user.username }} on {{ comment.created_at }}
-            {% if user.is_authenticated %}
-                | <a href="{% url 'app:comment_reply' comment.id %}">reply</a>
-            {%  endif %}
-            {% if comment.user == request.user %}
-                | <a href="{% url 'app:comment_delete' comment.id %}">delete</a>
-                | <a href="{% url 'app:comment_edit' comment.id %}">edit</a>
-            {% endif %}
-        </p>
-    </div>
-    {% include "app/comment_replies.html" %}
-{% empty %}
-    <p>No comments yet.</p>
-{% endfor %}
+    <!-- comment section -->
+    <h2>Comments</h2>
+    {% for comment in comments %}
+        <div class="comment">
+            {{ comment.content }}
+            <p>
+                {{ comment.votes }} vote{{ comment.votes|pluralize }}
+                by {{ comment.user.username }} on {{ comment.created_at }}
+                {% if user.is_authenticated %}
+                    | <a href="{% url 'app:comment_reply' comment.id %}">reply</a>
+                {% endif %}
+                {% if comment.user == request.user %}
+                    | <a href="{% url 'app:comment_delete' comment.id %}">delete</a>
+                    | <a href="{% url 'app:comment_edit' comment.id %}">edit</a>
+                {% endif %}
+            </p>
+        </div>
+        <ul>
+            {% include "app/comment_replies.html" %}
+        </ul>
+    {% empty %}
+        <p>No comments yet.</p>
+    {% endfor %}
 {% endblock %}
