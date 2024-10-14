@@ -3,7 +3,9 @@ from random import random
 from django.core.management.base import BaseCommand
 
 from app.models import Post
-from demo.factories import generate_user, generate_post, generate_comment
+from demo.factories import generate_comment
+from demo.factories import generate_post
+from demo.factories import generate_user
 
 NUM_USERS = 50
 NUM_POSTS = 100
@@ -27,4 +29,3 @@ class Command(BaseCommand):
             generate_comment().save()
 
         print("Done.")
-

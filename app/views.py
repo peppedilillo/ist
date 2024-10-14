@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
-from django.core.paginator import Paginator
 
 from .forms import CommentForm
 from .forms import PostEditForm
@@ -19,7 +19,7 @@ EMPTY_MESSAGE = "It is empty here!"
 def index(request) -> HttpResponse:
     posts = Post.objects.order_by("-date").all()
     paginator = Paginator(posts, INDEX_DISPLAY_NPOSTS)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     context = {
         "page_obj": page_obj,

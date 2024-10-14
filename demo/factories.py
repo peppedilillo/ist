@@ -1,9 +1,10 @@
 from random import randint
 
 from django.contrib.auth import get_user_model
-from app.models import Post, Comment
-
 from faker import Faker
+
+from app.models import Comment
+from app.models import Post
 
 User = get_user_model()
 
@@ -20,7 +21,7 @@ POST_LEN = (4, 10)
 
 def random_user():
     assert User.objects.exists()
-    return User.objects.order_by('?').first()
+    return User.objects.order_by("?").first()
 
 
 def generate_post(author: User | None = None) -> Post:
@@ -41,13 +42,13 @@ COMMENT_LEN = (1, 5)
 
 def random_post():
     assert Post.objects.exists()
-    return Post.objects.order_by('?').first()
+    return Post.objects.order_by("?").first()
 
 
 def random_comment(post: Post):
     if not post.comments.exists() or not randint(0, 3):
         return post
-    return post.comments.order_by('?').first()
+    return post.comments.order_by("?").first()
 
 
 def generate_comment(author: User | None = None, parent: Post | Comment | None = None) -> Comment:

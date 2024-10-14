@@ -116,12 +116,14 @@ import re
 
 from django.contrib.auth import get_user_model
 from django.db.utils import DataError
-from django.test import TestCase, Client
+from django.test import Client
+from django.test import TestCase
 from django.urls import reverse
 
+from app.forms import CommentForm
+from app.forms import PostForm
 from app.models import Comment
 from app.models import Post
-from app.forms import PostForm, CommentForm
 
 
 class PostModelTests(TestCase):
@@ -288,9 +290,9 @@ class PostSubmitViewTests(TestCase):
 
     def test_post_submit_template_on_get(self):
         self.client.login(username="test-user", password="test-password")
-        response = self.client.get(reverse('app:post_submit'))
+        response = self.client.get(reverse("app:post_submit"))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'app/post_submit.html')
+        self.assertTemplateUsed(response, "app/post_submit.html")
 
 
 class PostEditViewTests(TestCase):
@@ -326,12 +328,12 @@ class PostEditViewTests(TestCase):
 
     def test_author_gets_valid_form(self):
         self.client.login(username="test-author", password="test-password")
-        response = self.client.get(reverse('app:post_edit', args=[self.post.id]))
+        response = self.client.get(reverse("app:post_edit", args=[self.post.id]))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'app/post_edit.html')  # Check that the correct template is used
+        self.assertTemplateUsed(response, "app/post_edit.html")  # Check that the correct template is used
 
     def test_lurker_gets_redirected(self):
-        response = self.client.get(reverse('app:post_edit', args=[self.post.id]))
+        response = self.client.get(reverse("app:post_edit", args=[self.post.id]))
         self.client.login(username="test-lurker", password="test-password")
         self.assertEqual(response.status_code, 302)
 
@@ -356,12 +358,12 @@ class PostDeleteViewTests(TestCase):
 
     def test_author_gets_valid_form(self):
         self.client.login(username="test-author", password="test-password")
-        response = self.client.get(reverse('app:post_delete', args=[self.post.id]))
+        response = self.client.get(reverse("app:post_delete", args=[self.post.id]))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'app/post_delete.html')  # Check that the correct template is used
+        self.assertTemplateUsed(response, "app/post_delete.html")  # Check that the correct template is used
 
     def test_lurker_gets_redirected(self):
-        response = self.client.get(reverse('app:post_delete', args=[self.post.id]))
+        response = self.client.get(reverse("app:post_delete", args=[self.post.id]))
         self.client.login(username="test-lurker", password="test-password")
         self.assertEqual(response.status_code, 302)
 
@@ -418,12 +420,12 @@ class CommentEditViewTests(TestCase):
 
     def test_author_gets_valid_form(self):
         self.client.login(username="test-author", password="test-password")
-        response = self.client.get(reverse('app:comment_edit', args=[self.comment.id]))
+        response = self.client.get(reverse("app:comment_edit", args=[self.comment.id]))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'app/comment_edit.html')
+        self.assertTemplateUsed(response, "app/comment_edit.html")
 
     def test_lurker_gets_redirected(self):
-        response = self.client.get(reverse('app:comment_edit', args=[self.comment.id]))
+        response = self.client.get(reverse("app:comment_edit", args=[self.comment.id]))
         self.client.login(username="test-lurker", password="test-password")
         self.assertEqual(response.status_code, 302)
 
@@ -449,73 +451,72 @@ class CommentDeleteViewTests(TestCase):
 
     def test_author_gets_valid_form(self):
         self.client.login(username="test-author", password="test-password")
-        response = self.client.get(reverse('app:comment_delete', args=[self.comment.id]))
+        response = self.client.get(reverse("app:comment_delete", args=[self.comment.id]))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'app/comment_delete.html')  # Check that the correct template is used
+        self.assertTemplateUsed(response, "app/comment_delete.html")  # Check that the correct template is used
 
     def test_lurker_gets_redirected(self):
-        response = self.client.get(reverse('app:comment_delete', args=[self.comment.id]))
+        response = self.client.get(reverse("app:comment_delete", args=[self.comment.id]))
         self.client.login(username="test-lurker", password="test-password")
         self.assertEqual(response.status_code, 302)
 
 
 class PostFormTests(TestCase):
     def test_form_valid_data(self):
-        form_data = {'title': 'title', 'url': 'https://example.com'}
+        form_data = {"title": "title", "url": "https://example.com"}
         form = PostForm(data=form_data)
         self.assertTrue(form.is_valid())
 
     def test_form_invalid_url(self):
-        form_data = {'title': 'title', 'url': "_"}
+        form_data = {"title": "title", "url": "_"}
         invalid_urls = [
             "invalid_url",
             "ww.invalid_url.com",
             "htp://www.invalid_url.com",
         ]
         for url in invalid_urls:
-            form_data['url'] = url
+            form_data["url"] = url
             form = PostForm(data=form_data)
             self.assertFalse(form.is_valid())
-            self.assertIn('url', form.errors)
+            self.assertIn("url", form.errors)
 
 
 class CommentFormTests(TestCase):
     def test_form_valid_data(self):
-        form_data = {'content': 'This is a valid comment.'}
+        form_data = {"content": "This is a valid comment."}
         form = CommentForm(data=form_data)
         self.assertTrue(form.is_valid())
 
     def test_form_invalid_empty_content(self):
-        form_data = {'title': 'title', 'url': "_"}
+        form_data = {"title": "title", "url": "_"}
         invalid_comments = [
             "",
-
         ]
         for invalid_comment in invalid_comments:
-            form_data['content'] = invalid_comment
+            form_data["content"] = invalid_comment
             form = CommentForm(data=form_data)
             self.assertFalse(form.is_valid())
-            self.assertIn('content', form.errors)
+            self.assertIn("content", form.errors)
 
 
 class SignupTests(TestCase):
     def test_create_account_with_valid_data(self):
         form_data = {
-            'username': 'test-user',
-            'password1': 'validpassword123',
-            'password2': 'validpassword123',
+            "username": "test-user",
+            "password1": "validpassword123",
+            "password2": "validpassword123",
         }
-        response = self.client.post(reverse('accounts:signup'), form_data)
+        response = self.client.post(reverse("accounts:signup"), form_data)
         self.assertEqual(response.status_code, 302)
         self.assertTrue(get_user_model().objects.filter(username=form_data["username"]).exists())
 
     def test_create_account_with_mismatched_passwords(self):
         form_data = {
-            'username': 'test-user',
-            'password1': 'validpassword123',
-            'password2': 'invalidpassword123',  # Mismatched passwords
+            "username": "test-user",
+            "password1": "validpassword123",
+            "password2": "invalidpassword123",  # Mismatched passwords
         }
-        response = self.client.post(reverse('accounts:signup'), form_data)
+        response = self.client.post(reverse("accounts:signup"), form_data)
         self.assertEqual(response.status_code, 200)  # form should re-render with error
         self.assertFalse(get_user_model().objects.filter(username=form_data["username"]).exists())
         self.assertContains(response, "password fields didn’t match.")
@@ -523,23 +524,23 @@ class SignupTests(TestCase):
 
 class LoginTests(TestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(username='test-user', password='test-password')
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-password")
 
     def test_login_with_valid_credentials(self):
         form_data = {
-            'username': 'test-user',
-            'password': 'test-password',
+            "username": "test-user",
+            "password": "test-password",
         }
-        response = self.client.post(reverse('login'), form_data)
+        response = self.client.post(reverse("login"), form_data)
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.wsgi_request.user.is_authenticated)
 
     def test_login_with_invalid_password(self):
         form_data = {
-            'username': 'test-user',
-            'password': 'wrongpassword',  # Invalid password
+            "username": "test-user",
+            "password": "wrongpassword",  # Invalid password
         }
-        response = self.client.post(reverse('login'), form_data)
+        response = self.client.post(reverse("login"), form_data)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.wsgi_request.user.is_authenticated)
         self.assertContains(response, "Please enter a correct username and password.")
@@ -548,11 +549,11 @@ class LoginTests(TestCase):
 class LogoutTests(TestCase):
     def setUp(self):
         # Create and log in the user for logout tests
-        self.user = get_user_model().objects.create_user(username='test-user', password='test-password')
-        self.client.login(username='test-user', password='test-password')
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-password")
+        self.client.login(username="test-user", password="test-password")
 
     def test_logout_successfully(self):
-        response = self.client.get(reverse('logout'))
+        response = self.client.get(reverse("logout"))
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.wsgi_request.user.is_authenticated)
         self.assertContains(response, "Logged out")
@@ -561,23 +562,23 @@ class LogoutTests(TestCase):
 class PermissionsAndSecurityTests(TestCase):
     def setUp(self):
         # Create an authenticated user and a post
-        self.user = get_user_model().objects.create_user(username='test-user', password='test-password')
-        self.post = Post.objects.create(title='test post', url='https://example.com', user=self.user)
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-password")
+        self.post = Post.objects.create(title="test post", url="https://example.com", user=self.user)
 
     def test_unauthenticated_user_cannot_access_protected_views(self):
         self.client = Client()
         protected_urls = [
-            reverse('app:post_edit', args=[self.post.id]),
-            reverse('app:post_delete', args=[self.post.id]),
-            reverse('app:post_submit'),
+            reverse("app:post_edit", args=[self.post.id]),
+            reverse("app:post_delete", args=[self.post.id]),
+            reverse("app:post_submit"),
         ]
         for url in protected_urls:
             response = self.client.get(url)
             self.assertEqual(response.status_code, 302)
-            self.assertTrue(response.url.startswith(reverse('login')))
+            self.assertTrue(response.url.startswith(reverse("login")))
 
     def test_post_templates_contains_token(self):
-        pattern = r'<form[^>]*>\s*{%\s*csrf_token\s*%}'
+        pattern = r"<form[^>]*>\s*{%\s*csrf_token\s*%}"
 
         post_templates = [
             "comment_edit.html",
@@ -597,11 +598,11 @@ class PermissionsAndSecurityTests(TestCase):
 class CustomUserModelTests(TestCase):
     def setUp(self):
         # Create an authenticated user and a post
-        self.user = get_user_model().objects.create_user(username='test-user', password='test-password')
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-password")
 
     def test_create_user_with_custom_model(self):
-        self.assertEqual(self.user.username, 'test-user')
-        self.assertTrue(self.user.check_password('test-password'))
+        self.assertEqual(self.user.username, "test-user")
+        self.assertTrue(self.user.check_password("test-password"))
         self.assertTrue(self.user.is_active)
         self.assertFalse(self.user.is_staff)
         self.assertFalse(self.user.is_superuser)
