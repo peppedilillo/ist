@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
+from django.core.paginator import Paginator
 
 from .forms import CommentForm
 from .forms import PostEditForm
@@ -15,16 +16,19 @@ INDEX_DISPLAY_NPOSTS = 30
 EMPTY_MESSAGE = "It is empty here!"
 
 
-def index(request: HttpResponse) -> HttpResponse:
-    latest_posts = Post.objects.order_by("-date")[:INDEX_DISPLAY_NPOSTS]
+def index(request) -> HttpResponse:
+    posts = Post.objects.order_by("-date").all()
+    paginator = Paginator(posts, INDEX_DISPLAY_NPOSTS)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        "latest_posts": latest_posts,
+        "page_obj": page_obj,
         "empty_message": EMPTY_MESSAGE,
     }
     return render(request, "app/index.html", context)
 
 
-def post_detail(request: HttpResponse, post_id: int) -> HttpResponse:
+def post_detail(request, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
     comments = post.comments.filter(parent=None).order_by("-created_at")
     comment_form = CommentForm()
@@ -37,7 +41,7 @@ def post_detail(request: HttpResponse, post_id: int) -> HttpResponse:
 
 
 @login_required
-def post_submit(request: HttpResponse) -> HttpResponse:
+def post_submit(request) -> HttpResponse:
     if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():
@@ -51,7 +55,7 @@ def post_submit(request: HttpResponse) -> HttpResponse:
 
 
 @login_required
-def post_edit(request: HttpResponse, post_id: int) -> HttpResponse:
+def post_edit(request, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
     if request.user != post.user:
         return redirect("app:post_detail", post_id=post_id)
@@ -67,7 +71,7 @@ def post_edit(request: HttpResponse, post_id: int) -> HttpResponse:
 
 
 @login_required
-def post_delete(request: HttpResponse, post_id: int) -> HttpResponse:
+def post_delete(request, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
     if request.user != post.user:
         return redirect("app:post_detail", post_id=post_id)
@@ -80,7 +84,7 @@ def post_delete(request: HttpResponse, post_id: int) -> HttpResponse:
 
 @login_required
 @require_POST  # allows for embedding under post detail
-def post_comment(request: HttpResponse, post_id: int) -> HttpResponse:
+def post_comment(request, post_id: int) -> HttpResponse:
     """Adds a top level comment to a post."""
     post = get_object_or_404(Post, pk=post_id)
     form = CommentForm(request.POST)
@@ -94,7 +98,7 @@ def post_comment(request: HttpResponse, post_id: int) -> HttpResponse:
 
 
 @login_required
-def comment_reply(request: HttpResponse, comment_id: int) -> HttpResponse:
+def comment_reply(request, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
     if request.method == "POST":
         form = CommentForm(request.POST)
@@ -111,7 +115,7 @@ def comment_reply(request: HttpResponse, comment_id: int) -> HttpResponse:
 
 
 @login_required
-def comment_delete(request: HttpResponse, comment_id: int) -> HttpResponse:
+def comment_delete(request, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
     if request.user != comment.user:
         return redirect("app:post_detail", post_id=comment.post.id)
@@ -125,7 +129,7 @@ def comment_delete(request: HttpResponse, comment_id: int) -> HttpResponse:
 
 
 @login_required
-def comment_edit(request: HttpResponse, comment_id: int) -> HttpResponse:
+def comment_edit(request, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
     if request.user != comment.user:
         return redirect("app:post_detail", post_id=comment.post.id)

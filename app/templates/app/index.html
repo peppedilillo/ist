@@ -1,24 +1,41 @@
 {% extends 'app/base.html' %}
 
 {% block content %}
-{% if latest_posts %}
     <h1> Latest posts</h1>
-        {% for post in latest_posts %}
+    {% if page_obj %}
+        {% for post in page_obj %}
             <p>
-                <ul>
-                {{ forloop.counter }}.
+            <ul>
+                {{ forloop.counter0 | add:page_obj.start_index }}.
                 <a href={{ post.url }}>{{ post.title }}</a>
                 ( {{ post.votes }} vote{{ post.votes|pluralize }}
                 by {{ post.user.username }} on {{ post.date }}
                 | <a href="{% url 'app:post_detail' post.id %}">discuss</a>
                 {% if post.user == request.user %}
-                | <a href="{% url 'app:post_delete' post.id %}">delete</a>
-                | <a href="{% url 'app:post_edit' post.id %}">edit</a>
+                    | <a href="{% url 'app:post_delete' post.id %}">delete</a>
+                    | <a href="{% url 'app:post_edit' post.id %}">edit</a>
                 {% endif %})
-                </ul>
+            </ul>
             </p>
         {% endfor %}
-{% else %}
-    <p>{{ empty_message }}</p>
-{% endif %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    {% else %}
+        <p>{{ empty_message }}</p>
+    {% endif %}
 {% endblock %}
