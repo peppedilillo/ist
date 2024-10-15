@@ -220,13 +220,13 @@ class IndexViewTests(TestCase):
 
     def test_nposts(self):
         """the expected number of posts is displayed"""
-        from app.views import INDEX_DISPLAY_NPOSTS
+        from app.views import INDEX_NPOSTS
 
         for i in range(31):
             Post(title="title", url="www.google.it", user=self.user).save()
 
         response = self.client.get(reverse("app:index"))
-        self.assertEqual(len(response.context["latest_posts"]), INDEX_DISPLAY_NPOSTS)
+        self.assertEqual(len(response.context["latest_posts"]), INDEX_NPOSTS)
 
 
 class PostDetailViewTests(TestCase):

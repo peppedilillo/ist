@@ -12,7 +12,7 @@
     <p>{{ comment.content }}</p>
     <p>
         {{ comment.votes }} vote{{ comment.votes|pluralize }}
-        by {{ comment.user.username }} on {{ comment.created_at }}
+        by <a href="{% url 'accounts:profile' post.user.id %}">{{ post.user.username }}</a> on {{ comment.date }}
     </p>
 
     <form method="post" actions="{% url 'app:comment_reply' comment.id %}">

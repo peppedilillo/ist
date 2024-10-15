@@ -21,7 +21,7 @@ class Comment(models.Model):
     # parent is null if comment is at top level (a comment to a post)
     parent = models.ForeignKey(to="self", on_delete=models.CASCADE, related_name="replies", null=True)
     user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Comment by {self.user.username} on {self.post.title}"

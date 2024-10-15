@@ -2,7 +2,7 @@
     <p>{{ reply.content }}</p>
     <p>
         {{ reply.votes }} vote{{ reply.votes|pluralize }}
-        by {{ reply.user.username }} on {{ reply.created_at }}
+        by <a href="{% url 'accounts:profile' post.user.id %}">{{ post.user.username }}</a> on {{ reply.date }}
         {% if user.is_authenticated %}
             | <a href="{% url 'app:comment_reply' reply.id %}">reply</a>
         {% endif %}

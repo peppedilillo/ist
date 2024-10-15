@@ -6,7 +6,7 @@
     <!--- display original message -->
     <p>{{ comment.content }}</p>
     <p>{{ comment.votes }} vote{{ comment.votes|pluralize }}
-        by {{ comment.user.username }} on {{ comment.created_at }}</p>
+        by {{ comment.user.username }} on {{ comment.date }}</p>
     <!--- display errors -->
     {% if form.errors %}
         There were some problems with your submission:<br>

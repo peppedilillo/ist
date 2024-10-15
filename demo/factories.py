@@ -46,7 +46,7 @@ def random_post():
 
 
 def random_comment(post: Post):
-    if not post.comments.exists() or not randint(0, 3):
+    if not post.comments.exists() or not randint(0, 4):
         return post
     return post.comments.order_by("?").first()
 

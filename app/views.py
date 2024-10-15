@@ -13,13 +13,13 @@ from .models import Comment
 from .models import Post
 
 EMPTY_MESSAGE = "It is empty here!"
-INDEX_DISPLAY_NPOSTS = 30
+INDEX_NPOSTS = 30
 MAX_DEPTH = 2
 
 
 def index(request) -> HttpResponse:
     posts = Post.objects.order_by("-date").all()
-    paginator = Paginator(posts, INDEX_DISPLAY_NPOSTS)
+    paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     context = {
@@ -31,7 +31,7 @@ def index(request) -> HttpResponse:
 
 def post_detail(request, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
-    comments = post.comments.filter(parent=None).order_by("-created_at")
+    comments = post.comments.filter(parent=None).order_by("-date")
     comment_form = CommentForm()
     context = {
         "post": post,
@@ -101,7 +101,6 @@ def post_comment(request, post_id: int) -> HttpResponse:
 
 def comment_detail(request, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
-    comment_form = CommentForm()
     context = {
         "post": comment.post,
         "comments": [comment],
