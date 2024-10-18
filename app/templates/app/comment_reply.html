@@ -1,4 +1,4 @@
-{% extends 'app/base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
     <h2>Reply</h2>
@@ -12,7 +12,7 @@
     <p>{{ comment.content }}</p>
     <p>
         {{ comment.votes }} vote{{ comment.votes|pluralize }}
-        by <a href="{% url 'accounts:profile' post.user.id %}">{{ post.user.username }}</a> on {{ comment.date }}
+        by <a href="{% url 'accounts:profile' comment.user.id %}">{{ post.user.username }}</a> on {{ comment.date }}
     </p>
 
     <form method="post" actions="{% url 'app:comment_reply' comment.id %}">

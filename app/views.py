@@ -14,7 +14,7 @@ from .models import Post
 
 EMPTY_MESSAGE = "It is empty here!"
 INDEX_NPOSTS = 30
-MAX_DEPTH = 2
+MAX_DEPTH = 3
 
 
 def index(request) -> HttpResponse:

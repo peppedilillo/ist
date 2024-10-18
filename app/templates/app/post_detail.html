@@ -1,4 +1,4 @@
-{% extends 'app/base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
     <!-- post title and content -->
@@ -6,7 +6,7 @@
     <p>{{ post.url|urlize }}</p>
     <p>
         {{ post.votes }} vote{{ post.votes|pluralize }}
-        by {{ post.user.username }} on {{ post.date }}
+        by <a href="{% url 'accounts:profile' post.user.id %}">{{ post.user.username }}</a> on {{ post.date }}
         {% if post.user == request.user %}
             | <a href="{% url 'app:post_delete' post.id %}">delete</a>
         {% endif %}
@@ -31,23 +31,9 @@
     <!-- comment section -->
     <h2>Comments</h2>
     {% for comment in comments %}
-        <div class="comment">
-            {{ comment.content }}
-            <p>
-                {{ comment.votes }} vote{{ comment.votes|pluralize }}
-                by <a href="{% url 'accounts:profile' post.user.id %}">{{ post.user.username }}</a> on {{ comment.date }}
-                {% if user.is_authenticated %}
-                    | <a href="{% url 'app:comment_reply' comment.id %}">reply</a>
-                {% endif %}
-                    | <a href="{% url 'app:comment_detail' comment.id %}">link</a>
-                {% if comment.user == request.user %}
-                    | <a href="{% url 'app:comment_delete' comment.id %}">delete</a>
-                    | <a href="{% url 'app:comment_edit' comment.id %}">edit</a>
-                {% endif %}
-            </p>
-        </div>
+        {% include "app/includes/comment.html" with comment=comment %}
         <ul>
-            {% include "app/comment_replies.html" with depth=1%}
+            {% include "app/includes/replies.html" with depth=1 %}
         </ul>
     {% empty %}
         <p>No comments yet.</p>
