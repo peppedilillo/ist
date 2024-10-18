@@ -1,4 +1,5 @@
-{{ comment.content }}<br>
+{{ comment.content }}
+<br>
 {{ comment.votes }} vote{{ comment.votes|pluralize }}
 by <a href="{% url 'accounts:profile' comment.post.user.id %}">{{ comment.user.username }}</a> on {{ comment.date }}
 {% if user.is_authenticated %}

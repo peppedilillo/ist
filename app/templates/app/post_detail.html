@@ -1,17 +1,7 @@
 {% extends 'base.html' %}
-
 {% block content %}
     <!-- post title and content -->
-    <h1>{{ post.title }}</h1>
-    <p>{{ post.url|urlize }}</p>
-    <p>
-        {{ post.votes }} vote{{ post.votes|pluralize }}
-        by <a href="{% url 'accounts:profile' post.user.id %}">{{ post.user.username }}</a> on {{ post.date }}
-        {% if post.user == request.user %}
-            | <a href="{% url 'app:post_delete' post.id %}">delete</a>
-        {% endif %}
-    </p>
-
+    <p>{% include "app/includes/post.html" with post=post %}</p>
     <!-- comment form -->
     {% if comment_form %}
         {% if user.is_authenticated %}
@@ -24,10 +14,11 @@
                 </p>
             </form>
         {% else %}
-            <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+            <p>
+                <a href="{% url 'login' %}">Log in</a> to add a comment.
+            </p>
         {% endif %}
     {% endif %}
-
     <!-- comment section -->
     <h2>Comments</h2>
     {% for comment in comments %}

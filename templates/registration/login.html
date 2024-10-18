@@ -1,12 +1,8 @@
 {% block content %}
     <h2>Login</h2>
-
     {% if form.errors %}
-        {% for field, errors in form.errors.items %}
-            {{ errors }}
-        {% endfor %}
+        {% for field, errors in form.errors.items %}{{ errors }}{% endfor %}
     {% endif %}
-
     <form method="post" action="{% url 'login' %}">
         {% csrf_token %}
         <table>
@@ -22,7 +18,10 @@
         <input type="submit" value="login">
         <input type="hidden" name="next" value="{{ next }}">
     </form>
-
-    <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
-    <p>New user? <a href="{% url 'accounts:signup' %}">Create a new account</a>.</p>
+    <p>
+        <a href="{% url 'password_reset' %}">Lost password?</a>
+    </p>
+    <p>
+        New user? <a href="{% url 'accounts:signup' %}">Create a new account</a>.
+    </p>
 {% endblock %}

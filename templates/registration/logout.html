@@ -1,5 +1,9 @@
 {% block content %}
     <p>Logged out!</p>
-    <p><a href="{% url 'login' %}">Click here to login again.</a></p>
-    <p><a href="{% url 'app:index' %}">Go back to home.</a></p>
+    <p>
+        <a href="{% url 'login' %}">Click here to login again.</a>
+    </p>
+    <p>
+        <a href="{% url 'app:index' %}">Go back to home.</a>
+    </p>
 {% endblock %}

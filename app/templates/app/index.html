@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
-
 {% block content %}
-    <h1> Latest posts</h1>
+    <!-- post table -->
+    <h1>Latest posts</h1>
     {% if page_obj %}
         <ul>
             <table>
@@ -14,7 +14,6 @@
             </table>
         </ul>
         {% include "pagination_footer.html" %}
-
     {% else %}
         <p>{{ empty_message }}</p>
     {% endif %}
