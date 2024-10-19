@@ -1,10 +1,11 @@
-from random import randint
+from random import randint, choice
 
 from django.contrib.auth import get_user_model
 from faker import Faker
 
 from app.models import Comment
 from app.models import Post
+from app.settings import BOARDS_PREFIXES, BOARD_PREFIX_SEPARATOR
 
 User = get_user_model()
 
@@ -16,7 +17,7 @@ def generate_user() -> User:
     return user
 
 
-POST_LEN = (4, 10)
+POST_LEN = (3, 8)
 
 
 def random_user():
@@ -26,13 +27,16 @@ def random_user():
 
 def generate_post(author: User | None = None) -> Post:
     fake = Faker()
+    board_id, prefix = choice(tuple(BOARDS_PREFIXES.items())) if randint(0, 4) else (None, "")
+    prefix = f"{prefix}{BOARD_PREFIX_SEPARATOR} " if prefix else prefix
     post = Post(
         url=fake.url(),
-        title=fake.sentence(
+        title= f"{prefix}" + fake.sentence(
             nb_words=randint(*POST_LEN),
             variable_nb_words=True,
         ),
         user=author if author is not None else random_user(),
+        board = board_id,
     )
     return post
 

@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from .settings import BOARDS
+
 
 class Post(models.Model):
     title = models.CharField(max_length=120)
@@ -8,6 +10,11 @@ class Post(models.Model):
     votes = models.IntegerField(default=1)
     user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
+    board = models.CharField(
+        max_length=max(map(len, BOARDS.keys())),
+        choices=BOARDS,
+        null=True,
+    )
 
     def __str__(self):
         return f"{self.title} ({self.url})"

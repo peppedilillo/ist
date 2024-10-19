@@ -11,10 +11,10 @@ from .forms import PostEditForm
 from .forms import PostForm
 from .models import Comment
 from .models import Post
+from .settings import INDEX_NPOSTS, MAX_DEPTH, BOARDS_PREFIXES
+
 
 EMPTY_MESSAGE = "It is empty here!"
-INDEX_NPOSTS = 30
-MAX_DEPTH = 3
 
 
 def index(request) -> HttpResponse:
@@ -24,6 +24,46 @@ def index(request) -> HttpResponse:
     page_obj = paginator.get_page(page_number)
     context = {
         "page_obj": page_obj,
+        "header": "news",
+        "empty_message": EMPTY_MESSAGE,
+    }
+    return render(request, "app/index.html", context)
+
+
+def papers(request) -> HttpResponse:
+    posts = Post.objects.order_by("-date").filter(board="p")
+    paginator = Paginator(posts, INDEX_NPOSTS)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    context = {
+        "page_obj": page_obj,
+        "header": "papers",
+        "empty_message": EMPTY_MESSAGE,
+    }
+    return render(request, "app/index.html", context)
+
+
+def jobs(request) -> HttpResponse:
+    posts = Post.objects.order_by("-date").filter(board="j")
+    paginator = Paginator(posts, INDEX_NPOSTS)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    context = {
+        "page_obj": page_obj,
+        "header": "jobs",
+        "empty_message": EMPTY_MESSAGE,
+    }
+    return render(request, "app/index.html", context)
+
+
+def code(request) -> HttpResponse:
+    posts = Post.objects.order_by("-date").filter(board="c")
+    paginator = Paginator(posts, INDEX_NPOSTS)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    context = {
+        "page_obj": page_obj,
+        "header": "code",
         "empty_message": EMPTY_MESSAGE,
     }
     return render(request, "app/index.html", context)

@@ -220,7 +220,7 @@ class IndexViewTests(TestCase):
 
     def test_nposts(self):
         """the expected number of posts is displayed"""
-        from app.views import INDEX_NPOSTS
+        from app.settings import INDEX_NPOSTS
 
         for i in range(31):
             Post(title="title", url="www.google.it", user=self.user).save()
