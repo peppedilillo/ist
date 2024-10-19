@@ -1,3 +1,6 @@
+from functools import partial
+from tkinter.font import names
+
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponse
@@ -11,7 +14,8 @@ from .forms import PostEditForm
 from .forms import PostForm
 from .models import Comment
 from .models import Post
-from .settings import INDEX_NPOSTS, MAX_DEPTH, BOARDS_PREFIXES
+from .models import Board
+from .settings import INDEX_NPOSTS, MAX_DEPTH
 
 
 EMPTY_MESSAGE = "It is empty here!"
@@ -31,8 +35,9 @@ def index(request) -> HttpResponse:
     return render(request, "app/index.html", context)
 
 
-def papers(request) -> HttpResponse:
-    posts = Post.objects.order_by("-date").filter(board="p")
+def _board(request, name: str) -> HttpResponse:
+    board = Board.objects.get(name=name)
+    posts = Post.objects.order_by("-date").filter(board=board)
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -44,30 +49,9 @@ def papers(request) -> HttpResponse:
     return render(request, "app/index.html", context)
 
 
-def jobs(request) -> HttpResponse:
-    posts = Post.objects.order_by("-date").filter(board="j")
-    paginator = Paginator(posts, INDEX_NPOSTS)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    context = {
-        "page_obj": page_obj,
-        "header": "jobs",
-        "empty_message": EMPTY_MESSAGE,
-    }
-    return render(request, "app/index.html", context)
-
-
-def code(request) -> HttpResponse:
-    posts = Post.objects.order_by("-date").filter(board="c")
-    paginator = Paginator(posts, INDEX_NPOSTS)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    context = {
-        "page_obj": page_obj,
-        "header": "code",
-        "empty_message": EMPTY_MESSAGE,
-    }
-    return render(request, "app/index.html", context)
+papers = partial(_board, name="papers")
+code = partial(_board, name="code")
+jobs = partial(_board, name="jobs")
 
 
 def post_detail(request, post_id: int) -> HttpResponse:

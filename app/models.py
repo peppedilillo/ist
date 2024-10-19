@@ -1,7 +1,17 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from .settings import BOARDS, BOARDS_PREFIXES, BOARD_PREFIX_SEPARATOR
+from .settings import BOARD_PREFIX_SEPARATOR
+
+
+class Board(models.Model):
+    name = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.name
+
+    def prefix(self):
+        return f"{self.name}{BOARD_PREFIX_SEPARATOR} " if self.prefix else ""
 
 
 class Post(models.Model):
@@ -10,20 +20,16 @@ class Post(models.Model):
     votes = models.IntegerField(default=1)
     user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
-    board = models.CharField(
-        max_length=max(map(len, BOARDS.keys())),
-        choices=BOARDS,
+    board = models.ForeignKey(
+        to=Board,
+        on_delete=models.SET_NULL,
+        related_name="posts",
         null=True,
-        blank=True,
+        blank=True
     )
 
     def __str__(self):
         return f"{self.title} ({self.url})"
-
-    def prefix(self):
-        if self.board is not None:
-            return f"{BOARDS_PREFIXES[self.board]}{BOARD_PREFIX_SEPARATOR} "
-        return ""
 
 
 class Comment(models.Model):

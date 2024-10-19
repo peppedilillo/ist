@@ -5,7 +5,7 @@ from faker import Faker
 
 from app.models import Comment
 from app.models import Post
-from app.settings import BOARDS_PREFIXES, BOARD_PREFIX_SEPARATOR, BOARDS
+from app.models import Board
 
 User = get_user_model()
 
@@ -25,9 +25,13 @@ def random_user():
     return User.objects.order_by("?").first()
 
 
+def random_board():
+    assert Board.objects.exists()
+    return choice([None, Board.objects.order_by("?").first()])
+
+
 def generate_post(author: User | None = None) -> Post:
     fake = Faker()
-    board_id = choice([None] + list(BOARDS.keys()))
     post = Post(
         url=fake.url(),
         title=fake.sentence(
@@ -35,7 +39,7 @@ def generate_post(author: User | None = None) -> Post:
             variable_nb_words=True,
         ),
         user=author if author is not None else random_user(),
-        board = board_id,
+        board=random_board(),
     )
     return post
 
