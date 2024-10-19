@@ -14,6 +14,7 @@ class Post(models.Model):
         max_length=max(map(len, BOARDS.keys())),
         choices=BOARDS,
         null=True,
+        blank=True,
     )
 
     def __str__(self):
