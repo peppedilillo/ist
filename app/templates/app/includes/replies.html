@@ -1,14 +1,13 @@
 {% for reply in comment.replies.all %}
-    <p>{% include "app/includes/comment.html" with comment=reply %}</p>
+    <p>{% include "app/includes/comment.html" with comment=reply %}
     {% if reply.replies.all|length %}
         {% if depth < max_depth %}
             <ul>
                 {% include "app/includes/replies.html" with comment=reply depth=depth|add:"1" %}
             </ul>
         {% else %}
-            <p>
-                <a href="{% url 'app:comment_detail' reply.id %}">Show more replies...</a>
-            </p>
+            | <a href="{% url 'app:comment_detail' reply.id %}">more replies...</a>
         {% endif %}
     {% endif %}
+    </p>
 {% endfor %}
