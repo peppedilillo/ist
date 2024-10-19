@@ -6,6 +6,7 @@ from faker import Faker
 from app.models import Comment
 from app.models import Post
 from app.models import Board
+from app.models import Keyword
 
 User = get_user_model()
 
@@ -30,6 +31,13 @@ def random_board():
     return choice([None, Board.objects.order_by("?").first()])
 
 
+def random_keywords():
+    assert Keyword.objects.exists()
+    keywords = list(Keyword.objects.all())  # Get all keywords first
+    k = randint(0, len(keywords))  # Get random number of keywords to select
+    return Keyword.objects.order_by('?')[:k]  # Return random selection
+
+
 def generate_post(author: User | None = None) -> Post:
     fake = Faker()
     post = Post(
@@ -41,6 +49,8 @@ def generate_post(author: User | None = None) -> Post:
         user=author if author is not None else random_user(),
         board=random_board(),
     )
+    post.save()
+    post.keywords.set(random_keywords())
     return post
 
 

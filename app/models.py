@@ -14,6 +14,13 @@ class Board(models.Model):
         return f"{self.name}{BOARD_PREFIX_SEPARATOR} " if self.prefix else ""
 
 
+class Keyword(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Post(models.Model):
     title = models.CharField(max_length=120)
     url = models.CharField(max_length=300)
@@ -27,6 +34,7 @@ class Post(models.Model):
         null=True,
         blank=True
     )
+    keywords = models.ManyToManyField(Keyword, related_name="posts", blank=True)
 
     def __str__(self):
         return f"{self.title} ({self.url})"

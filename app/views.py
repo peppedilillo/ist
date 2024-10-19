@@ -43,7 +43,7 @@ def _board(request, name: str) -> HttpResponse:
     page_obj = paginator.get_page(page_number)
     context = {
         "page_obj": page_obj,
-        "header": "papers",
+        "header": name,
         "empty_message": EMPTY_MESSAGE,
     }
     return render(request, "app/index.html", context)

@@ -10,7 +10,7 @@ from .models import Post
 class PostForm(ModelForm):
     class Meta:
         model = Post
-        fields = ["title", "url", "board"]
+        fields = ["title", "url", "board", "keywords"]
 
     def clean_url(self):
         validate = URLValidator()
