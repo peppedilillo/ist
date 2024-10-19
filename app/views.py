@@ -25,6 +25,7 @@ def index(request) -> HttpResponse:
     context = {
         "page_obj": page_obj,
         "header": "news",
+        "show_prefix": True,
         "empty_message": EMPTY_MESSAGE,
     }
     return render(request, "app/index.html", context)
@@ -76,6 +77,7 @@ def post_detail(request, post_id: int) -> HttpResponse:
     context = {
         "post": post,
         "comments": comments,
+        "show_prefix": True,
         "comment_form": comment_form,
         "max_depth": MAX_DEPTH,
     }

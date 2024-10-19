@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from .settings import BOARDS
+from .settings import BOARDS, BOARDS_PREFIXES, BOARD_PREFIX_SEPARATOR
 
 
 class Post(models.Model):
@@ -18,6 +18,11 @@ class Post(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.url})"
+
+    def prefix(self):
+        if self.board is not None:
+            return f"{BOARDS_PREFIXES[self.board]}{BOARD_PREFIX_SEPARATOR} "
+        return ""
 
 
 class Comment(models.Model):

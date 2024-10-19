@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     <!-- post title and content -->
-    <p>{% include "app/includes/post.html" with post=post %}</p>
+    <p>{% include "app/includes/post.html" with post=post show_prefix=show_prefix%}</p>
     <!-- comment form -->
     {% if comment_form %}
         {% if user.is_authenticated %}

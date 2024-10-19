@@ -5,7 +5,7 @@ from faker import Faker
 
 from app.models import Comment
 from app.models import Post
-from app.settings import BOARDS_PREFIXES, BOARD_PREFIX_SEPARATOR
+from app.settings import BOARDS_PREFIXES, BOARD_PREFIX_SEPARATOR, BOARDS
 
 User = get_user_model()
 
@@ -27,11 +27,10 @@ def random_user():
 
 def generate_post(author: User | None = None) -> Post:
     fake = Faker()
-    board_id, prefix = choice(tuple(BOARDS_PREFIXES.items())) if randint(0, 4) else (None, "")
-    prefix = f"{prefix}{BOARD_PREFIX_SEPARATOR} " if prefix else prefix
+    board_id = choice([None] + list(BOARDS.keys()))
     post = Post(
         url=fake.url(),
-        title= f"{prefix}" + fake.sentence(
+        title=fake.sentence(
             nb_words=randint(*POST_LEN),
             variable_nb_words=True,
         ),
