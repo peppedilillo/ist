@@ -146,6 +146,7 @@ def comment_detail(request, comment_id: int) -> HttpResponse:
     context = {
         "post": comment.post,
         "comments": [comment],
+        "show_prefix": True,
         "max_depth": MAX_DEPTH,
     }
     return render(request, "app/post_detail.html", context)
