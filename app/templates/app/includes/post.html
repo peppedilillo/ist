@@ -1,9 +1,12 @@
+<!-- pass `show_prefix` to show the post board -->
 <a href={{ post.url }}>{% if show_prefix %}{{ post.board.prefix }}{% endif %}{{ post.title }}</a>
 </br>
 {{ post.votes }} vote{{ post.votes|pluralize }}
 by <a href="{% url 'accounts:profile' post.user.id %}">{{ post.user.username }}</a> on {{ post.date }}
 | <a href="{% url 'app:post_detail' post.id %}">discuss</a>
-{% if post.user == request.user %}
+{% if post.user == request.user or 'app.delete_post' in perms %}
     | <a href="{% url 'app:post_delete' post.id %}">delete</a>
+{% endif %}
+{% if post.user == request.user or 'app.change_post' in perms %}
     | <a href="{% url 'app:post_edit' post.id %}">edit</a>
 {% endif %}

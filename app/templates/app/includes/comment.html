@@ -6,7 +6,9 @@ by <a href="{% url 'accounts:profile' comment.post.user.id %}">{{ comment.user.u
     | <a href="{% url 'app:comment_reply' comment.id %}">reply</a>
 {% endif %}
 | <a href="{% url 'app:comment_detail' comment.id %}">link</a>
-{% if comment.user == request.user %}
+{% if comment.user == request.user  or 'app.delete_comment' in perms %}
     | <a href="{% url 'app:comment_delete' comment.id %}">delete</a>
+{% endif %}
+{% if comment.user == request.user  or 'app.change_comment' in perms %}
     | <a href="{% url 'app:comment_edit' comment.id %}">edit</a>
 {% endif %}

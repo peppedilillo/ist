@@ -1,5 +1,4 @@
 from functools import partial
-from tkinter.font import names
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -85,7 +84,7 @@ def post_submit(request) -> HttpResponse:
 @login_required
 def post_edit(request, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
-    if request.user != post.user:
+    if not (request.user == post.user or request.user.has_perm("change_post")):
         return redirect("app:post_detail", post_id=post_id)
 
     if request.method == "POST":
@@ -101,7 +100,7 @@ def post_edit(request, post_id: int) -> HttpResponse:
 @login_required
 def post_delete(request, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
-    if request.user != post.user:
+    if not (request.user == post.user or request.user.has_perm("delete_post")):
         return redirect("app:post_detail", post_id=post_id)
 
     if request.method == "GET":
@@ -156,7 +155,7 @@ def comment_reply(request, comment_id: int) -> HttpResponse:
 @login_required
 def comment_delete(request, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
-    if request.user != comment.user:
+    if not (request.user == comment.user or request.user.has_perm("delete_comment")):
         return redirect("app:post_detail", post_id=comment.post.id)
 
     if request.method == "GET":
@@ -170,7 +169,7 @@ def comment_delete(request, comment_id: int) -> HttpResponse:
 @login_required
 def comment_edit(request, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
-    if request.user != comment.user:
+    if not (request.user == comment.user or request.user.has_perm("change_comment")):
         return redirect("app:post_detail", post_id=comment.post.id)
 
     if request.method == "POST":
@@ -181,4 +180,3 @@ def comment_edit(request, comment_id: int) -> HttpResponse:
     else:
         form = CommentForm()
     return render(request, "app/comment_edit.html", {"form": form, "comment": comment})
-
