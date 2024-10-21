@@ -3,15 +3,22 @@ from django.db import migrations
 
 
 def create_boards(apps, schema_editor):
-    Board = apps.get_model('app', 'Board')
+    Board = apps.get_model("app", "Board")
     boards = ["papers", "code", "jobs"]
     for name in boards:
         Board.objects.create(name=name)
 
 
 def create_keywords(apps, schema_editor):
-    Keyword = apps.get_model('app', 'Keyword')
-    keywords = ["cosmology", "earth and planets", "galaxies", "high energy", "tech and methods", "sun and stars",]
+    Keyword = apps.get_model("app", "Keyword")
+    keywords = [
+        "cosmology",
+        "earth and planets",
+        "galaxies",
+        "high energy",
+        "tech and methods",
+        "sun and stars",
+    ]
     for keyword in keywords:
         Keyword.objects.create(name=keyword)
 

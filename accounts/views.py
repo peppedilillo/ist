@@ -1,16 +1,18 @@
 from collections import namedtuple
+from typing import NamedTuple
 
-from django.contrib.auth import login as auth_login, get_user
-from django.contrib.auth import logout as auth_logout
+from django.apps import apps
+from django.contrib.auth import get_user
 from django.contrib.auth import get_user_model
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 from django.urls import reverse
-from django.apps import apps
 
 from .forms import CustomUserCreationForm
-from typing import NamedTuple
 
 Post = apps.get_model("app", "Post")
 Comment = apps.get_model("app", "Comment")
@@ -42,10 +44,7 @@ class Content(NamedTuple):
 
 
 def annotated(contributions: list[Post | Comment]):
-    annotated_contributions = [
-        Content(contribution, isinstance(contribution, Post))
-        for contribution in contributions
-    ]
+    annotated_contributions = [Content(contribution, isinstance(contribution, Post)) for contribution in contributions]
     return annotated_contributions
 
 

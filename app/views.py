@@ -11,11 +11,11 @@ from django.views.decorators.http import require_POST
 from .forms import CommentForm
 from .forms import PostEditForm
 from .forms import PostForm
+from .models import Board
 from .models import Comment
 from .models import Post
-from .models import Board
-from .settings import INDEX_NPOSTS, MAX_DEPTH
-
+from .settings import INDEX_NPOSTS
+from .settings import MAX_DEPTH
 
 EMPTY_MESSAGE = "It is empty here!"
 

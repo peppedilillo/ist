@@ -27,13 +27,7 @@ class Post(models.Model):
     votes = models.IntegerField(default=1)
     user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
-    board = models.ForeignKey(
-        to=Board,
-        on_delete=models.SET_NULL,
-        related_name="posts",
-        null=True,
-        blank=True
-    )
+    board = models.ForeignKey(to=Board, on_delete=models.SET_NULL, related_name="posts", null=True, blank=True)
     keywords = models.ManyToManyField(Keyword, related_name="posts", blank=True)
 
     def __str__(self):
