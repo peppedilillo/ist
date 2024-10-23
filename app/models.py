@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+import pghistory
 
 from .settings import BOARD_PREFIX_SEPARATOR
 
@@ -21,6 +22,14 @@ class Keyword(models.Model):
         return self.name
 
 
+@pghistory.track(
+    pghistory.UpdateEvent(
+        "title_changed",
+        row=pghistory.Old,
+        condition=pghistory.AnyChange("title")
+    ),
+    model_name="PostHistory"
+)
 class Post(models.Model):
     title = models.CharField(max_length=120)
     url = models.CharField(max_length=300)
@@ -34,6 +43,14 @@ class Post(models.Model):
         return f"{self.title} ({self.url})"
 
 
+@pghistory.track(
+    pghistory.UpdateEvent(
+        "content_changed",
+        row=pghistory.Old,
+        condition=pghistory.AnyChange("content")
+    ),
+    model_name="CommentHistory"
+)
 class Comment(models.Model):
     content = models.TextField(max_length=10_000)
     votes = models.IntegerField(default=1)
