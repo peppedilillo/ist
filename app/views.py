@@ -1,6 +1,7 @@
 from functools import partial
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -185,9 +186,15 @@ def comment_edit(request, comment_id: int) -> HttpResponse:
 
 def comment_history(request, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
-
+    history = [
+        {
+            "content": c["content"],
+            "date": c["pgh_created_at"],
+        }
+        for c in CommentHistory.objects.filter(pgh_obj=comment).values()
+    ]
     context = {
-        "history": CommentHistory.objects.filter(pgh_obj=comment).values(),
+        "history": history,
         "comment": comment,
     }
     print(context)

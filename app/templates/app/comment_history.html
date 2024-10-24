@@ -5,6 +5,7 @@
     <!-- comment form -->
     <h2>Edits</h2>
     {% for edit in history %}
-        <p>{{ edit.content }}<br>modified on {{ edit.pgh_created_at }}</p>
+        <p>{{ edit.content }}<br>modified on {{ edit.date }}
+        </p>
     {% endfor %}
 {% endblock %}
