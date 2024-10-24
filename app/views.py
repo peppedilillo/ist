@@ -13,6 +13,7 @@ from .forms import PostEditForm
 from .forms import PostForm
 from .models import Board
 from .models import Comment
+from .models import CommentHistory
 from .models import Post
 from .settings import INDEX_NPOSTS
 from .settings import MAX_DEPTH
@@ -180,3 +181,14 @@ def comment_edit(request, comment_id: int) -> HttpResponse:
     else:
         form = CommentForm()
     return render(request, "app/comment_edit.html", {"form": form, "comment": comment})
+
+
+def comment_history(request, comment_id: int) -> HttpResponse:
+    comment = get_object_or_404(Comment, pk=comment_id)
+
+    context = {
+        "history": CommentHistory.objects.filter(pgh_obj=comment).values(),
+        "comment": comment,
+    }
+    print(context)
+    return render(request, "app/comment_history.html", context)

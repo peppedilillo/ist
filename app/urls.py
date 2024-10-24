@@ -17,4 +17,5 @@ urlpatterns = [
     path("comments/<int:comment_id>/reply", views.comment_reply, name="comment_reply"),
     path("comments/<int:comment_id>/delete", views.comment_delete, name="comment_delete"),
     path("comments/<int:comment_id>/edit", views.comment_edit, name="comment_edit"),
+    path("comments/<int:comment_id>/history", views.comment_history, name="comment_history"),
 ]

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+    <!-- post title and content -->
+    <p>{% include "app/includes/comment.html" with comment=comment show_prefix=show_prefix%}</p>
+    <!-- comment form -->
+    <h2>Edits</h2>
+    {% for edit in history %}
+        <p>{{ edit.content }}<br>modified on {{ edit.pgh_created_at }}</p>
+    {% endfor %}
+{% endblock %}
