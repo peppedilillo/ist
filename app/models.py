@@ -23,12 +23,8 @@ class Keyword(models.Model):
 
 
 @pghistory.track(
-    pghistory.UpdateEvent(
-        "title_changed",
-        row=pghistory.Old,
-        condition=pghistory.AnyChange("title")
-    ),
-    model_name="PostHistory"
+    pghistory.UpdateEvent("title_changed", row=pghistory.Old, condition=pghistory.AnyChange("title")),
+    model_name="PostHistory",
 )
 class Post(models.Model):
     title = models.CharField(max_length=120)
@@ -44,12 +40,8 @@ class Post(models.Model):
 
 
 @pghistory.track(
-    pghistory.UpdateEvent(
-        "content_changed",
-        row=pghistory.Old,
-        condition=pghistory.AnyChange("content")
-    ),
-    model_name="CommentHistory"
+    pghistory.UpdateEvent("content_changed", row=pghistory.Old, condition=pghistory.AnyChange("content")),
+    model_name="CommentHistory",
 )
 class Comment(models.Model):
     content = models.TextField(max_length=10_000)
