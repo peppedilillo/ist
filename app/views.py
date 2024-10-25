@@ -1,12 +1,12 @@
 from functools import partial
 
-from django.core.paginator import Paginator
+from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.conf import settings
 from django.views.decorators.http import require_POST
 
 from .forms import CommentForm
