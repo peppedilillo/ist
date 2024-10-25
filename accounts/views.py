@@ -1,8 +1,6 @@
-from collections import namedtuple
 from typing import NamedTuple
 
 from django.apps import apps
-from django.contrib.auth import get_user
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout

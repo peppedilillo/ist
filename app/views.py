@@ -1,11 +1,12 @@
 from functools import partial
 
-from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import user_passes_test
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.conf import settings
 from django.views.decorators.http import require_POST
 
 from .forms import CommentForm
@@ -68,7 +69,15 @@ def post_detail(request, post_id: int) -> HttpResponse:
     return render(request, "app/post_detail.html", context)
 
 
-@login_required
+def can_submit(user):
+    return user.is_authenticated and not user.is_banned()
+
+
+def can_edit(user, contrib: Post | Comment):
+    return user.is_authenticated and not user.is_banned() and (user == contrib.user or user.has_mod_rights())
+
+
+@user_passes_test(can_submit)
 def post_submit(request) -> HttpResponse:
     if request.method == "POST":
         form = PostForm(request.POST)
@@ -82,11 +91,10 @@ def post_submit(request) -> HttpResponse:
     return render(request, "app/post_submit.html", {"form": form})
 
 
-@login_required
 def post_edit(request, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
-    if not (request.user == post.user or request.user.has_perm("change_post")):
-        return redirect("app:post_detail", post_id=post_id)
+    if not can_edit(request.user, post):
+        return redirect(settings.LOGIN_URL)
 
     if request.method == "POST":
         form = PostEditForm(request.POST, instance=post)
@@ -98,11 +106,10 @@ def post_edit(request, post_id: int) -> HttpResponse:
     return render(request, "app/post_edit.html", {"form": form, "post": post})
 
 
-@login_required
 def post_delete(request, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
-    if not (request.user == post.user or request.user.has_perm("delete_post")):
-        return redirect("app:post_detail", post_id=post_id)
+    if not can_edit(request.user, post):
+        return redirect(settings.LOGIN_URL)
 
     if request.method == "GET":
         return render(request, "app/post_delete.html", {"post": post})
@@ -110,8 +117,8 @@ def post_delete(request, post_id: int) -> HttpResponse:
     return redirect("app:index")
 
 
-@login_required
 @require_POST  # allows for embedding under post detail
+@user_passes_test(can_submit)
 def post_comment(request, post_id: int) -> HttpResponse:
     """Adds a top level comment to a post."""
     post = get_object_or_404(Post, pk=post_id)
@@ -136,7 +143,7 @@ def comment_detail(request, comment_id: int) -> HttpResponse:
     return render(request, "app/post_detail.html", context)
 
 
-@login_required
+@user_passes_test(can_submit)
 def comment_reply(request, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
     if request.method == "POST":
@@ -153,11 +160,10 @@ def comment_reply(request, comment_id: int) -> HttpResponse:
     return render(request, "app/comment_reply.html", {"form": form, "comment": comment})
 
 
-@login_required
 def comment_delete(request, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
-    if not (request.user == comment.user or request.user.has_perm("delete_comment")):
-        return redirect("app:post_detail", post_id=comment.post.id)
+    if not can_edit(request.user, comment):
+        return redirect(settings.LOGIN_URL)
 
     if request.method == "GET":
         return render(request, "app/comment_delete.html", {"comment": comment})
@@ -167,11 +173,10 @@ def comment_delete(request, comment_id: int) -> HttpResponse:
     return redirect("app:post_detail", post_id=comment.post.id)
 
 
-@login_required
 def comment_edit(request, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
-    if not (request.user == comment.user or request.user.has_perm("change_comment")):
-        return redirect("app:post_detail", post_id=comment.post.id)
+    if not can_edit(request.user, comment):
+        return redirect(settings.LOGIN_URL)
 
     if request.method == "POST":
         form = CommentForm(request.POST, instance=comment)

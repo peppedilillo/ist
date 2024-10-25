@@ -10,9 +10,7 @@ on {{ comment.date }}
     | <a href="{% url 'app:comment_reply' comment.id %}">reply</a>
 {% endif %}
 | <a href="{% url 'app:comment_detail' comment.id %}">link</a>
-{% if comment.user == request.user  or 'app.delete_comment' in perms %}
+{% if comment.user == request.user or request.user.has_mod_rights %}
     | <a href="{% url 'app:comment_delete' comment.id %}">delete</a>
-{% endif %}
-{% if comment.user == request.user  or 'app.change_comment' in perms %}
     | <a href="{% url 'app:comment_edit' comment.id %}">edit</a>
 {% endif %}

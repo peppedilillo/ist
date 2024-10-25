@@ -6,5 +6,3 @@ python manage.py makemigrations demo
 python manage.py migrate
 echo "[2/3] Crating superuser.."
 python manage.py createsuperuser
-echo "[3/3] Creating user groups"
-python manage.py create_groups

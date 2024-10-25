@@ -23,7 +23,7 @@ class Keyword(models.Model):
 
 
 @pghistory.track(
-    pghistory.UpdateEvent("title_changed", row=pghistory.Old, condition=pghistory.AnyChange("title")),
+    pghistory.UpdateEvent("title_changed", row=pghistory.Old, condition=pghistory.AnyChange("title"),),
     model_name="PostHistory",
 )
 class Post(models.Model):
@@ -40,7 +40,7 @@ class Post(models.Model):
 
 
 @pghistory.track(
-    pghistory.UpdateEvent("content_changed", row=pghistory.Old, condition=pghistory.AnyChange("content")),
+    pghistory.UpdateEvent("content_changed", row=pghistory.Old, condition=pghistory.AnyChange("content"),),
     model_name="CommentHistory",
 )
 class Comment(models.Model):
