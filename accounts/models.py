@@ -5,10 +5,10 @@ from django.db import models
 
 class CustomUser(AbstractUser):
     class Status(models.TextChoices):
-        ADMIN = "A", "Admin"
-        MODERATOR = "M", "Moderator"
-        USER = "U", "User"
-        BANNED = "B", "Banned"
+        ADMIN = "a", "admin"
+        MODERATOR = "m", "moderator"
+        USER = "u", "user"
+        BANNED = "b", "banned"
 
     karma = models.IntegerField(default=1)
     status = models.CharField(

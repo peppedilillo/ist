@@ -5,6 +5,8 @@ from django.forms import Textarea
 
 from .models import Comment
 from .models import Post
+from .models import Board
+from .models import Keyword
 
 
 class PostForm(ModelForm):

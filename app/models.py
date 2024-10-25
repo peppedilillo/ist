@@ -6,20 +6,46 @@ from .settings import BOARD_PREFIX_SEPARATOR
 
 
 class Board(models.Model):
-    name = models.CharField(max_length=10)
+    class Boards(models.TextChoices):
+        PAPERS = "p", "papers"
+        CODE = "c", "code"
+        JOBS = "j", "jobs"
+
+    name = models.CharField(
+        max_length=1,
+        choices=Boards,
+        null=True,
+        unique=True,
+        default=None,
+    )
 
     def __str__(self):
-        return self.name
+        return self.get_name_display()
 
     def prefix(self):
-        return f"{self.name}{BOARD_PREFIX_SEPARATOR} " if self.prefix else ""
+        return f"{self.get_name_display()}{BOARD_PREFIX_SEPARATOR} " if self.prefix else ""
 
 
 class Keyword(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    class Keywords(models.TextChoices):
+        COSMOLOGY = "c", "cosmology"
+        EARTH_AND_PLANETS = "p", "earth and planets"
+        GALAXIES = "g", "galaxies"
+        HIGH_ENERGY = "h", "high energy"
+        TECH_AND_METHODS = "t", "tech and methods"
+        SUN_AND_STARS = "s", "sun and stars"
+        MULTIMESSENGER = "m", "multimessenger"
+
+    name = models.CharField(
+        max_length=2,
+        choices=Keywords,
+        null=True,
+        unique=True,
+        default=None,
+    )
 
     def __str__(self):
-        return self.name
+        return self.get_name_display()
 
 
 @pghistory.track(

@@ -44,15 +44,15 @@ def _board(request, name: str) -> HttpResponse:
     page_obj = paginator.get_page(page_number)
     context = {
         "page_obj": page_obj,
-        "header": name,
+        "header": board.get_name_display(),
         "empty_message": EMPTY_MESSAGE,
     }
     return render(request, "app/index.html", context)
 
 
-papers = partial(_board, name="papers")
-code = partial(_board, name="code")
-jobs = partial(_board, name="jobs")
+papers = partial(_board, name="p")
+code = partial(_board, name="c")
+jobs = partial(_board, name="j")
 
 
 def post_detail(request, post_id: int) -> HttpResponse:
