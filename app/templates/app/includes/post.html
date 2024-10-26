@@ -1,5 +1,9 @@
 <!-- pass `show_prefix` to show the post board -->
-<a id="up_{{ post.id }}" onclick="upvotePost(this)" style="cursor: pointer">+1</a>
+<a id="up_{{ post.id }}"
+    onclick="upvotePost(this)"
+    data-upvote-url="{% url 'app:post_upvote' post.id %}"
+    data-redirect-url="{% url 'login' %}"
+    style="cursor: pointer">+1</a>
 <a href={{ post.url }}>{% if show_prefix %}{{ post.board.prefix }}{% endif %}{{ post.title }}</a></br>
 <span class="score" id="score_{{ post.id }}">{{ post.votes }} point{{ post.votes|pluralize }}</span>
 by <a href="{% url 'accounts:profile' post.user.id %}">{{ post.user.username }}</a> on {{ post.date }}

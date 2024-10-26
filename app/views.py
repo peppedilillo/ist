@@ -1,7 +1,6 @@
 from functools import partial
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
 from django.core.paginator import Paginator
 from django.http import HttpResponse

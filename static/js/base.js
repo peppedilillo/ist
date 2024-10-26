@@ -13,9 +13,9 @@ function parseCrsfToken() {
 
 var crsfToken = parseCrsfToken();
 
-function upvote(item, item_str) {
+function upvote(item) {
     let id = item.id.substring(3);  // crop "up_" from ids like "up_100"
-    let url = ((item_str === 'post') ? `/posts/${id}/upvote` : `/comments/${id}/upvote`);
+    let url = item.dataset.upvoteUrl;
 
     fetch(url, {
         method: 'POST',
@@ -23,19 +23,15 @@ function upvote(item, item_str) {
             'Content-Type': 'application/json',
             'X-CSRFToken': crsfToken
         },
-    }).then(res => {
-
-        res.json().then(res => {
-            if (res.success) {
-                // Find score element and update it
-                scoreItem = document.getElementById('score_' + id);
-                // Extract current number, increment it, add " points" suffix
-                scoreItem.innerText = (parseInt(scoreItem.innerText.match(/\d+/)[0]) + 1).toString() + ' points';
-            } else if (res.redirect) {
-                window.location = '/accounts/login';
-            }
-        })
-
+    }).then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            // fetch points element and update it
+            scoreItem = document.getElementById('score_' + id);
+            scoreItem.innerText = (parseInt(scoreItem.innerText.match(/\d+/)[0]) + 1).toString() + ' points';
+        } else if (res.redirect) {
+            window.location = item.dataset.redirectUrl;
+        }
     }).catch(error => console.log(error));
 }
 
