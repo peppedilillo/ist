@@ -1,7 +1,6 @@
 from functools import partial
 
 from django.conf import settings
-from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -77,8 +76,10 @@ def can_edit(user, contrib: Post | Comment):
     return user.is_authenticated and not user.is_banned() and (user == contrib.user or user.has_mod_rights())
 
 
-@user_passes_test(can_submit)
 def post_submit(request) -> HttpResponse:
+    if not can_submit(request.user):
+        return redirect(settings.LOGIN_URL)
+
     if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():
@@ -118,9 +119,11 @@ def post_delete(request, post_id: int) -> HttpResponse:
 
 
 @require_POST  # allows for embedding under post detail
-@user_passes_test(can_submit)
 def post_comment(request, post_id: int) -> HttpResponse:
     """Adds a top level comment to a post."""
+    if not can_submit(request.user):
+        return redirect(settings.LOGIN_URL)
+
     post = get_object_or_404(Post, pk=post_id)
     form = CommentForm(request.POST)
     if form.is_valid():
@@ -143,8 +146,10 @@ def comment_detail(request, comment_id: int) -> HttpResponse:
     return render(request, "app/post_detail.html", context)
 
 
-@user_passes_test(can_submit)
 def comment_reply(request, comment_id: int) -> HttpResponse:
+    if not can_submit(request.user):
+        return redirect(settings.LOGIN_URL)
+
     comment = get_object_or_404(Comment, pk=comment_id)
     if request.method == "POST":
         form = CommentForm(request.POST)
@@ -193,7 +198,7 @@ def comment_history(request, comment_id: int) -> HttpResponse:
     history = [
         {
             "content": c["content"],
-            "date": c["pgh_created_at"],
+            "date": c["pgh_created_at"]
         }
         for c in CommentHistory.objects.filter(pgh_obj=comment).values()
     ]
