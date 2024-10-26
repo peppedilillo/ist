@@ -134,9 +134,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "keywords",
-                    models.ManyToManyField(
-                        blank=True, related_name="posts", to="app.keyword"
-                    ),
+                    models.ManyToManyField(blank=True, related_name="posts", to="app.keyword"),
                 ),
                 (
                     "user",

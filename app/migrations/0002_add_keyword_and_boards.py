@@ -10,15 +10,15 @@ def create_initial_data(apps, schema_editor):
 
 
 def reverse_initial_data(apps, schema_editor):
-    Board = apps.get_model('app', 'Board')
-    Keyword = apps.get_model('app', 'Keyword')
+    Board = apps.get_model("app", "Board")
+    Keyword = apps.get_model("app", "Keyword")
     Board.objects.all().delete()
     Keyword.objects.all().delete()
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('app', '0001_initial'),
+        ("app", "0001_initial"),
     ]
 
     operations = [
