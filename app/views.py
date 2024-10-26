@@ -1,12 +1,15 @@
 from functools import partial
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.db.utils import IntegrityError
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 
 from .forms import CommentForm
 from .forms import PostEditForm
@@ -205,3 +208,27 @@ def comment_history(request, comment_id: int) -> HttpResponse:
     }
     print(context)
     return render(request, "app/comment_history.html", context)
+
+
+def can_upvote(user):
+    return user.is_authenticated and not user.is_banned()
+
+
+@require_POST
+def _upvote(request, contrib_id: int, contrib: Post | Comment):
+    if not can_upvote(request.user):
+        return JsonResponse({"success": False, "redirect": True})
+
+    item = get_object_or_404(contrib, pk=contrib_id)
+    try:
+        item.user.karma += 1
+        item.user.save()
+        item.votes += 1
+        item.save()
+    except IntegrityError:
+        return JsonResponse({'success': False, 'redirect': False})
+    return JsonResponse({'success': True, 'redirect': False})
+
+
+post_upvote = partial(_upvote, contrib=Post)
+comment_upvote = partial(_upvote, contrib=Comment)

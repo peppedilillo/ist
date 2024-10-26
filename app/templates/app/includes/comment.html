@@ -1,6 +1,7 @@
 {{ comment.content }}
 <br>
-{{ comment.votes }} vote{{ comment.votes|pluralize }}
+<a id="up_{{ comment.id }}" onclick="upvoteComment(this)" style="cursor: pointer">+1</a>
+<span class="score" id="score_{{ comment.id }}">{{ comment.votes }} point{{ comment.votes|pluralize }}</span>
 by <a href="{% url 'accounts:profile' comment.post.user.id %}">{{ comment.user.username }}</a>
 on {{ comment.date }}
 {% if comment.events.values %}
