@@ -1,7 +1,6 @@
 from functools import partial
 
 from django.conf import settings
-from django.db.utils import IntegrityError
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -17,6 +16,8 @@ from .models import Board
 from .models import Comment
 from .models import CommentHistory
 from .models import Post
+from .models import VoteComment
+from .models import VotePost
 from .settings import INDEX_NPOSTS
 from .settings import MAX_DEPTH
 
@@ -205,7 +206,6 @@ def comment_history(request, comment_id: int) -> HttpResponse:
         "history": history,
         "comment": comment,
     }
-    print(context)
     return render(request, "app/comment_history.html", context)
 
 
@@ -214,20 +214,35 @@ def can_upvote(user):
 
 
 @require_POST
-def _upvote(request, contrib_id: int, contrib: Post | Comment):
+def _upvote(
+        request,
+        contrib_id: int,
+        contrib_model: Post | Comment,
+        contrib_vote: VotePost | VoteComment,
+):
     if not can_upvote(request.user):
-        return JsonResponse({"success": False, "redirect": True})
+        return JsonResponse({"success": False})
 
-    item = get_object_or_404(contrib, pk=contrib_id)
-    try:
+    item = get_object_or_404(contrib_model, pk=contrib_id)
+    if (vote := item.votes.filter(user=request.user)).exists():
+        vote[0].delete()
+        item.nvotes -= 1
+        item.save()
+        item.user.karma -= 1
+        item.user.save()
+    else:
+        vote = contrib_vote(user=request.user, address=item)
+        vote.save()
+        item.nvotes += 1
+        item.save()
         item.user.karma += 1
         item.user.save()
-        item.votes += 1
-        item.save()
-    except IntegrityError:
-        return JsonResponse({'success': False, 'redirect': False})
-    return JsonResponse({'success': True, 'redirect': False})
+    return JsonResponse({"success": True, "nvotes": item.nvotes})
 
 
-post_upvote = partial(_upvote, contrib=Post)
-comment_upvote = partial(_upvote, contrib=Comment)
+def comment_upvote(request, comment_id: int):
+    return _upvote(request, comment_id, Comment, VoteComment)
+
+
+def post_upvote(request, post_id: int):
+    return _upvote(request, post_id, Post, VotePost)

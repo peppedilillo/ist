@@ -2,7 +2,7 @@ function parseCrsfToken() {
     let token = '';
     if (document.cookie && document.cookie !== '') {
         document.cookie.split(';').forEach(function (c) {
-            var m = c.trim().match(/(\w+)=(.*)/);  // matches "name=value" pattern
+            const m = c.trim().match(/(\w+)=(.*)/);  // matches "name=value" pattern
             if (m !== undefined && m[1] === 'csrftoken') {  // if name is "csrftoken"
                 token = decodeURIComponent(m[2]);  // decode the value part
             }
@@ -25,11 +25,12 @@ function upvote(item) {
         },
     }).then(res => res.json())
     .then(res => {
+        let scoreItem;
         if (res.success) {
             // fetch points element and update it
             scoreItem = document.getElementById('score_' + id);
-            scoreItem.innerText = (parseInt(scoreItem.innerText.match(/\d+/)[0]) + 1).toString() + ' points';
-        } else if (res.redirect) {
+            scoreItem.innerText = `${res.nvotes} vote${res.nvotes !== 1 ? 's' : ''}`;
+        } else {
             window.location = item.dataset.redirectUrl;
         }
     }).catch(error => console.log(error));

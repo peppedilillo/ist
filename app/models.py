@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models.constraints import UniqueConstraint
 import pghistory
 
 from .settings import BOARD_PREFIX_SEPARATOR
@@ -59,7 +60,8 @@ class Keyword(models.Model):
 class Post(models.Model):
     title = models.CharField(max_length=120)
     url = models.CharField(max_length=300)
-    votes = models.IntegerField(default=1)
+    # nvotes is set to a default of 1 but we do not register this vote
+    nvotes = models.IntegerField(default=1)
     user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     board = models.ForeignKey(to=Board, on_delete=models.SET_NULL, related_name="posts", null=True, blank=True)
@@ -79,8 +81,8 @@ class Post(models.Model):
 )
 class Comment(models.Model):
     content = models.TextField(max_length=10_000)
-    votes = models.IntegerField(default=1)
-    # related_name enable calling like `post.comments.order_by("..")
+    # nvotes is set to a default of 1 but we do not register this vote
+    nvotes = models.IntegerField(default=1)
     post = models.ForeignKey(to=Post, on_delete=models.CASCADE, related_name="comments")
     # parent is null if comment is at top level (a comment to a post)
     parent = models.ForeignKey(to="self", on_delete=models.CASCADE, related_name="replies", null=True)
@@ -89,3 +91,25 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.user.username} on {self.post.title}"
+
+
+class VotePost(models.Model):
+    user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+    address = models.ForeignKey(to=Post, related_name="votes", on_delete=models.CASCADE)
+
+    # this will enforce an IntegrityError if we try to save more votes
+    # from the same user to the same contribution
+    class Meta:
+        constraints = [UniqueConstraint(fields=('user', 'address'), name="unique_post_vote")]
+
+
+class VoteComment(models.Model):
+    user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+    address = models.ForeignKey(to=Comment, related_name="votes", on_delete=models.CASCADE)
+
+    # this will enforce an IntegrityError if we try to save more votes
+    # from the same user to the same contribution
+    class Meta:
+        constraints = [UniqueConstraint(fields=('user', 'address'), name="unique_comment_vote")]
