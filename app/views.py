@@ -226,17 +226,9 @@ def _upvote(
     item = get_object_or_404(contrib_model, pk=contrib_id)
     if (vote := item.votes.filter(user=request.user)).exists():
         vote[0].delete()
-        item.nvotes -= 1
-        item.save()
-        item.user.karma -= 1
-        item.user.save()
     else:
         vote = contrib_vote(user=request.user, address=item)
         vote.save()
-        item.nvotes += 1
-        item.save()
-        item.user.karma += 1
-        item.user.save()
     return JsonResponse({"success": True, "nvotes": item.nvotes})
 
 

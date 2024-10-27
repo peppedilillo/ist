@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
+from scores import compute_score
+
 import pghistory
 
 from .settings import BOARD_PREFIX_SEPARATOR
@@ -60,15 +62,25 @@ class Keyword(models.Model):
 class Post(models.Model):
     title = models.CharField(max_length=120)
     url = models.CharField(max_length=300)
-    # nvotes is set to a default of 1 but we do not register this vote
-    nvotes = models.IntegerField(default=1)
     user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     board = models.ForeignKey(to=Board, on_delete=models.SET_NULL, related_name="posts", null=True, blank=True)
     keywords = models.ManyToManyField(Keyword, related_name="posts", blank=True)
+    # nvotes is set to a default of 1 but we do not register this vote
+    nvotes = models.IntegerField(default=1)
+    score = models.FloatField(editable=False)
 
     def __str__(self):
         return f"{self.title} ({self.url})"
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            # object has been just created and has yet to be saved
+            self.score = compute_score(self.nvotes, self.date)
+        elif Post.objects.get(pk=self.pk).nvotes != self.nvotes:
+            # number of votes changed
+            self.score = compute_score(self.nvotes, self.date)
+        super().save(*args, **kwargs)
 
 
 @pghistory.track(
@@ -103,6 +115,20 @@ class VotePost(models.Model):
     class Meta:
         constraints = [UniqueConstraint(fields=('user', 'address'), name="unique_post_vote")]
 
+    def save(self, *args, **kwargs):
+        created = not self.pk
+        super().save(*args, **kwargs)
+        if created:
+            self.address.nvotes += 1
+            self.address.save()
+            self.address.user.karma -= 1
+            self.address.user.save()
+
+    def delete(self, *args, **kwargs):
+        self.address.nvotes -= 1
+        self.address.save()
+        super().delete(*args, **kwargs)
+
 
 class VoteComment(models.Model):
     user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
@@ -113,3 +139,17 @@ class VoteComment(models.Model):
     # from the same user to the same contribution
     class Meta:
         constraints = [UniqueConstraint(fields=('user', 'address'), name="unique_comment_vote")]
+
+    def save(self, *args, **kwargs):
+        created = not self.pk
+        super().save(*args, **kwargs)
+        if created:
+            self.address.nvotes += 1
+            self.address.save()
+            self.address.user.karma -= 1
+            self.address.user.save()
+
+    def delete(self, *args, **kwargs):
+        self.address.nvotes -= 1
+        self.address.save()
+        super().delete(*args, **kwargs)
