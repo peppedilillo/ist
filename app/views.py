@@ -16,8 +16,6 @@ from .models import Board
 from .models import Comment
 from .models import CommentHistory
 from .models import Post
-from .models import VoteComment
-from .models import VotePost
 from .settings import INDEX_NPOSTS
 from .settings import MAX_DEPTH
 
@@ -218,23 +216,22 @@ def _upvote(
         request,
         contrib_id: int,
         contrib_model: Post | Comment,
-        contrib_vote: VotePost | VoteComment,
 ):
     if not can_upvote(request.user):
         return JsonResponse({"success": False})
 
     item = get_object_or_404(contrib_model, pk=contrib_id)
-    if (vote := item.votes.filter(user=request.user)).exists():
-        vote[0].delete()
+    if item.fans.contains(request.user):
+        item.fans.remove(request.user)
     else:
-        vote = contrib_vote(user=request.user, address=item)
-        vote.save()
-    return JsonResponse({"success": True, "nvotes": item.nvotes})
+        item.fans.add(request.user)
+    item.save()
+    return JsonResponse({"success": True, "nlikes": item.nlikes()})
 
 
 def comment_upvote(request, comment_id: int):
-    return _upvote(request, comment_id, Comment, VoteComment)
+    return _upvote(request, comment_id, Comment)
 
 
 def post_upvote(request, post_id: int):
-    return _upvote(request, post_id, Post, VotePost)
+    return _upvote(request, post_id, Post)

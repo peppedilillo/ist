@@ -29,7 +29,7 @@ function upvote(item) {
         if (res.success) {
             // fetch points element and update it
             scoreItem = document.getElementById('score_' + id);
-            scoreItem.innerText = `${res.nvotes} vote${res.nvotes !== 1 ? 's' : ''}`;
+            scoreItem.innerText = `${res.nlikes} point${res.nlikes !== 1 ? 's' : ''}`;
         } else {
             window.location = item.dataset.redirectUrl;
         }

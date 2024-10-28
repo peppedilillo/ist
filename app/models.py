@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models.constraints import UniqueConstraint
-from scores import compute_score
+from django.utils import timezone
 
 import pghistory
 
 from .settings import BOARD_PREFIX_SEPARATOR
+from .scores import compute_score
 
 
 class Board(models.Model):
@@ -63,23 +63,26 @@ class Post(models.Model):
     title = models.CharField(max_length=120)
     url = models.CharField(max_length=300)
     user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField()
     board = models.ForeignKey(to=Board, on_delete=models.SET_NULL, related_name="posts", null=True, blank=True)
     keywords = models.ManyToManyField(Keyword, related_name="posts", blank=True)
-    # nvotes is set to a default of 1 but we do not register this vote
-    nvotes = models.IntegerField(default=1)
+    fans = models.ManyToManyField(to=get_user_model(), related_name="liked_posts", editable=False)
     score = models.FloatField(editable=False)
 
     def __str__(self):
         return f"{self.title} ({self.url})"
 
+    def nlikes(self):
+        return 1 + self.fans.count()
+
     def save(self, *args, **kwargs):
         if self.pk is None:
             # object has been just created and has yet to be saved
-            self.score = compute_score(self.nvotes, self.date)
-        elif Post.objects.get(pk=self.pk).nvotes != self.nvotes:
+            self.date = timezone.now()
+            self.score = compute_score(1, self.date)
+        elif Post.objects.get(pk=self.pk).nlikes() != self.nlikes():
             # number of votes changed
-            self.score = compute_score(self.nvotes, self.date)
+            self.score = compute_score(self.nlikes(), self.date)
         super().save(*args, **kwargs)
 
 
@@ -93,63 +96,15 @@ class Post(models.Model):
 )
 class Comment(models.Model):
     content = models.TextField(max_length=10_000)
-    # nvotes is set to a default of 1 but we do not register this vote
-    nvotes = models.IntegerField(default=1)
+    user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
     post = models.ForeignKey(to=Post, on_delete=models.CASCADE, related_name="comments")
     # parent is null if comment is at top level (a comment to a post)
     parent = models.ForeignKey(to="self", on_delete=models.CASCADE, related_name="replies", null=True)
-    user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now_add=True)
+    fans = models.ManyToManyField(to=get_user_model(), related_name="liked_comments", editable=False)
 
     def __str__(self):
         return f"Comment by {self.user.username} on {self.post.title}"
 
-
-class VotePost(models.Model):
-    user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now_add=True)
-    address = models.ForeignKey(to=Post, related_name="votes", on_delete=models.CASCADE)
-
-    # this will enforce an IntegrityError if we try to save more votes
-    # from the same user to the same contribution
-    class Meta:
-        constraints = [UniqueConstraint(fields=('user', 'address'), name="unique_post_vote")]
-
-    def save(self, *args, **kwargs):
-        created = not self.pk
-        super().save(*args, **kwargs)
-        if created:
-            self.address.nvotes += 1
-            self.address.save()
-            self.address.user.karma -= 1
-            self.address.user.save()
-
-    def delete(self, *args, **kwargs):
-        self.address.nvotes -= 1
-        self.address.save()
-        super().delete(*args, **kwargs)
-
-
-class VoteComment(models.Model):
-    user = models.ForeignKey(to=get_user_model(), on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now_add=True)
-    address = models.ForeignKey(to=Comment, related_name="votes", on_delete=models.CASCADE)
-
-    # this will enforce an IntegrityError if we try to save more votes
-    # from the same user to the same contribution
-    class Meta:
-        constraints = [UniqueConstraint(fields=('user', 'address'), name="unique_comment_vote")]
-
-    def save(self, *args, **kwargs):
-        created = not self.pk
-        super().save(*args, **kwargs)
-        if created:
-            self.address.nvotes += 1
-            self.address.save()
-            self.address.user.karma -= 1
-            self.address.user.save()
-
-    def delete(self, *args, **kwargs):
-        self.address.nvotes -= 1
-        self.address.save()
-        super().delete(*args, **kwargs)
+    def nlikes(self):
+        return 1 + self.fans.count()

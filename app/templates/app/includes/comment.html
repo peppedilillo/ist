@@ -5,7 +5,7 @@
     data-upvote-url="{% url 'app:comment_upvote' comment.id %}"
     data-redirect-url="{% url 'login' %}"
     style="cursor: pointer">+1</a>
-<span class="score" id="score_{{ comment.id }}">{{ comment.nvotes }} vote{{ comment.nvotes|pluralize }}</span>
+<span class="score" id="score_{{ comment.id }}">{{ comment.nlikes }} point{{ comment.nlikes|pluralize }}</span>
 by <a href="{% url 'accounts:profile' comment.post.user.id %}">{{ comment.user.username }}</a>
 on {{ comment.date }}
 {% if comment.events.values %}

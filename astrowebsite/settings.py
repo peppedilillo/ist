@@ -60,6 +60,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+if DEBUG:
+    MIDDLEWARE += ["pyinstrument.middleware.ProfilerMiddleware"]
+
 ROOT_URLCONF = "astrowebsite.urls"
 
 TEMPLATES = [

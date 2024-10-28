@@ -10,7 +10,6 @@ class CustomUser(AbstractUser):
         USER = "u", "user"
         BANNED = "b", "banned"
 
-    karma = models.IntegerField(default=1)
     status = models.CharField(
         max_length=1,
         choices=Status,
