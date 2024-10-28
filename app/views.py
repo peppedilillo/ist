@@ -226,7 +226,7 @@ def _upvote(
     else:
         item.fans.add(request.user)
     item.save()
-    return JsonResponse({"success": True, "nlikes": item.nlikes()})
+    return JsonResponse({"success": True, "nlikes": item.nlikes})
 
 
 def comment_upvote(request, comment_id: int):

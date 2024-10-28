@@ -67,22 +67,24 @@ class Post(models.Model):
     board = models.ForeignKey(to=Board, on_delete=models.SET_NULL, related_name="posts", null=True, blank=True)
     keywords = models.ManyToManyField(Keyword, related_name="posts", blank=True)
     fans = models.ManyToManyField(to=get_user_model(), related_name="liked_posts", editable=False)
+    # to avoid dealing with counts we memorize the number of likes and update it at save time.
+    # the default value is set to one to represent the contribution author.
+    nlikes = models.IntegerField(default=1)
     score = models.FloatField(editable=False)
 
     def __str__(self):
         return f"{self.title} ({self.url})"
-
-    def nlikes(self):
-        return 1 + self.fans.count()
 
     def save(self, *args, **kwargs):
         if self.pk is None:
             # object has been just created and has yet to be saved
             self.date = timezone.now()
             self.score = compute_score(1, self.date)
-        elif Post.objects.get(pk=self.pk).nlikes() != self.nlikes():
+        # plus one represent the contribution author
+        elif (ldelta := (self.fans.count() + 1) - Post.objects.get(pk=self.pk).nlikes) != 0:
             # number of votes changed
-            self.score = compute_score(self.nlikes(), self.date)
+            self.nlikes += ldelta
+            self.score = compute_score(self.nlikes, self.date)
         super().save(*args, **kwargs)
 
 
@@ -102,9 +104,17 @@ class Comment(models.Model):
     # parent is null if comment is at top level (a comment to a post)
     parent = models.ForeignKey(to="self", on_delete=models.CASCADE, related_name="replies", null=True)
     fans = models.ManyToManyField(to=get_user_model(), related_name="liked_comments", editable=False)
+    # to avoid dealing with counts we memorize the number of likes and update it at save time.
+    # the default value is set to one to represent the contribution author.
+    nlikes = models.IntegerField(default=1)
 
     def __str__(self):
         return f"Comment by {self.user.username} on {self.post.title}"
 
-    def nlikes(self):
-        return 1 + self.fans.count()
+    def save(self, *args, **kwargs):
+        # plus one represent the contribution author
+        if self.pk and (ldelta := (self.fans.count() + 1) - Comment.objects.get(pk=self.pk).nlikes) != 0:
+            # number of votes changed
+            self.nlikes += ldelta
+        super().save(*args, **kwargs)
+
