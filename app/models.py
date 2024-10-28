@@ -66,6 +66,7 @@ class Post(models.Model):
     date = models.DateTimeField()
     board = models.ForeignKey(to=Board, on_delete=models.SET_NULL, related_name="posts", null=True, blank=True)
     keywords = models.ManyToManyField(Keyword, related_name="posts", blank=True)
+    edited = models.BooleanField(default=False)
     fans = models.ManyToManyField(to=get_user_model(), related_name="liked_posts", editable=False)
     # to avoid dealing with counts we memorize the number of likes and update it at save time.
     # the default value is set to one to represent the contribution author.
@@ -80,11 +81,16 @@ class Post(models.Model):
             # object has been just created and has yet to be saved
             self.date = timezone.now()
             self.score = compute_score(1, self.date)
-        # plus one represent the contribution author
-        elif (ldelta := (self.fans.count() + 1) - Post.objects.get(pk=self.pk).nlikes) != 0:
-            # number of votes changed
-            self.nlikes += ldelta
-            self.score = compute_score(self.nlikes, self.date)
+        else:
+            original_post = Post.objects.get(pk=self.pk)
+            if (ldelta := (self.fans.count() + 1) - original_post.nlikes) != 0:
+                # plus one above represent the contribution author
+                # number of votes changed
+                self.nlikes += ldelta
+                self.score = compute_score(self.nlikes, self.date)
+            if self.title != original_post.title:
+                # we mark the post as edited
+                self.edited = True
         super().save(*args, **kwargs)
 
 
@@ -103,6 +109,7 @@ class Comment(models.Model):
     post = models.ForeignKey(to=Post, on_delete=models.CASCADE, related_name="comments")
     # parent is null if comment is at top level (a comment to a post)
     parent = models.ForeignKey(to="self", on_delete=models.CASCADE, related_name="replies", null=True)
+    edited = models.BooleanField(default=False)
     fans = models.ManyToManyField(to=get_user_model(), related_name="liked_comments", editable=False)
     # to avoid dealing with counts we memorize the number of likes and update it at save time.
     # the default value is set to one to represent the contribution author.
@@ -112,9 +119,13 @@ class Comment(models.Model):
         return f"Comment by {self.user.username} on {self.post.title}"
 
     def save(self, *args, **kwargs):
-        # plus one represent the contribution author
-        if self.pk and (ldelta := (self.fans.count() + 1) - Comment.objects.get(pk=self.pk).nlikes) != 0:
-            # number of votes changed
-            self.nlikes += ldelta
+        if self.pk:
+            original_comment = Comment.objects.get(pk=self.pk)
+            if (ldelta := (self.fans.count() + 1) - original_comment.nlikes) != 0:
+                # plus one represent the contribution author
+                # number of votes changed
+                self.nlikes += ldelta
+            if self.content != original_comment.content:
+                self.edited = True
         super().save(*args, **kwargs)
 
