@@ -2,6 +2,10 @@
 <script src="{% static 'js/base.js' %}"></script>
 
 <html lang="en">
+<head>
+    <title>Astrowebsite</title>
+</head>
+<body>
     <a href="{% url 'app:index' %}">all</a>
     <a href="{% url 'app:papers' %}">papers</a>
     <a href="{% url 'app:code' %}">code</a>
@@ -15,4 +19,5 @@
         <a href="{% url 'accounts:signup' %}">signup</a>
     {% endif %}
     {% block content %}{% endblock %}
+</body>
 </html>

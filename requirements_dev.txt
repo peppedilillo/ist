@@ -1,4 +1,0 @@
-black==24.10
-isort==5.13
-ipython==8.28
-djlint==1.35

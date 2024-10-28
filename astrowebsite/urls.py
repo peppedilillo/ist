@@ -19,9 +19,15 @@ from django.contrib import admin
 from django.urls import include
 from django.urls import path
 
+from .settings import DEBUG
+
 urlpatterns = [
     path("", include("app.urls")),
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
 ]
+
+if DEBUG:
+    from debug_toolbar.toolbar import debug_toolbar_urls
+    urlpatterns += debug_toolbar_urls()

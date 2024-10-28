@@ -47,7 +47,10 @@ INSTALLED_APPS = [
 
 
 if DEBUG:
-    INSTALLED_APPS += ["demo.apps.DemoConfig"]
+    INSTALLED_APPS += [
+        "demo.apps.DemoConfig",
+        "debug_toolbar",
+    ]
 
 
 MIDDLEWARE = [
@@ -61,7 +64,10 @@ MIDDLEWARE = [
 ]
 
 if DEBUG:
-    MIDDLEWARE += ["pyinstrument.middleware.ProfilerMiddleware"]
+    MIDDLEWARE += [
+        "pyinstrument.middleware.ProfilerMiddleware",
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ]
 
 ROOT_URLCONF = "astrowebsite.urls"
 
@@ -152,5 +158,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # Custom user model
 AUTH_USER_MODEL = "accounts.CustomUser"
 
-# For mobile checking
-ALLOWED_HOSTS = ["localhost", "192.168.1.57"]
+# Needed by debug toolbar
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

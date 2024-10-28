@@ -34,4 +34,6 @@ dev = [
     "coverage==7.6",
     "faker==30.3",
     "djlint==1.35",
+    "pyinstrument==5.0.0",
+    "django-debug-toolbar==4.4.6",
 ]
