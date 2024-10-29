@@ -6,7 +6,7 @@
     data-redirect-url="{% url 'login' %}"
     style="cursor: pointer">+1</a>
 <span class="score" id="score_{{ comment.id }}">{{ comment.nlikes }} point{{ comment.nlikes|pluralize }}</span>
-by <a href="{% url 'accounts:profile' comment.post.user.id %}">{{ comment.user.username }}</a>
+by <a href="{% url 'accounts:profile' comment.user.id %}">{{ comment.user.username }}</a>
 on {{ comment.date }}
 {% if comment.edited %}<a href="{% url 'app:comment_history' comment.id %}">*</a>{% endif %}
 {% if request.ugser.is_authenticated %}
