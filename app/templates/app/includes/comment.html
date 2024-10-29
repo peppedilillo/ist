@@ -9,7 +9,7 @@
 by <a href="{% url 'accounts:profile' comment.post.user.id %}">{{ comment.user.username }}</a>
 on {{ comment.date }}
 {% if comment.edited %}<a href="{% url 'app:comment_history' comment.id %}">*</a>{% endif %}
-{% if user.is_authenticated %}
+{% if request.ugser.is_authenticated %}
     | <a href="{% url 'app:comment_reply' comment.id %}">reply</a>
 {% endif %}
 | <a href="{% url 'app:comment_detail' comment.id %}">link</a>
