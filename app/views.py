@@ -25,18 +25,22 @@ from .settings import PROFILE_NENTRIES
 EMPTY_MESSAGE = "It is empty here!"
 
 
-def index(request) -> HttpResponse:
-    posts = Post.objects.select_related("user", "board").order_by("-date")
+def _index(request, title: str, order_by: str) -> HttpResponse:
+    posts = Post.objects.select_related("user", "board").order_by(order_by)
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     context = {
         "page_obj": page_obj,
-        "header": "news",
+        "header": title,
         "show_prefix": True,
         "empty_message": EMPTY_MESSAGE,
     }
     return render(request, "app/index.html", context)
+
+
+index = partial(_index, title="all", order_by="-score")
+news = partial(_index, title="news", order_by="-date")
 
 
 def _board(request, name: str) -> HttpResponse:
