@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
-
 import pghistory
 
-from .settings import BOARD_PREFIX_SEPARATOR, MAX_DEPTH
 from .scores import compute_score
+from .settings import BOARD_PREFIX_SEPARATOR
+from .settings import MAX_DEPTH
 
 
 class Board(models.Model):
@@ -131,14 +131,7 @@ class Comment(models.Model):
 
 
 def eager_replies(comments, depth: int):
-    return (
-        comments
-        .select_related("user")
-        .prefetch_related(
-            "__".join(["replies"] * (depth + 1)),
-            *[
-                x + "__user"
-                for x in ["__".join(["replies"] * i) for i in range(1, depth + 1)]]
-            ,
-        )
+    return comments.select_related("user").prefetch_related(
+        "__".join(["replies"] * (depth + 1)),
+        *[x + "__user" for x in ["__".join(["replies"] * i) for i in range(1, depth + 1)]],
     )

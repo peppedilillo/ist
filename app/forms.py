@@ -3,10 +3,10 @@ from django.core.validators import URLValidator
 from django.forms import ModelForm
 from django.forms import Textarea
 
-from .models import Comment
-from .models import Post
 from .models import Board
+from .models import Comment
 from .models import Keyword
+from .models import Post
 
 
 class PostForm(ModelForm):

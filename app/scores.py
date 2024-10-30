@@ -1,7 +1,7 @@
 from datetime import datetime
 from math import log10
 
-arbitrary_date = datetime.fromisoformat('2024-01-01T00:00:00Z')
+arbitrary_date = datetime.fromisoformat("2024-01-01T00:00:00Z")
 
 
 def compute_score(nlikes: int, creation_date, days_modifier: int = 1):

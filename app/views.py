@@ -1,14 +1,14 @@
 from functools import partial
 
-from django.contrib.auth import get_user_model
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
-from django.http import JsonResponse
 
 from .forms import CommentForm
 from .forms import PostEditForm
@@ -16,8 +16,8 @@ from .forms import PostForm
 from .models import Board
 from .models import Comment
 from .models import CommentHistory
-from .models import Post
 from .models import eager_replies
+from .models import Post
 from .settings import INDEX_NPOSTS
 from .settings import MAX_DEPTH
 from .settings import PROFILE_NENTRIES
@@ -216,9 +216,9 @@ def can_upvote(user):
 
 @require_POST
 def _upvote(
-        request,
-        contrib_id: int,
-        contrib_model: Post | Comment,
+    request,
+    contrib_id: int,
+    contrib_model: Post | Comment,
 ):
     if not can_upvote(request.user):
         return JsonResponse({"success": False})
