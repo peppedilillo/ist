@@ -1,4 +1,3 @@
-from django.apps import apps
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -15,11 +14,6 @@ class CustomUser(AbstractUser):
         choices=Status,
         default=Status.USER,
     )
-
-    def contributions(self):
-        posts = apps.get_model("app", "Post").objects.filter(user=self)
-        comments = apps.get_model("app", "Comment").objects.filter(user=self)
-        return sorted((*posts, *comments), key=lambda x: x.date, reverse=True)
 
     def is_admin(self):
         return self.status == self.Status.ADMIN

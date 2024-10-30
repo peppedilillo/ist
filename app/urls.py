@@ -20,5 +20,5 @@ urlpatterns = [
     path("comments/<int:comment_id>/edit", views.comment_edit, name="comment_edit"),
     path("comments/<int:comment_id>/history", views.comment_history, name="comment_history"),
     path("comments/<int:comment_id>/upvote", views.comment_upvote, name="comment_upvote"),
-
+    path("accounts/<int:user_id>/", views.profile, name="profile"),
 ]

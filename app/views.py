@@ -1,5 +1,6 @@
 from functools import partial
 
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.http import HttpResponse
@@ -16,14 +17,16 @@ from .models import Board
 from .models import Comment
 from .models import CommentHistory
 from .models import Post
+from .models import eager_replies
 from .settings import INDEX_NPOSTS
 from .settings import MAX_DEPTH
+from .settings import PROFILE_NENTRIES
 
 EMPTY_MESSAGE = "It is empty here!"
 
 
 def index(request) -> HttpResponse:
-    posts = Post.objects.order_by("-date").all()
+    posts = Post.objects.select_related("user", "board").order_by("-date")
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -38,7 +41,7 @@ def index(request) -> HttpResponse:
 
 def _board(request, name: str) -> HttpResponse:
     board = Board.objects.get(name=name)
-    posts = Post.objects.order_by("-date").filter(board=board)
+    posts = Post.objects.select_related("user", "board").filter(board=board).order_by("-date")
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -57,7 +60,7 @@ jobs = partial(_board, name="j")
 
 def post_detail(request, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
-    comments = post.comments.filter(parent=None).order_by("-date")
+    comments = eager_replies(post.comments.filter(parent=None), depth=MAX_DEPTH).order_by("-date")
     comment_form = CommentForm()
     context = {
         "post": post,
@@ -137,7 +140,7 @@ def post_comment(request, post_id: int) -> HttpResponse:
 
 
 def comment_detail(request, comment_id: int) -> HttpResponse:
-    comment = get_object_or_404(Comment, pk=comment_id)
+    comment = get_object_or_404(eager_replies(Comment.objects, depth=MAX_DEPTH), pk=comment_id)
     context = {
         "post": comment.post,
         "comments": [comment],
@@ -235,3 +238,23 @@ def comment_upvote(request, comment_id: int):
 
 def post_upvote(request, post_id: int):
     return _upvote(request, post_id, Post)
+
+
+def profile(request, user_id: int):
+    user = get_object_or_404(get_user_model(), pk=user_id)
+    posts = user.posts.select_related("user")
+    comments = user.comments.select_related("user")
+
+    paginator = Paginator(
+        [
+            {"content": c, "ispost": isinstance(c, Post)}
+            for c in sorted((*posts, *comments), key=lambda x: x.date, reverse=True)
+        ],
+        PROFILE_NENTRIES,
+    )
+    context = {
+        "user": user,
+        "page_obj": paginator.get_page(request.GET.get("page")),
+        "empty_message": EMPTY_MESSAGE,
+    }
+    return render(request, "accounts/profile.html", context)
