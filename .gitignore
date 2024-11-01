@@ -1,9 +1,9 @@
 **/.DS_Store
 **/.idea
 **/__pycache__/**
-db.sqlite3
 **/.ipynb_checkpoints
 **/.mypy-cache
+.env.dev
 .idea
 .coverage
 repopack-output.txt
