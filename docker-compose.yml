@@ -20,4 +20,9 @@ services:
     container_name: adminer
     ports:
      - "8080:8080"
-  
+
+  redis:
+    image: redis:7.2
+    container_name: redis
+    ports:
+      - "6379:6379"

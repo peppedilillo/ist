@@ -35,7 +35,6 @@ ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS').split(',')
 
 
 # Application definition
-
 INSTALLED_APPS = [
     "app.apps.AppConfig",
     "accounts.apps.AccountsConfig",
@@ -58,8 +57,7 @@ if DEBUG:
     ]
 
     DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': lambda request: True,
-        'SHOW_TEMPLATE_CONTEXT': True,
+        'IS_RUNNING_TESTS': False,
     }
 
 
@@ -71,6 +69,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # rate limiter
+    'app.middleware.rate_limiter',
 ]
 
 if DEBUG:
@@ -113,7 +113,6 @@ DATABASES = {
         "PORT": os.getenv("DATABASE_PORT"),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -172,3 +171,11 @@ AUTH_USER_MODEL = "accounts.CustomUser"
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+# Caches
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": os.getenv("REDIS_URL"),
+    }
+}
