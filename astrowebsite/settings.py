@@ -172,6 +172,9 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
+# Allowed hosts
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.1.58"]
+
 # Caches
 CACHES = {
     "default": {

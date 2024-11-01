@@ -2,8 +2,7 @@
 <a id="up_{{ post.id }}"
     onclick="upvotePost(this)"
     data-upvote-url="{% url 'mb:post_upvote' post.id %}"
-    data-redirect-url="{% url 'login' %}"
-    style="cursor: pointer">+1</a>
+    data-redirect-url="{% url 'login' %}">+1</a>
 <a href={{ post.url }}>{% if show_prefix %}{{ post.board_prefix }}{% endif %}{{ post.title }}</a></br>
 <span class="score" id="score_{{ post.id }}">{{ post.nlikes }} point{{ post.nlikes|pluralize }}</span>
 by <a href="{% url 'mb:profile' post.user.id %}">{{ post.user }}</a> on {{ post.date }}
