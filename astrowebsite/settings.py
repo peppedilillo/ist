@@ -36,7 +36,7 @@ ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS').split(',')
 
 # Application definition
 INSTALLED_APPS = [
-    "app.apps.AppConfig",
+    "mb.apps.AppConfig",
     "accounts.apps.AccountsConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -70,7 +70,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # rate limiter
-    'app.middleware.rate_limiter',
+    'mb.middleware.rate_limiter',
 ]
 
 if DEBUG:

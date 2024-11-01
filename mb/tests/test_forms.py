@@ -13,7 +13,7 @@ b. CommentForm:
 """
 from django.test import TestCase
 
-from app.forms import PostForm, CommentForm
+from ..forms import PostForm, CommentForm
 
 
 class PostFormTests(TestCase):

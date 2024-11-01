@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     <!-- comment recap -->
-    <p>{% include "app/includes/comment.html" with comment=comment %}</p>
+    <p>{% include "mb/includes/comment.html" with comment=comment %}</p>
     <!-- errors-->
     {% if form.errors %}
         There were some problems with your submission:
@@ -10,7 +10,7 @@
     {% endif %}
     <!-- reply form -->
     <p>
-        <form method="post" actions="{% url 'app:comment_reply' comment.id %}">
+        <form method="post" actions="{% url 'mb:comment_reply' comment.id %}">
             {% csrf_token %}
             <table>
                 <tr>

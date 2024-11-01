@@ -8,7 +8,7 @@
         {% for field, errors in form.errors.items %}{{ errors }}{% endfor %}
     {% endif %}
     <!--- post submit form -->
-    <form method="post" actions="{% url 'app:post_submit' %}">
+    <form method="post" actions="{% url 'mb:post_submit' %}">
         {% csrf_token %}
         <table>
             <tr>

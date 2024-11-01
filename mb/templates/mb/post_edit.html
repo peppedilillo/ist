@@ -2,7 +2,7 @@
 {% extends 'base.html' %}
 {% block content %}
     <!--- post recap -->
-    <p>{% include "app/includes/post.html" with post=post %}</p>
+    <p>{% include "mb/includes/post.html" with post=post %}</p>
     <!--- errors -->
     {% if form.errors %}
         There were some problems with your submission:
@@ -12,7 +12,7 @@
     <!--- editing form -->
     <p>
         Edit post
-        <form method="post" action="{% url 'app:post_edit' post.id %}">
+        <form method="post" action="{% url 'mb:post_edit' post.id %}">
             {% csrf_token %}
             <table>
                 <tr>

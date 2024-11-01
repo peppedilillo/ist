@@ -23,8 +23,8 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from django.urls import reverse
 
-from app.middleware import AUTHENTICATED_LIMIT
-from app.models import Post
+from ..middleware import AUTHENTICATED_LIMIT
+from ..models import Post
 
 
 class PermissionsAndSecurityTests(TestCase):
@@ -35,9 +35,9 @@ class PermissionsAndSecurityTests(TestCase):
     def test_unauthenticated_user_cannot_access_protected_views(self):
         self.client = Client()
         protected_urls = [
-            reverse("app:post_edit", args=[self.post.id]),
-            reverse("app:post_delete", args=[self.post.id]),
-            reverse("app:post_submit"),
+            reverse("mb:post_edit", args=[self.post.id]),
+            reverse("mb:post_delete", args=[self.post.id]),
+            reverse("mb:post_submit"),
         ]
         for url in protected_urls:
             response = self.client.get(url)
@@ -56,7 +56,7 @@ class PermissionsAndSecurityTests(TestCase):
             "post_submit.html",
         ]
         for template in post_templates:
-            with open(f"app/templates/app/{template}") as f:
+            with open(f"mb/templates/mb/{template}") as f:
                 content = "".join(f.readlines())
             match = re.search(pattern, content)
             self.assertIsNotNone(match)
@@ -71,7 +71,7 @@ class RateLimiterTests(TestCase):
 
     def test_repeated_post(self):
         for i in range(AUTHENTICATED_LIMIT + 1):
-            response = self.client.post(reverse("app:post_submit"), data=self.post_data)
+            response = self.client.post(reverse("mb:post_submit"), data=self.post_data)
             if i < AUTHENTICATED_LIMIT:
                 self.assertEqual(response.status_code, 302)
             else:
@@ -80,7 +80,7 @@ class RateLimiterTests(TestCase):
     def test_repeated_upvote(self):
         post = Post.objects.create(**self.post_data, user=self.user)
         for i in range(AUTHENTICATED_LIMIT + 1):
-            response = self.client.post(reverse("app:post_upvote", args=(post.id,)))
+            response = self.client.post(reverse("mb:post_upvote", args=(post.id,)))
             if i < AUTHENTICATED_LIMIT:
                 self.assertEqual(response.status_code, 200)
             else:

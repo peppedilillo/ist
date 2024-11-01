@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from app.models import Board
-from app.models import Keyword
+from mb.models import Board
 
 
 class Command(BaseCommand):

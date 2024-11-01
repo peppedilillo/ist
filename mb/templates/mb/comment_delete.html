@@ -2,10 +2,10 @@
 {% extends 'base.html' %}
 {% block content %}
     <!-- comment recap -->
-    <p>{% include "app/includes/comment.html" with comment=comment %}</p>
+    <p>{% include "mb/includes/comment.html" with comment=comment %}</p>
     <!-- delete form -->
     <p>Are you sure you want to delete this comment?</p>
-    <form action="{% url 'app:comment_delete' comment.id %}" method="post">
+    <form action="{% url 'mb:comment_delete' comment.id %}" method="post">
         {% csrf_token %}
         <input type="submit" value="Yes, delete">
     </form>

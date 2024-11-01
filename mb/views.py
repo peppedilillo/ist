@@ -36,7 +36,7 @@ def _index(request, title: str, order_by: str) -> HttpResponse:
         "show_prefix": True,
         "empty_message": EMPTY_MESSAGE,
     }
-    return render(request, "app/index.html", context)
+    return render(request, "mb/index.html", context)
 
 
 index = partial(_index, title="all", order_by="-score")
@@ -54,7 +54,7 @@ def _board(request, name: str) -> HttpResponse:
         "header": board.get_name_display(),
         "empty_message": EMPTY_MESSAGE,
     }
-    return render(request, "app/index.html", context)
+    return render(request, "mb/index.html", context)
 
 
 papers = partial(_board, name="p")
@@ -73,7 +73,7 @@ def post_detail(request, post_id: int) -> HttpResponse:
         "comment_form": comment_form,
         "max_depth": MAX_DEPTH,
     }
-    return render(request, "app/post_detail.html", context)
+    return render(request, "mb/post_detail.html", context)
 
 
 def can_submit(user):
@@ -94,10 +94,10 @@ def post_submit(request) -> HttpResponse:
             post = form.save(commit=False)
             post.user = request.user
             post.save()
-            return redirect("app:index")
+            return redirect("mb:index")
     else:
         form = PostForm()
-    return render(request, "app/post_submit.html", {"form": form})
+    return render(request, "mb/post_submit.html", {"form": form})
 
 
 def post_edit(request, post_id: int) -> HttpResponse:
@@ -109,10 +109,10 @@ def post_edit(request, post_id: int) -> HttpResponse:
         form = PostEditForm(request.POST, instance=post)
         if form.is_valid():
             post.save()
-            return redirect("app:post_detail", post_id=post.id)
+            return redirect("mb:post_detail", post_id=post.id)
     else:
         form = PostEditForm()
-    return render(request, "app/post_edit.html", {"form": form, "post": post})
+    return render(request, "mb/post_edit.html", {"form": form, "post": post})
 
 
 def post_delete(request, post_id: int) -> HttpResponse:
@@ -121,9 +121,9 @@ def post_delete(request, post_id: int) -> HttpResponse:
         return redirect(settings.LOGIN_URL)
 
     if request.method == "GET":
-        return render(request, "app/post_delete.html", {"post": post})
+        return render(request, "mb/post_delete.html", {"post": post})
     post.delete()
-    return redirect("app:index")
+    return redirect("mb:index")
 
 
 @require_POST  # allows for embedding under post detail
@@ -140,7 +140,7 @@ def post_comment(request, post_id: int) -> HttpResponse:
         comment.user = request.user
         comment.parent = None
         comment.save()
-    return redirect("app:post_detail", post_id=post_id)
+    return redirect("mb:post_detail", post_id=post_id)
 
 
 def comment_detail(request, comment_id: int) -> HttpResponse:
@@ -151,7 +151,7 @@ def comment_detail(request, comment_id: int) -> HttpResponse:
         "show_prefix": True,
         "max_depth": MAX_DEPTH,
     }
-    return render(request, "app/post_detail.html", context)
+    return render(request, "mb/post_detail.html", context)
 
 
 def comment_reply(request, comment_id: int) -> HttpResponse:
@@ -167,10 +167,10 @@ def comment_reply(request, comment_id: int) -> HttpResponse:
             reply.user = request.user
             reply.parent = comment
             reply.save()
-            return redirect("app:post_detail", post_id=reply.post.id)
+            return redirect("mb:post_detail", post_id=reply.post.id)
     else:
         form = CommentForm()
-    return render(request, "app/comment_reply.html", {"form": form, "comment": comment})
+    return render(request, "mb/comment_reply.html", {"form": form, "comment": comment})
 
 
 def comment_delete(request, comment_id: int) -> HttpResponse:
@@ -179,11 +179,11 @@ def comment_delete(request, comment_id: int) -> HttpResponse:
         return redirect(settings.LOGIN_URL)
 
     if request.method == "GET":
-        return render(request, "app/comment_delete.html", {"comment": comment})
+        return render(request, "mb/comment_delete.html", {"comment": comment})
     elif request.method == "POST":
         comment.delete()
-        return redirect("app:post_detail", post_id=comment.post.id)
-    return redirect("app:post_detail", post_id=comment.post.id)
+        return redirect("mb:post_detail", post_id=comment.post.id)
+    return redirect("mb:post_detail", post_id=comment.post.id)
 
 
 def comment_edit(request, comment_id: int) -> HttpResponse:
@@ -195,10 +195,10 @@ def comment_edit(request, comment_id: int) -> HttpResponse:
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
             comment.save()
-            return redirect("app:post_detail", post_id=comment.post.id)
+            return redirect("mb:post_detail", post_id=comment.post.id)
     else:
         form = CommentForm()
-    return render(request, "app/comment_edit.html", {"form": form, "comment": comment})
+    return render(request, "mb/comment_edit.html", {"form": form, "comment": comment})
 
 
 def comment_history(request, comment_id: int) -> HttpResponse:
@@ -211,7 +211,7 @@ def comment_history(request, comment_id: int) -> HttpResponse:
         "history": history,
         "comment": comment,
     }
-    return render(request, "app/comment_history.html", context)
+    return render(request, "mb/comment_history.html", context)
 
 
 def can_upvote(user):

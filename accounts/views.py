@@ -7,8 +7,8 @@ from django.urls import reverse
 
 from .forms import CustomUserCreationForm
 
-Post = apps.get_model("app", "Post")
-Comment = apps.get_model("app", "Comment")
+Post = apps.get_model("mb", "Post")
+Comment = apps.get_model("mb", "Comment")
 
 
 def logout(request):
@@ -22,7 +22,7 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             auth_login(request, user)
-            return HttpResponseRedirect(reverse("app:index"))
+            return HttpResponseRedirect(reverse("mb:index"))
     else:
         form = CustomUserCreationForm()
     return render(request, "registration/signup.html", {"form": form})

@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
     <!-- post title and content -->
-    <p>{% include "app/includes/post.html" with post=post show_prefix=show_prefix %}</p>
+    <p>{% include "mb/includes/post.html" with post=post show_prefix=show_prefix %}</p>
     <!-- comment form -->
     {% if comment_form %}
         {% if user.is_authenticated %}
             <h3>Add a comment</h3>
-            <form method="post" action="{% url 'app:post_comment' post.id %}">
+            <form method="post" action="{% url 'mb:post_comment' post.id %}">
                 {% csrf_token %}
                 {{ comment_form.content }}
                 <p><button type="submit">Submit Comment</button></p>
@@ -20,8 +20,8 @@
     <!-- comment section -->
     <h2>Comments</h2>
     {% for comment in comments %}
-        {% include "app/includes/comment.html" with comment=comment %}
-        <ul>{% include "app/includes/replies.html" with depth=1 %}</ul>
+        {% include "mb/includes/comment.html" with comment=comment %}
+        <ul>{% include "mb/includes/replies.html" with depth=1 %}</ul>
     {% empty %}
         <p>No comments yet.</p>
     {% endfor %}

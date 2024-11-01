@@ -10,9 +10,9 @@
                     <tr>
                         <td style="vertical-align:top;">{{ forloop.counter0 | add:page_obj.start_index }}.</td>
                         {% if contribution.ispost %}
-                            <td style="vertical-align:top;">{% include "app/includes/post.html" with post=contribution.content %}</td>
+                            <td style="vertical-align:top;">{% include "mb/includes/post.html" with post=contribution.content %}</td>
                         {% else %}
-                            <td style="vertical-align:top;">{% include "app/includes/comment.html" with comment=contribution.content %}</td>
+                            <td style="vertical-align:top;">{% include "mb/includes/comment.html" with comment=contribution.content %}</td>
                         {% endif %}
                     </tr>
                 {% endfor %}
