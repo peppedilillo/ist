@@ -14,7 +14,6 @@ function parseCrsfToken() {
 var crsfToken = parseCrsfToken();
 
 function upvote(item) {
-    let id = item.id.substring(3);  // crop "up_" from ids like "up_100"
     let url = item.dataset.upvoteUrl;
 
     fetch(url, {
@@ -27,9 +26,15 @@ function upvote(item) {
     .then(res => {
         let scoreItem;
         if (res.success) {
+            let id = item.id.substring(3);  // crop "up_" from ids like "up_100"
             // fetch points element and update it
             scoreItem = document.getElementById('score_' + id);
             scoreItem.innerText = `${res.nlikes} point${res.nlikes !== 1 ? 's' : ''}`;
+
+            // takes care of the upvote icon
+            const spans = document.getElementById('up_' + id).getElementsByTagName('span');
+            spans[0].classList.toggle('hidden', res.isupvote);
+            spans[1].classList.toggle('hidden', !res.isupvote);
         } else {
             window.location = item.dataset.redirectUrl;
         }

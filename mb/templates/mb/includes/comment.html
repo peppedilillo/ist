@@ -1,14 +1,16 @@
 {{ comment.content }}
 <br>
 <a id="up_{{ comment.id }}"
-    onclick="upvoteComment(this)"
-    data-upvote-url="{% url 'mb:comment_upvote' comment.id %}"
-    data-redirect-url="{% url 'login' %}"
-    style="cursor: pointer">+1</a>
+   onclick="upvoteComment(this)"
+   data-upvote-url="{% url 'mb:comment_upvote' comment.id %}"
+   data-redirect-url="{% url 'login' %}"
+   style="cursor: pointer">+1</a>
 <span class="score" id="score_{{ comment.id }}">{{ comment.nlikes }} point{{ comment.nlikes|pluralize }}</span>
 by <a href="{% url 'mb:profile' comment.user.id %}">{{ comment.user }}</a>
 on {{ comment.date }}
-{% if comment.edited %}<a href="{% url 'mb:comment_history' comment.id %}">*</a>{% endif %}
+{% if comment.edited %}
+    <a href="{% url 'mb:comment_history' comment.id %}">*</a>
+{% endif %}
 {% if request.user.is_authenticated %}
     | <a href="{% url 'mb:comment_reply' comment.id %}">reply</a>
 {% endif %}

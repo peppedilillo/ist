@@ -1,20 +1,41 @@
 {% load mb_extras %}
 <div>
-    <div">
-        <a id="up_{{ post.id }}"
-            onclick="upvotePost(this)"
-            data-upvote-url="{% url 'mb:post_upvote' post.id %}"
-            data-redirect-url="{% url 'login' %}">+1</a>
-        <a href={{ post.url }}>{% if show_prefix %}{{ post.board_prefix }}{% endif %}{{ post.title }}</a>
+    <!--post title, upvote icon and url-->
+    <div>
+        <!--only show upvote functionalities if the user is authenticated.-->
+        {% if request.user.is_authenticated %}
+            {% csrf_token %}
+            <a id="up_{{ post.id }}"
+               onclick="upvotePost(this)"
+               data-upvote-url="{% url 'mb:post_upvote' post.id %}"
+               data-redirect-url="{% url 'login' %}"
+               class="cursor-pointer">
+                <!--if user does not like post this will be displayed (grayed out)-->
+                <span class="{% if post.is_fan %}hidden{% endif %} grayscale opacity-50"
+                      data-state="inactive">🔥</span>
+                <!--else this-->
+                <span class="{% if not post.is_fan %}hidden{% endif %} grayscale-0 opacity-100"
+                      data-state="active">🔥</span>
+            </a>
+        {% endif %}
+        <a href="{{ post.url }}">
+            {% if show_prefix %}{{ post.board_prefix }}{% endif %}
+        {{ post.title }}</a>
         <span class="text-base-600">({{ post.url|truncatesmart }})</span>
     </div>
+    <!--post metadata and buttons-->
     <div class="text-base-600 text-xs mb-1">
-        {{ post.date|timesince }} ago by <a href="{% url 'mb:profile' post.user.id %}" class="italic">{{ post.user }}</a>
-        <span class="score" id="score_{{ post.id }}">({{ post.nlikes }} point{{ post.nlikes|pluralize }})</span>
-        | <a href="{% url 'mb:post_detail' post.id %}">discuss</a>
+        {{ post.date|timeago }} ago by
+        <a href="{% url 'mb:profile' post.user.id %}"
+           class="italic hover:text-base-100 cursor-pointer">{{ post.user }}</a>
+        (<span class="score" id="score_{{ post.id }}">{{ post.nlikes }} point{{ post.nlikes|pluralize }}</span>)
+        | <a href="{% url 'mb:post_detail' post.id %}"
+    class="hover:text-base-100 cursor-pointer">discuss</a>
         {% if post.user == request.user or request.user.has_mod_rights %}
-            | <a href="{% url 'mb:post_delete' post.id %}">delete</a>
-            | <a href="{% url 'mb:post_edit' post.id %}">edit</a>
+            | <a href="{% url 'mb:post_delete' post.id %}"
+    class="hover:text-base-100 cursor-pointer">delete</a>
+            | <a href="{% url 'mb:post_edit' post.id %}"
+    class="hover:text-base-100 cursor-pointer">edit</a>
         {% endif %}
     </div>
 </div>

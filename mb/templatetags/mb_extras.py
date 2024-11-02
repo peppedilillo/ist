@@ -1,9 +1,11 @@
 from django import template
+from django.utils.timesince import timesince
 
 from urllib.parse import urlparse
 
 
 register = template.Library()
+
 
 @register.filter
 def board_color(header_text):
@@ -36,5 +38,9 @@ def truncatesmart(value, limit=24):
     
     if len(display_url) <= limit:
         return display_url
-        
     return display_url[:limit].rsplit('/', 1)[0] + '...'
+
+
+@register.filter
+def timeago(value):
+    return timesince(value, depth=1)

@@ -3,6 +3,7 @@ module.exports = {
   content: [
     './templates/**/*.html',
     './*/templates/**/*.html',
+    './*/templates/**/**/*.html',
   ],
   safelist: [
     'text-red-light',

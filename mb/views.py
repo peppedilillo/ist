@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
+from django.db.models import Exists, OuterRef
 
 from .forms import CommentForm
 from .forms import PostEditForm
@@ -26,7 +27,13 @@ EMPTY_MESSAGE = "It is empty here!"
 
 
 def _index(request, title: str, order_by: str) -> HttpResponse:
-    posts = Post.objects.select_related("user", "board").order_by(order_by)
+    posts = Post.objects.annotate(
+        is_fan=Exists(
+            Post.fans.through.objects.filter(
+                post_id=OuterRef('id'),
+                customuser_id=request.user.id,
+            ))
+    ).select_related("user", "board").order_by(order_by)
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -230,10 +237,12 @@ def _upvote(
     item = get_object_or_404(contrib_model, pk=contrib_id)
     if item.fans.contains(request.user):
         item.fans.remove(request.user)
+        isupvote = False
     else:
         item.fans.add(request.user)
+        isupvote = True
     item.save()
-    return JsonResponse({"success": True, "nlikes": item.nlikes})
+    return JsonResponse({"success": True, "nlikes": item.nlikes, "isupvote": isupvote})
 
 
 def comment_upvote(request, comment_id: int):

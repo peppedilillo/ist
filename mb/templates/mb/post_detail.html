@@ -9,7 +9,9 @@
             <form method="post" action="{% url 'mb:post_comment' post.id %}">
                 {% csrf_token %}
                 {{ comment_form.content }}
-                <p><button type="submit">Submit Comment</button></p>
+                <p>
+                    <button type="submit">Submit Comment</button>
+                </p>
             </form>
         {% else %}
             <p>
@@ -21,7 +23,9 @@
     <h2>Comments</h2>
     {% for comment in comments %}
         {% include "mb/includes/comment.html" with comment=comment %}
-        <ul>{% include "mb/includes/replies.html" with depth=1 %}</ul>
+        <ul>
+            {% include "mb/includes/replies.html" with depth=1 %}
+        </ul>
     {% empty %}
         <p>No comments yet.</p>
     {% endfor %}
