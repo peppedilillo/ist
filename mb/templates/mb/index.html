@@ -2,14 +2,14 @@
 {% load mb_extras %}
 {% block content %}
     <!-- post table -->
-    <h1 class="text-8xl mb-2 {{ header|board_color }}">{{ header }}</h1>
+    <h1 class="text-8xl mb-4 {{ header|board_color }}">{{ header }}</h1>
     {% if page_obj %}
         <ul>
             <table class="text-xs">
                 {% for post in page_obj %}
                     <tr>
-                        <td>{{ forloop.counter0 | add:page_obj.start_index }}.</td>
-                        <td>{% include "mb/includes/post.html" with post=post show_prefix=show_prefix %}</td>
+                        <td class="align-top"">{{ forloop.counter0 | add:page_obj.start_index }}.</td>
+                        <td class="align-top">{% include "mb/includes/post.html" with post=post show_prefix=show_prefix %}</td>
                     </tr>
                 {% endfor %}
             </table>

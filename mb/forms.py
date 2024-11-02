@@ -3,6 +3,8 @@ from django.core.validators import URLValidator
 from django.forms import ModelForm
 from django.forms import Textarea
 
+from urllib.parse import urlparse
+
 from .models import Board
 from .models import Comment
 from .models import Keyword
@@ -18,7 +20,8 @@ class PostForm(ModelForm):
         validate = URLValidator()
         url = self.cleaned_data.get("url")
 
-        if not url.startswith(("http://", "https://")):
+        parsed = urlparse(url)
+        if not parsed.scheme:
             url = f"https://{url}"
 
         try:
