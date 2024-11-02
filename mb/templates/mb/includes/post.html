@@ -11,7 +11,7 @@
                data-redirect-url="{% url 'login' %}"
                class="cursor-pointer">
                 <!--if user does not like post this will be displayed (grayed out)-->
-                <span class="{% if post.is_fan %}hidden{% endif %} grayscale opacity-50"
+                <span class="{% if post.is_fan %}hidden{% endif %} grayscale opacity-30"
                       data-state="inactive">🔥</span>
                 <!--else this-->
                 <span class="{% if not post.is_fan %}hidden{% endif %} grayscale-0 opacity-100"
