@@ -128,10 +128,3 @@ class Comment(models.Model):
             if self.content != original_comment.content:
                 self.edited = True
         super().save(*args, **kwargs)
-
-
-def eager_replies(comments, depth: int):
-    return comments.select_related("user").prefetch_related(
-        "__".join(["replies"] * (depth + 1)),
-        *[x + "__user" for x in ["__".join(["replies"] * i) for i in range(1, depth + 1)]],
-    )

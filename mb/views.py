@@ -10,6 +10,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from django.db.models import Exists, OuterRef
+from django.db.models import Prefetch
 
 from .forms import CommentForm
 from .forms import PostEditForm
@@ -17,7 +18,6 @@ from .forms import PostForm
 from .models import Board
 from .models import Comment
 from .models import CommentHistory
-from .models import eager_replies
 from .models import Post
 from .settings import INDEX_NPOSTS
 from .settings import MAX_DEPTH
@@ -69,9 +69,33 @@ code = partial(_board, name="c")
 jobs = partial(_board, name="j")
 
 
+def eager_replies(comments, depth: int, user_id=None):
+    base_annotation = Exists(
+        Comment.fans.through.objects.filter(
+            comment_id=OuterRef('id'),
+            customuser_id=user_id,
+        )
+    )
+    # annotate top level comments
+    comments = comments.select_related("user").annotate(is_fan=base_annotation)
+    # annotate and prefetch nested comments
+    prefetch_chain = [
+        Prefetch(
+            "__".join(["replies"] * i),
+            queryset=Comment.objects.select_related('user').annotate(is_fan=base_annotation)
+        )
+        for i in range(1, depth + 1)
+    ]
+    return comments.prefetch_related(*prefetch_chain)
+
+
 def post_detail(request, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
-    comments = eager_replies(post.comments.filter(parent=None), depth=MAX_DEPTH).order_by("-date")
+    comments = eager_replies(
+        post.comments.filter(parent=None),
+        depth=MAX_DEPTH,
+        user_id=request.user.id,
+    ).order_by("-date")
     comment_form = CommentForm()
     context = {
         "post": post,
