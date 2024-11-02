@@ -38,7 +38,8 @@ def truncatesmart(value, limit=24):
     
     if len(display_url) <= limit:
         return display_url
-    return display_url[:limit].rsplit('/', 1)[0] + '...'
+    print(display_url.rsplit('/', 1))
+    return display_url.split('/', 1)[0] + '/..'
 
 
 @register.filter
