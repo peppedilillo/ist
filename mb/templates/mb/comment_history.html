@@ -3,12 +3,11 @@
     <!-- post title and content -->
     <p>{% include "mb/includes/comment.html" with comment=comment show_prefix=show_prefix %}</p>
     <!-- comment form -->
-    <h2>Edits</h2>
+    <div class="text-6xl my-4">history</div>
     {% for edit in history %}
-        <p>
-            {{ edit.content }}
-            <br>
-            modified on {{ edit.date }}
-        </p>
+        <div class="text-xs">{{ edit.content }}</div>
+        <div class="text-base-600 text-xs mb-1">modified on {{ edit.date }}</div>
+    {% empty %}
+        <div class="my-4 text-xs">this comment was never edited.</p>
     {% endfor %}
 {% endblock %}

@@ -44,5 +44,5 @@ class CommentForm(ModelForm):
         model = Comment
         fields = ["content"]
         widgets = {
-            "content": Textarea(attrs={"rows": 6, "cols": 60}),
+            "content": Textarea(attrs={"rows": 6}),
         }

@@ -1,23 +1,20 @@
 {% extends 'base.html' %}
+{% load mb_extras %}
+
+
 {% block content %}
     <!-- comment recap -->
-    <p>{% include "mb/includes/comment.html" with comment=comment %}</p>
+    <div class="my-4">{% include "mb/includes/comment.html" with comment=comment %}</div>
     <!-- errors-->
     {% if form.errors %}
-        There were some problems with your submission:
-        <br>
-        {% for field, errors in form.errors.items %}{{ errors }}{% endfor %}
+        <div class="my-4">there were some problems with your submission:</div>
+        <div class="my-4">{% for field, errors in form.errors.items %}{{ errors }}{% endfor %}</div>
     {% endif %}
     <!-- reply form -->
-    <p>
-        <form method="post" actions="{% url 'mb:comment_reply' comment.id %}">
-            {% csrf_token %}
-            <table>
-                <tr>
-                    <td>{{ form.content }}</td>
-                </tr>
-            </table>
-            <input type="submit" value="reply">
-        </form>
-    </p>
+    <form method="post" actions="{% url 'mb:comment_reply' comment.id %}">
+        {% csrf_token %}
+        <div class="my-4 text-7xl">reply</div>
+        <div class="my-4">{{ form.content | addclass:'bg-base-900 text-base-100 w-full sm:w-1/2' }}</div>
+        <button type="submit" class="button">Submit</button>
+    </form>
 {% endblock %}

@@ -1,33 +1,34 @@
 {% extends 'base.html' %}
+{% load mb_extras %}
+
 {% block content %}
-    <h2>New post</h2>
+    <div class="text-6xl my-4">new post</div>
     <!--- errors -->
     {% if form.errors %}
-        There were some problems with your submission:
-        <br>
-        {% for field, errors in form.errors.items %}{{ errors }}{% endfor %}
+        <div class="my-4">there were some problems with your submission:</div>
+        <div class="my-4">{% for field, errors in form.errors.items %}{{ errors }}{% endfor %}</div>
     {% endif %}
     <!--- post submit form -->
     <form method="post" actions="{% url 'mb:post_submit' %}">
         {% csrf_token %}
-        <table>
+        <table class="my-4">
             <tr>
-                <td>*{{ form.title.label_tag }}</td>
-                <td>{{ form.title }}</td>
+                <td class="pr-4">*{{ form.title.label_tag }}</td>
+                <td>{{ form.title | addclass:'bg-base-900 text-base-100'  }}</td>
             </tr>
             <tr>
-                <td>*{{ form.url.label_tag }}</td>
-                <td>{{ form.url }}</td>
+                <td class="pr-4">*{{ form.url.label_tag }}</td>
+                <td>{{ form.url | addclass:'bg-base-900 text-base-100'  }}</td>
             </tr>
             <tr>
-                <td>{{ form.board.label_tag }}</td>
-                <td>{{ form.board }}</td>
+                <td class="pr-4 pt-4">{{ form.board.label_tag }}</td>
+                <td class="pt-4">{{ form.board | addclass:'bg-base-900 text-base-100'  }}</td>
             </tr>
             <tr>
-                <td>{{ form.keywords.label_tag }}</td>
-                <td>{{ form.keywords }}</td>
+                <td class="pr-4">{{ form.keywords.label_tag }}</td>
+                <td>{{ form.keywords | addclass:'bg-base-900 text-base-100'  }}</td>
             </tr>
         </table>
-        <input type="submit" value="submit">
+        <button type="submit" class="button">Submit</button>
     </form>
 {% endblock %}

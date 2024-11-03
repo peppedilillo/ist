@@ -286,7 +286,7 @@ def _upvote(
     item.save()
     return JsonResponse({
         "success": True,
-        "nlikes": item.nlikes + 1 if isupvote else -1,
+        "nlikes": item.nlikes,
         "isupvote": isupvote,
     })
 

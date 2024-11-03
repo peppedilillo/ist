@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .button {
+    @apply bg-base-black hover:border-green-light hover:text-green-light text-base-100 font-semibold py-2 px-4 border border-base-100
+           transition-colors duration-200 ease-in-out;
+  }
+
+  .button-delete {
+    @apply bg-base-black hover:border-red hover:text-red text-base-100 font-semibold py-2 px-4 border border-base-100
+           transition-colors duration-200 ease-in-out;
+  }
+}
