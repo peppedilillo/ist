@@ -26,14 +26,18 @@ EMPTY_MESSAGE = "It is empty here!"
 
 
 def _index(request, title: str, order_by: str) -> HttpResponse:
+    # we ask the db to annotate the post with a flag indicating wether the
+    # request user has liked the posts we fetched or not. this is because
+    # we have to highlight posts liked by the user. the request is at db level
+    # to improve performances and avoid n+1 queries.
     posts = Post.objects.annotate(
         is_fan=Exists(
             Post.fans.through.objects.filter(
                 post_id=OuterRef('id'),
                 customuser_id=request.user.id,
             )),
-        comment_count=Count('comments'),
     ).select_related("user", "board").order_by(order_by)
+    # TODO: fix this paginator so we can have one queries for the homepage
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -51,18 +55,14 @@ news = partial(_index, title="news", order_by="-date")
 
 def _board(request, name: str) -> HttpResponse:
     board = Board.objects.get(name=name)
-    # we ask the db to annotate the post with a flag indicating wether the
-    # request user has liked the posts we fetched or not. this is because
-    # we have to highlight posts liked by the user. the request is at db level
-    # to improve performances and avoid n+1 queries.
+    # see comment to `_index`
     posts = Post.objects.annotate(
         is_fan=Exists(
             Post.fans.through.objects.filter(
                 post_id=OuterRef('id'),
                 customuser_id=request.user.id,
-            ),
-        comment_count=Count('comments'),
-        )).select_related("user", "board").filter(board=board).order_by("-date")
+            )),
+    ).select_related("user", "board").filter(board=board).order_by("-date")
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -284,7 +284,11 @@ def _upvote(
         item.fans.add(request.user)
         isupvote = True
     item.save()
-    return JsonResponse({"success": True, "nlikes": item.fans.count(), "isupvote": isupvote})
+    return JsonResponse({
+        "success": True,
+        "nlikes": item.nlikes + 1 if isupvote else -1,
+        "isupvote": isupvote,
+    })
 
 
 def comment_upvote(request, comment_id: int):

@@ -19,7 +19,7 @@ def generate_user() -> User:
     return user
 
 
-POST_LEN = (3, 8)
+POST_LEN = (3, 16)
 
 
 def random_user():
@@ -39,14 +39,14 @@ def random_keywords():
     return Keyword.objects.order_by("?")[:k]  # Return random selection
 
 
-def generate_post(author: User | None = None) -> Post:
+def generate_post(author: User | None = None, max_title: int = 120,) -> Post:
     fake = Faker()
     post = Post(
         url=fake.url(),
         title=fake.sentence(
             nb_words=randint(*POST_LEN),
             variable_nb_words=True,
-        ),
+        )[:max_title],
         user=author if author is not None else random_user(),
         board=random_board(),
     )
@@ -69,13 +69,13 @@ def random_comment(post: Post):
     return post.comments.order_by("?").first()
 
 
-def generate_comment(author: User | None = None, parent: Post | Comment | None = None) -> Comment:
+def generate_comment(author: User | None = None, parent: Post | Comment | None = None, max_content: int = 10_000,) -> Comment:
     if parent is None:
         parent = random_comment(random_post())
 
     fake = Faker()
     comment = Comment(
-        content=fake.paragraph(nb_sentences=randint(*COMMENT_LEN)),
+        content=fake.paragraph(nb_sentences=randint(*COMMENT_LEN))[:max_content],
         user=author if author is not None else random_user(),
         post=parent if isinstance(parent, Post) else parent.post,
         parent=None if isinstance(parent, Post) else parent,

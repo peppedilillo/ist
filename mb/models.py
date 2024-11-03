@@ -58,13 +58,14 @@ class Post(models.Model):
     url = models.CharField(max_length=300)
     date = models.DateTimeField(auto_now_add=True)
     edited = models.BooleanField(default=False)
-    # to avoid dealing with counts we memorize the number of likes and update it at save time.
-    nlikes = models.IntegerField(default=0)
     score = models.FloatField(editable=False, default=0)
     fans = models.ManyToManyField(to=get_user_model(), related_name="liked_posts", editable=False)
     keywords = models.ManyToManyField(Keyword, related_name="posts", blank=True)
     board = models.ForeignKey(to=Board, on_delete=models.SET_NULL, related_name="posts", null=True, blank=True)
     user = models.ForeignKey(to=get_user_model(), related_name="posts", on_delete=models.CASCADE)
+    # to avoid dealing with counts we memorize the number of likes and update it at save time.
+    nlikes = models.IntegerField(default=0)
+    ncomments = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.title} ({self.url})"
@@ -121,6 +122,9 @@ class Comment(models.Model):
         if self.pk is None:
             super().save(*args, **kwargs)
             self.fans.add(self.user)
+            # updates the comment counter
+            self.post.ncomments += 1
+            self.post.save(update_fields=['ncomments'])
             return
         else:
             original_comment = Comment.objects.get(pk=self.pk)
@@ -131,3 +135,9 @@ class Comment(models.Model):
                 self.edited = True
             super().save(*args, **kwargs)
             return
+
+    def delete(self, *args, **kwargs):
+        post = self.post
+        super().delete(*args, **kwargs)
+        post.ncomments = post.comments.count()
+        self.post.save(update_fields=['ncomments'])

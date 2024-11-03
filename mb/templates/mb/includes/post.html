@@ -33,7 +33,7 @@
             </span>
         {% endif %}
         (<span class="score" id="score_{{ post.id }}">{{ post.nlikes }} point{{ post.nlikes|pluralize }}</span>)
-        <a href="{% url 'mb:post_detail' post.id %}" class="hover:text-base-100 cursor-pointer whitespace-nowrap">{{ post.comment_count }} comments</a>
+        <a href="{% url 'mb:post_detail' post.id %}" class="hover:text-base-100 cursor-pointer whitespace-nowrap">{{ post.ncomments }} comments</a>
         {% if post.user == request.user or request.user.has_mod_rights %}
             | <a href="{% url 'mb:post_delete' post.id %}"
     class="hover:text-base-100 cursor-pointer">delete</a>
