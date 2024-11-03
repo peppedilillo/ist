@@ -1,11 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.utils import timezone
 import pghistory
 
 from .scores import compute_score
-from .settings import BOARD_PREFIX_SEPARATOR
-from .settings import MAX_DEPTH
 
 
 class Board(models.Model):
@@ -59,16 +56,15 @@ class Keyword(models.Model):
 class Post(models.Model):
     title = models.CharField(max_length=120)
     url = models.CharField(max_length=300)
-    user = models.ForeignKey(to=get_user_model(), related_name="posts", on_delete=models.CASCADE)
-    date = models.DateTimeField()
-    board = models.ForeignKey(to=Board, on_delete=models.SET_NULL, related_name="posts", null=True, blank=True)
-    keywords = models.ManyToManyField(Keyword, related_name="posts", blank=True)
+    date = models.DateTimeField(auto_now_add=True)
     edited = models.BooleanField(default=False)
-    fans = models.ManyToManyField(to=get_user_model(), related_name="liked_posts", editable=False)
     # to avoid dealing with counts we memorize the number of likes and update it at save time.
-    # the default value is set to one to represent the contribution author.
-    nlikes = models.IntegerField(default=1)
-    score = models.FloatField(editable=False)
+    nlikes = models.IntegerField(default=0)
+    score = models.FloatField(editable=False, default=0)
+    fans = models.ManyToManyField(to=get_user_model(), related_name="liked_posts", editable=False)
+    keywords = models.ManyToManyField(Keyword, related_name="posts", blank=True)
+    board = models.ForeignKey(to=Board, on_delete=models.SET_NULL, related_name="posts", null=True, blank=True)
+    user = models.ForeignKey(to=get_user_model(), related_name="posts", on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.title} ({self.url})"
@@ -76,22 +72,26 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
         if self.pk is None:
             # object has been just created and has yet to be saved
-            self.date = timezone.now()
-            self.score = compute_score(1, self.date)
+            super().save(*args, **kwargs)
+            # we update the object to have its initial score computed
+            self.fans.add(self.user)
+            self.nlikes = 1
+            self.score = compute_score(self.nlikes, self.date)
+            super().save(*args, **kwargs)
         else:
             original_post = Post.objects.get(pk=self.pk)
-            if (ldelta := (self.fans.count() + 1) - original_post.nlikes) != 0:
-                # plus one above represent the contribution author
+            if (ldelta := self.fans.count() - original_post.nlikes) != 0:
                 # number of votes changed
                 self.nlikes += ldelta
                 self.score = compute_score(self.nlikes, self.date)
-            if self.title != original_post.title:
+            if self.title != original_post.title or self.url != original_post.url:
                 # we mark the post as edited
                 self.edited = True
-        super().save(*args, **kwargs)
+            super().save(*args, **kwargs)
+        return
 
     def board_prefix(self):
-        return f"{self.board.get_name_display()}{BOARD_PREFIX_SEPARATOR} " if self.board else ""
+        return f"{self.board.get_name_display()}" if self.board else ""
 
 
 @pghistory.track(
@@ -106,25 +106,28 @@ class Comment(models.Model):
     content = models.TextField(max_length=10_000)
     user = models.ForeignKey(to=get_user_model(), related_name="comments", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
-    post = models.ForeignKey(to=Post, on_delete=models.CASCADE, related_name="comments")
     # parent is null if comment is at top level (a comment to a post)
-    parent = models.ForeignKey(to="self", on_delete=models.CASCADE, related_name="replies", null=True)
     edited = models.BooleanField(default=False)
-    fans = models.ManyToManyField(to=get_user_model(), related_name="liked_comments", editable=False)
     # to avoid dealing with counts we memorize the number of likes and update it at save time.
-    # the default value is set to one to represent the contribution author.
-    nlikes = models.IntegerField(default=1)
+    nlikes = models.IntegerField(default=0)
+    post = models.ForeignKey(to=Post, on_delete=models.CASCADE, related_name="comments")
+    parent = models.ForeignKey(to="self", on_delete=models.CASCADE, related_name="replies", null=True)
+    fans = models.ManyToManyField(to=get_user_model(), related_name="liked_comments", editable=False)
 
     def __str__(self):
         return f"Comment by {self.user.username} on {self.post.title}"
 
     def save(self, *args, **kwargs):
-        if self.pk:
+        if self.pk is None:
+            super().save(*args, **kwargs)
+            self.fans.add(self.user)
+            return
+        else:
             original_comment = Comment.objects.get(pk=self.pk)
-            if (ldelta := (self.fans.count() + 1) - original_comment.nlikes) != 0:
-                # plus one represent the contribution author
+            if (ldelta := self.fans.count() - original_comment.nlikes) != 0:
                 # number of votes changed
                 self.nlikes += ldelta
             if self.content != original_comment.content:
                 self.edited = True
-        super().save(*args, **kwargs)
+            super().save(*args, **kwargs)
+            return

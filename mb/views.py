@@ -9,8 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
-from django.db.models import Exists, OuterRef
-from django.db.models import Prefetch
+from django.db.models import Exists, OuterRef, Prefetch, Count
 
 from .forms import CommentForm
 from .forms import PostEditForm
@@ -32,7 +31,8 @@ def _index(request, title: str, order_by: str) -> HttpResponse:
             Post.fans.through.objects.filter(
                 post_id=OuterRef('id'),
                 customuser_id=request.user.id,
-            ))
+            )),
+        comment_count=Count('comments'),
     ).select_related("user", "board").order_by(order_by)
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
@@ -40,7 +40,6 @@ def _index(request, title: str, order_by: str) -> HttpResponse:
     context = {
         "page_obj": page_obj,
         "header": title,
-        "show_prefix": True,
         "empty_message": EMPTY_MESSAGE,
     }
     return render(request, "mb/index.html", context)
@@ -52,7 +51,18 @@ news = partial(_index, title="news", order_by="-date")
 
 def _board(request, name: str) -> HttpResponse:
     board = Board.objects.get(name=name)
-    posts = Post.objects.select_related("user", "board").filter(board=board).order_by("-date")
+    # we ask the db to annotate the post with a flag indicating wether the
+    # request user has liked the posts we fetched or not. this is because
+    # we have to highlight posts liked by the user. the request is at db level
+    # to improve performances and avoid n+1 queries.
+    posts = Post.objects.annotate(
+        is_fan=Exists(
+            Post.fans.through.objects.filter(
+                post_id=OuterRef('id'),
+                customuser_id=request.user.id,
+            ),
+        comment_count=Count('comments'),
+        )).select_related("user", "board").filter(board=board).order_by("-date")
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -92,6 +102,7 @@ def eager_replies(comments, depth: int, user_id=None):
 def post_detail(request, post_id: int) -> HttpResponse:
     # TODO: this could be achieved with one less db query prefetching comments
     post = get_object_or_404(Post, pk=post_id)
+    post.is_fan = post.fans.through.objects.filter(customuser_id=request.user.id).exists()
     comments = eager_replies(
         post.comments.filter(parent=None),
         depth=MAX_DEPTH,
@@ -101,7 +112,6 @@ def post_detail(request, post_id: int) -> HttpResponse:
     context = {
         "post": post,
         "comments": comments,
-        "show_prefix": True,
         "comment_form": comment_form,
         "max_depth": MAX_DEPTH,
     }
@@ -188,7 +198,6 @@ def comment_detail(request, comment_id: int) -> HttpResponse:
     context = {
         "post": comment.post,
         "comments": comments,
-        "show_prefix": True,
         "max_depth": MAX_DEPTH,
     }
     return render(request, "mb/post_detail.html", context)
@@ -275,7 +284,7 @@ def _upvote(
         item.fans.add(request.user)
         isupvote = True
     item.save()
-    return JsonResponse({"success": True, "nlikes": item.nlikes, "isupvote": isupvote})
+    return JsonResponse({"success": True, "nlikes": item.fans.count(), "isupvote": isupvote})
 
 
 def comment_upvote(request, comment_id: int):
