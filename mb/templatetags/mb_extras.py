@@ -45,3 +45,8 @@ def truncatesmart(value, limit=24):
 @register.filter
 def timeago(value):
     return timesince(value, depth=1)
+
+
+@register.filter(name='addclass')
+def addclass(value, arg):
+    return value.as_widget(attrs={'class': arg})

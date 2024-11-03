@@ -90,6 +90,7 @@ def eager_replies(comments, depth: int, user_id=None):
 
 
 def post_detail(request, post_id: int) -> HttpResponse:
+    # TODO: this could be achieved with one less db query prefetching comments
     post = get_object_or_404(Post, pk=post_id)
     comments = eager_replies(
         post.comments.filter(parent=None),
@@ -175,10 +176,18 @@ def post_comment(request, post_id: int) -> HttpResponse:
 
 
 def comment_detail(request, comment_id: int) -> HttpResponse:
-    comment = get_object_or_404(eager_replies(Comment.objects, depth=MAX_DEPTH), pk=comment_id)
+    comment = get_object_or_404(
+        Comment.objects.select_related('post'),
+        pk=comment_id
+    )
+    comments = eager_replies(
+        Comment.objects.filter(pk=comment_id),
+        depth=MAX_DEPTH,
+        user_id=request.user.id,
+    ).order_by("-date")
     context = {
         "post": comment.post,
-        "comments": [comment],
+        "comments": comments,
         "show_prefix": True,
         "max_depth": MAX_DEPTH,
     }

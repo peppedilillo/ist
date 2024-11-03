@@ -1,32 +1,33 @@
 {% extends 'base.html' %}
+{% load mb_extras %}
+
 {% block content %}
     <!-- post title and content -->
-    <p>{% include "mb/includes/post.html" with post=post show_prefix=show_prefix %}</p>
+    <div class="my-4">{% include "mb/includes/post.html" with post=post show_prefix=show_prefix %}</div>
     <!-- comment form -->
     {% if comment_form %}
-        {% if user.is_authenticated %}
-            <h3>Add a comment</h3>
-            <form method="post" action="{% url 'mb:post_comment' post.id %}">
-                {% csrf_token %}
-                {{ comment_form.content }}
-                <p>
-                    <button type="submit">Submit Comment</button>
-                </p>
-            </form>
-        {% else %}
-            <p>
-                <a href="{% url 'login' %}">Log in</a> to add a comment.
-            </p>
-        {% endif %}
+            {% if user.is_authenticated %}
+                <div class="my-4">Add a comment</div>
+                <form method="post" action="{% url 'mb:post_comment' post.id %}">
+                    {% csrf_token %}
+                    <div class="my-4">{{ comment_form.content | addclass:'bg-base-900 text-base-100' }}</div>
+                    <button type="submit" 
+                    class="bg-white hover:bg-gray-100 text-gray-800 
+                    font-semibold py-2 px-4 border border-gray-400 
+                    rounded shadow">Submit</button>
+                </form>
+            {% else %}
+                    <div class="my-4"><a href="{% url 'login' %}">Login</a> to add a comment.</div>
+            {% endif %}
     {% endif %}
     <!-- comment section -->
-    <h2>Comments</h2>
+    <div class="my-4 text-7xl">comments</div>
     {% for comment in comments %}
-        {% include "mb/includes/comment.html" with comment=comment %}
-        <ul>
+        <div class="text-xs">{% include "mb/includes/comment.html" with comment=comment %}</div>
+        <ul class="ml-8 text-xs">
             {% include "mb/includes/replies.html" with depth=1 %}
         </ul>
     {% empty %}
-        <p>No comments yet.</p>
+        <div class="my-4 text-xs">No comments yet.</p>
     {% endfor %}
 {% endblock %}

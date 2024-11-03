@@ -2,11 +2,9 @@
     <p>
         {% include "mb/includes/comment.html" with comment=reply %}
         {% if depth < max_depth %}
-            <ul>
-                {% include "mb/includes/replies.html" with comment=reply depth=depth|add:"1" %}
-            </ul>
+            <ul class="ml-8">{% include "mb/includes/replies.html" with comment=reply depth=depth|add:"1" %}</ul>
         {% else %}
-            | <a href="{% url 'mb:comment_detail' reply.id %}">more replies...</a>
+            <div class="ml-5 mb-4"><a href="{% url 'mb:comment_detail' reply.id %}">more replies...</a></div>
         {% endif %}
     </p>
 {% endfor %}
