@@ -10,7 +10,7 @@
                 <div class="my-4">Add a comment</div>
                 <form method="post" action="{% url 'mb:post_comment' post.id %}">
                     {% csrf_token %}
-                    <div class="my-4">{{ comment_form.content | addclass:'bg-base-900 text-base-100 w-full sm:w-1/2' }}</div>
+                    <div class="my-4">{{ comment_form.content | addclass:'bg-base-900 text-base-100 w-full sm:w-1/2 h-24' }}</div>
                     <button type="submit" class="button">Submit</button>
                 </form>
             {% else %}

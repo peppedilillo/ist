@@ -173,7 +173,7 @@ INTERNAL_IPS = [
 ]
 
 # Allowed hosts
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.1.58"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.1.57"]
 
 # Caches
 CACHES = {
