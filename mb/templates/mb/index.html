@@ -2,10 +2,10 @@
 {% load mb_extras %}
 {% block content %}
     <!-- post table -->
-    <h1 class="text-8xl mb-4 {{ header|board_color }}">{{ header }}</h1>
+    <h1 class="text-8xl my-8 font-extralight text-base-100">{{ header }}</h1>
     {% if page_obj %}
         <ul>
-            <table class="text-xs">
+            <table>
                 {% for post in page_obj %}
                     <tr>
                         <td class="align-top"">{{ forloop.counter0 | add:page_obj.start_index }}.

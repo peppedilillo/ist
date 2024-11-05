@@ -1,15 +1,8 @@
 {% for reply in comment.replies.all %}
     {% include "mb/includes/comment.html" with comment=reply %}
-    <div class="text-base-600 mb-1 ml-5 text-xs">
-        <!--reply button-->
-        {% if request.user.is_authenticated %}
-            <a href="{% url 'mb:comment_reply' comment.id %}"
-               class="hover:text-base-100 cursor-pointer">reply</a>
-        {% endif %}
-    </div>
     {% if depth < max_depth %}
         <ul class="ml-8">{% include "mb/includes/replies.html" with comment=reply depth=depth|add:"1" %}</ul>
     {% else %}
-        <div class="ml-5 mb-4"><a href="{% url 'mb:comment_detail' reply.id %}">more replies...</a></div>
+        <div class="mb-4 text-xs text-base-600 hover:text-base-100 cursor-pointer"><a href="{% url 'mb:comment_detail' reply.id %}">more replies...</a></div>
     {% endif %}
 {% endfor %}

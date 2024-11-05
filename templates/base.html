@@ -1,5 +1,6 @@
 {% load static %}
 {% load mb_extras %}
+
 <script src="{% static 'js/base.js' %}"></script>
 <html lang="en">
     <head>
@@ -8,38 +9,27 @@
         <title>Astrowebsite</title>
         <link rel="stylesheet" href="{% static 'css/output.css' %}" type="text/css">
     </head>
-    <body class="bg-base-black flex flex-col items-center font-mono text-base-100">
+    <body class="bg-base-black flex flex-col items-center font-sans text-base-100">
         <!-- Container wrapper for positioning -->
-        <div class="relative w-full max-w-4xl m-20">
-            <!-- Background gradient container -->
-            <div class="absolute bg-gradient-to-b from-red to-red to-95% sm:rounded-3xl sm:rotate-1 sm:-inset-7 inset-0 -top-7">
-           </div>
-            
+        <div class="relative w-full max-w-4xl m-12 md:m-20">
+            <!-- Wraparound container -->
+            <div class="absolute lg:rounded-3xl inset-x-0 -top-2 -bottom-2 lg:-inset-2
+            <!-- Selects the background color based on board-->
+            {% if header %}
+                bg-{{ header | board_color }} 
+            {% elif post.board %}
+                bg-{{ post.board_prefix | board_color }} 
+            {% else %}
+                bg-base-100
+            {% endif %}
+            "></div>
             <!-- Main content container -->
-            <div class="relative bg-base-black py-8 px-2 sm:px-8 sm:rounded-3xl">
+            <div class="relative bg-base-black py-8 px-2 sm:px-8 lg:rounded-3xl">
                 <!-- Navigation -->
-                <nav class="text-xs">
+                <nav>
                     <div class="max-w-4xl mx-auto py-2 flex flex-col space-y-2 sm:flex-row sm:items-center sm:h-8 sm:justify-between sm:space-y-0">
                         <!-- left side of navigation bar-->
-                        <div class="space-x-1">
-                            <a href="{% url 'mb:index' %}" class="font-bold {{ 'all'|board_color }}">all</a>
-                            <a href="{% url 'mb:news' %}" class="font-bold {{ 'news'|board_color }}">news</a>
-                            <a href="{% url 'mb:papers' %}" class="font-bold {{ 'papers'|board_color }}">papers</a>
-                            <a href="{% url 'mb:code' %}" class="font-bold {{ 'code'|board_color }}">code</a>
-                            <a href="{% url 'mb:jobs' %}" class="font-bold {{ 'jobs'|board_color }}">jobs</a>
-                        </div>
-                        <!-- right side of navigation bar-->
-                        <div class="text-base-600 space-x-1">
-                            {% if user.is_authenticated %}
-                                <a href="{% url 'mb:post_submit' %}" class="text-base-50 font-bold">submit</a>
-                                &ltuser:
-                                <a href="{% url 'mb:profile' user.id %}" class="italic hover:text-base-100 cursor-pointer">{{ user }}</a>,
-                                <a href="{% url 'accounts:logout' %}" class="hover:text-base-100 cursor-pointer">logout</a>&gt
-                            {% else %}
-                                <a href="{% url 'login' %}" class="hover:text-base-100 cursor-pointer">login</a>
-                                <a href="{% url 'accounts:signup' %}" class="hover:text-base-100 cursor-pointer">signup</a>
-                            {% endif %}
-                        </div>
+                        {% include "navbar.html" %}
                     </div>
                 </nav>
                 <main class="max-w-4xl mx-auto text-left">
@@ -49,7 +39,7 @@
         </div>
         <!-- Footer text -->
         <div class="text-center text-xs text-base-100 font-mono mb-8">
-            made by p • check code on ..
+            made by peppe • link to github • about
         </div>
     </body>
 </html>

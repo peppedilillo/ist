@@ -13,10 +13,11 @@ def board_color(header_text):
     Note that these colors should also be safelisted in the tailwind config,
     otherwise tailwind may never now of them."""
     colors = {
-        'news': 'text-red-light',
-        'papers': 'text-yellow-light',
-        'code': 'text-blue-light',
-        'jobs': 'text-magenta-light'
+        'all': 'red-light',
+        'news': 'green-light',
+        'papers': 'yellow-light',
+        'code': 'blue-light',
+        'jobs': 'magenta-light'
     }
     return colors.get(header_text, 'text-base-300')
 

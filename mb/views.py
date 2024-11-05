@@ -62,7 +62,7 @@ def _board(request, name: str) -> HttpResponse:
                 post_id=OuterRef('id'),
                 customuser_id=request.user.id,
             )),
-    ).select_related("user", "board").filter(board=board).order_by("-date")
+    ).select_related("user", "board").filter(board=board).order_by("-score")
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)

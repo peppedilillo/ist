@@ -10,28 +10,21 @@
                 <div class="my-4">Add a comment</div>
                 <form method="post" action="{% url 'mb:post_comment' post.id %}">
                     {% csrf_token %}
-                    <div class="my-4">{{ comment_form.content | addclass:'bg-base-900 text-base-100 w-full sm:w-1/2 h-24' }}</div>
-                    <button type="submit" class="button">Submit</button>
+                    <div class="my-2">{{ comment_form.content | addclass:'bg-base-black text-base-100 p-2 h-24 border border-base-100' }}</div>
+                    <button type="submit" class="button ">Submit</button>
                 </form>
             {% else %}
                     <div class="my-4"><a href="{% url 'login' %}">Login</a> to add a comment.</div>
             {% endif %}
     {% endif %}
     <!-- comment section -->
-    <div class="my-4 text-7xl">comments</div>
+    <div class="text-7xl font-extralight my-8">comments</div>
     {% for comment in comments %}
-        <div class="text-xs">{% include "mb/includes/comment.html" with comment=comment %}</div>
-        <div class="text-base-600 mb-1 ml-5 text-xs">
-            <!--reply button-->
-            {% if request.user.is_authenticated %}
-                <a href="{% url 'mb:comment_reply' comment.id %}"
-                   class="hover:text-base-100 cursor-pointer">reply</a>
-            {% endif %}
-        </div>
-        <ul class="ml-8 text-xs">
+        <div>{% include "mb/includes/comment.html" with comment=comment %}</div>
+        <ul class="ml-8">
             {% include "mb/includes/replies.html" with depth=1 %}
         </ul>
     {% empty %}
-        <div class="my-4 text-xs">No comments yet.</p>
+        <div>No comments yet.</p>
     {% endfor %}
 {% endblock %}

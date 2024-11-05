@@ -1,5 +1,5 @@
 {% load mb_extras %}
-<div>
+<div class="mb-4 sm:mb-2">
     <!--post title, upvote icon and url-->
     <div>
         <!--only show upvote functionalities if the user is authenticated.-->
@@ -18,21 +18,20 @@
                       data-state="active">🔥</span>
             </a>
         {% endif %}
-        <a href="{{ post.url }}">
-        {{ post.title }}</a>
+        <a href="{{ post.url }}">{{ post.title }}</a>
         <span class="text-base-600 text-xs">({{ post.url|truncatesmart }})</span>
     </div>
     <!--post metadata and buttons-->
-    <div class="text-base-600 mb-1 text-xs">
+    <div class="text-base-600 text-xs">
         <a href="{% url 'mb:profile' post.user.id %}"
            class="italic hover:text-base-100 cursor-pointer">{{ post.user }}</a>
         {{ post.date|timeago }} ago
         {%  if post.board_prefix %} in
-            <span class="{{  post.board_prefix | board_color }}">
+            <span class="font-semibold text-{{  post.board_prefix | board_color }}">
                 {{ post.board_prefix }}
             </span>
-        {% endif %}
-        (<span class="score" id="score_{{ post.id }}">{{ post.nlikes }} point{{ post.nlikes|pluralize }}</span>)
+        {% endif %} • 
+        <span class="score" id="score_{{ post.id }}">{{ post.nlikes }} point{{ post.nlikes|pluralize }}</span>, 
         <a href="{% url 'mb:post_detail' post.id %}" class="hover:text-base-100 cursor-pointer whitespace-nowrap">{{ post.ncomments }} comments</a>
         {% if post.user == request.user or request.user.has_mod_rights %}
             | <a href="{% url 'mb:post_delete' post.id %}"

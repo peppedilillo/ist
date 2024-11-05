@@ -6,10 +6,18 @@ module.exports = {
     './*/templates/**/**/*.html',
   ],
   safelist: [
+    'text-base-100',
     'text-red-light',
+    'text-green-light',
     'text-yellow-light', 
     'text-magenta-light',
-    'text-blue-light'
+    'text-blue-light',
+    'bg-base-100',
+    'bg-red-light',
+    'bg-green-light',
+    'bg-yellow-light', 
+    'bg-magenta-light',
+    'bg-blue-light',
   ],
   theme: {
     extend: {},
