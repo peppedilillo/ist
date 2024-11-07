@@ -2,14 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @layer components {
   .button {
-    @apply bg-base-black hover:border-green-light hover:text-green-light text-base-100 font-semibold py-2 px-4 border border-base-100
-           transition-colors duration-200 ease-in-out;
+    @apply text-base font-semibold border py-2 px-4 border-base-100 bg-base-black 
+           transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 duration-300;
   }
-
-  .button-delete {
-    @apply bg-base-black hover:border-red hover:text-red text-base-100 font-semibold py-2 px-4 border border-base-100
-           transition-colors duration-200 ease-in-out;
+  .button-red {
+    @apply button hover:border-red hover:text-red;
+  }
+  .form {
+    @apply bg-base-black text-base-100 p-2 border border-base-100;
   }
 }

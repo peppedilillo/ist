@@ -8,9 +8,9 @@
     {% if comment_form %}
             {% if user.is_authenticated %}
                 <div class="my-4">Add a comment</div>
-                <form method="post" action="{% url 'mb:post_comment' post.id %}">
+                <form method="post" class="my-4" action="{% url 'mb:post_comment' post.id %}">
                     {% csrf_token %}
-                    <div class="my-2">{{ comment_form.content | addclass:'bg-base-black text-base-100 p-2 h-24 border border-base-100' }}</div>
+                    <div class="my-4">{{ comment_form.content | addclass:'form' }}</div>
                     <button type="submit" class="button ">Submit</button>
                 </form>
             {% else %}
@@ -18,7 +18,7 @@
             {% endif %}
     {% endif %}
     <!-- comment section -->
-    <div class="text-7xl font-extralight my-8">comments</div>
+    <h2 class="text-7xl font-extralight my-8">comments</h2>
     {% for comment in comments %}
         <div>{% include "mb/includes/comment.html" with comment=comment %}</div>
         <ul class="ml-8">

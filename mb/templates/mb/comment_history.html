@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
     <!-- post title and content -->
-    <p>{% include "mb/includes/comment.html" with comment=comment show_prefix=show_prefix %}</p>
+    <div class="my-4">{% include "mb/includes/comment.html" with comment=comment show_prefix=show_prefix %}</div>
     <!-- comment form -->
-    <div class="text-6xl my-4">history</div>
+    <div class="my-4 text-6xl font-extralight">history</div>
     {% for edit in history %}
-        <div class="text-xs">{{ edit.content }}</div>
-        <div class="text-base-600 text-xs mb-1">modified on {{ edit.date }}</div>
+    <div class="my-4">
+        <div>{{ edit.content }}</div>
+        <div class="text-base-600 text-xs">modified on {{ edit.date }}</div>
+    </div>
     {% empty %}
         <div class="my-4 text-xs">this comment was never edited.</p>
     {% endfor %}

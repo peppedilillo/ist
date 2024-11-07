@@ -3,8 +3,8 @@
 
 {% block content %}
     <!--- post recap -->
-    <div class="mb-8">{% include "mb/includes/post.html" with post=post %}</div>
-    <div class="text-6xl my-4">edit post</div>
+    <div class="my-4">{% include "mb/includes/post.html" with post=post %}</div>
+    <h2 class="my-4 font-extralight text-6xl sm:text-7xl">edit post</h2>
     
     <!--- errors -->
     {% if form.errors %}
@@ -15,16 +15,16 @@
     <!--- editing form -->
     <form method="post" action="{% url 'mb:post_edit' post.id %}">
         {% csrf_token %}
-        <table class="my-4">
-            <tr>
-                <td class="pr-4">{{ form.title.label_tag }}</td>
-                <td>{{ form.title | addclass:'bg-base-900 text-base-100' }}</td>
-            </tr>
-            <tr>
-                <td class="pr-4">URL:</td>
-                <td class="text-base-600">{{ post.url }}</td>
-            </tr>
-        </table>
-        <button type="submit" class="button">Submit</button>
+        <div class="my-4 space-y-2">
+            <div class="flex">
+                <div class="w-24 pr-4">{{ form.title.label_tag }}</div>
+                <div class="flex-1 max-w-[24rem]">{{ form.title | addclass:'form w-full' }}</div>
+            </div>
+            <div class="flex">
+                <div class="w-24 pr-4">URL</div>
+                <div class="text-base-600">{{ post.url }}</div>
+            </div>
+        </div>
+        <button type="submit" class="my-2 button">Submit</button>
     </form>
 {% endblock %}
