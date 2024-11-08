@@ -1,21 +1,28 @@
 {% load mb_extras %}
-
 <div class="space-x-1">
-    <a href="{% url 'mb:index' %}" class="font-semibold text-{{ 'all'|board_color }}">all</a>
-    <a href="{% url 'mb:news' %}" class="font-semibold text-{{ 'news'|board_color }}">news</a>
-    <a href="{% url 'mb:papers' %}" class="font-semibold text-{{ 'papers'|board_color }}">papers</a>
-    <a href="{% url 'mb:code' %}" class="font-semibold text-{{ 'code'|board_color }}">code</a>
-    <a href="{% url 'mb:jobs' %}" class="font-semibold text-{{ 'jobs'|board_color }}">jobs</a>
+    <a href="{% url 'mb:index' %}"
+       class="font-semibold text-{{ 'all'|board_color }}">all</a>
+    <a href="{% url 'mb:news' %}"
+       class="font-semibold text-{{ 'news'|board_color }}">news</a>
+    <a href="{% url 'mb:papers' %}"
+       class="font-semibold text-{{ 'papers'|board_color }}">papers</a>
+    <a href="{% url 'mb:code' %}"
+       class="font-semibold text-{{ 'code'|board_color }}">code</a>
+    <a href="{% url 'mb:jobs' %}"
+       class="font-semibold text-{{ 'jobs'|board_color }}">jobs</a>
 </div>
 <!-- right side of navigation bar-->
 <div class="text-base-600 space-x-1">
     {% if user.is_authenticated %}
         <a href="{% url 'mb:post_submit' %}" class="text-base-50 font-semibold">submit</a>
         &ltuser:
-        <a href="{% url 'mb:profile' user.id %}" class="italic hover:text-base-100 cursor-pointer">{{ user }}</a>,
-        <a href="{% url 'accounts:logout' %}" class="hover:text-base-100 cursor-pointer">logout</a>&gt
+        <a href="{% url 'mb:profile' user.id %}"
+           class="italic hover:text-base-100 cursor-pointer">{{ user }}</a>,
+        <a href="{% url 'accounts:logout' %}"
+           class="hover:text-base-100 cursor-pointer">logout</a>&gt
     {% else %}
         <a href="{% url 'login' %}" class="hover:text-base-100 cursor-pointer">login</a>
-        <a href="{% url 'accounts:signup' %}" class="hover:text-base-100 cursor-pointer">signup</a>
+        <a href="{% url 'accounts:signup' %}"
+           class="hover:text-base-100 cursor-pointer">signup</a>
     {% endif %}
 </div>

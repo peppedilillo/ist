@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 {% load mb_extras %}
-
-
 {% block content %}
     <!-- comment recap -->
     <div class="my-4">{% include "mb/includes/comment.html" with comment=comment %}</div>
     <!-- errors-->
     {% if form.errors %}
         <div class="my-4">there were some problems with your submission:</div>
-        <div class="my-4">{% for field, errors in form.errors.items %}{{ errors }}{% endfor %}</div>
+        <div class="my-4">
+            {% for field, errors in form.errors.items %}{{ errors }}{% endfor %}
+        </div>
     {% endif %}
     <!-- reply form -->
     <form method="post" actions="{% url 'mb:comment_reply' comment.id %}">

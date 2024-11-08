@@ -39,7 +39,10 @@ def random_keywords():
     return Keyword.objects.order_by("?")[:k]  # Return random selection
 
 
-def generate_post(author: User | None = None, max_title: int = 120,) -> Post:
+def generate_post(
+    author: User | None = None,
+    max_title: int = 120,
+) -> Post:
     fake = Faker()
     post = Post(
         url=fake.url(),
@@ -69,7 +72,11 @@ def random_comment(post: Post):
     return post.comments.order_by("?").first()
 
 
-def generate_comment(author: User | None = None, parent: Post | Comment | None = None, max_content: int = 10_000,) -> Comment:
+def generate_comment(
+    author: User | None = None,
+    parent: Post | Comment | None = None,
+    max_content: int = 10_000,
+) -> Comment:
     if parent is None:
         parent = random_comment(random_post())
 

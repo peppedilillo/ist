@@ -59,10 +59,16 @@ class Post(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     edited = models.BooleanField(default=False)
     score = models.FloatField(editable=False, default=0)
-    fans = models.ManyToManyField(to=get_user_model(), related_name="liked_posts", editable=False)
+    fans = models.ManyToManyField(
+        to=get_user_model(), related_name="liked_posts", editable=False
+    )
     keywords = models.ManyToManyField(Keyword, related_name="posts", blank=True)
-    board = models.ForeignKey(to=Board, on_delete=models.SET_NULL, related_name="posts", null=True, blank=True)
-    user = models.ForeignKey(to=get_user_model(), related_name="posts", on_delete=models.CASCADE)
+    board = models.ForeignKey(
+        to=Board, on_delete=models.SET_NULL, related_name="posts", null=True, blank=True
+    )
+    user = models.ForeignKey(
+        to=get_user_model(), related_name="posts", on_delete=models.CASCADE
+    )
     # to avoid dealing with counts we memorize the number of likes and update it at save time.
     nlikes = models.IntegerField(default=0)
     ncomments = models.IntegerField(default=0)
@@ -105,15 +111,21 @@ class Post(models.Model):
 )
 class Comment(models.Model):
     content = models.TextField(max_length=10_000)
-    user = models.ForeignKey(to=get_user_model(), related_name="comments", on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        to=get_user_model(), related_name="comments", on_delete=models.CASCADE
+    )
     date = models.DateTimeField(auto_now_add=True)
     # parent is null if comment is at top level (a comment to a post)
     edited = models.BooleanField(default=False)
     # to avoid dealing with counts we memorize the number of likes and update it at save time.
     nlikes = models.IntegerField(default=0)
     post = models.ForeignKey(to=Post, on_delete=models.CASCADE, related_name="comments")
-    parent = models.ForeignKey(to="self", on_delete=models.CASCADE, related_name="replies", null=True)
-    fans = models.ManyToManyField(to=get_user_model(), related_name="liked_comments", editable=False)
+    parent = models.ForeignKey(
+        to="self", on_delete=models.CASCADE, related_name="replies", null=True
+    )
+    fans = models.ManyToManyField(
+        to=get_user_model(), related_name="liked_comments", editable=False
+    )
 
     def __str__(self):
         return f"Comment by {self.user.username} on {self.post.title}"
@@ -124,7 +136,7 @@ class Comment(models.Model):
             self.fans.add(self.user)
             # updates the comment counter
             self.post.ncomments += 1
-            self.post.save(update_fields=['ncomments'])
+            self.post.save(update_fields=["ncomments"])
             return
         else:
             original_comment = Comment.objects.get(pk=self.pk)
@@ -140,4 +152,4 @@ class Comment(models.Model):
         post = self.post
         super().delete(*args, **kwargs)
         post.ncomments = post.comments.count()
-        self.post.save(update_fields=['ncomments'])
+        self.post.save(update_fields=["ncomments"])

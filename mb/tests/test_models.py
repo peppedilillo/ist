@@ -80,7 +80,9 @@ class CommentModelTests(TestCase):
 
     def test_reply_create(self):
         """Creates a reply"""
-        toplevel_comment = Comment(content="test", post=self.post, parent=None, user=self.user)
+        toplevel_comment = Comment(
+            content="test", post=self.post, parent=None, user=self.user
+        )
         toplevel_comment.save()
         Comment(content="test", post=self.post, parent=None, user=self.user).save()
 

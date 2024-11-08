@@ -5,46 +5,43 @@
         {% if request.user.is_authenticated %}
             {% csrf_token %}
             <a id="up_{{ comment.id }}"
-                onclick="upvoteComment(this)"
-                data-upvote-url="{% url 'mb:comment_upvote' comment.id %}"
-                data-redirect-url="{% url 'login' %}"
-                class="cursor-pointer">
+               onclick="upvoteComment(this)"
+               data-upvote-url="{% url 'mb:comment_upvote' comment.id %}"
+               data-redirect-url="{% url 'login' %}"
+               class="cursor-pointer">
                 <span class="{% if comment.is_fan %}hidden{% endif %} grayscale opacity-30"
-                        data-state="inactive">🔥</span>
+                      data-state="inactive">🔥</span>
                 <span class="{% if not comment.is_fan %}hidden{% endif %} grayscale-0 opacity-100"
-                        data-state="active">🔥</span>
+                      data-state="active">🔥</span>
             </a>
         {% endif %}
     </div>
-    
     <!-- Comment content section -->
     <div class="flex-1">
         <!-- Metadata line -->
         <div class="text-base-600 text-xs">
             <a href="{% url 'mb:profile' comment.user.id %}"
-                class="italic hover:text-base-100 cursor-pointer">{{ comment.user }}</a>
+               class="italic hover:text-base-100 cursor-pointer">{{ comment.user }}</a>
             {{ comment.date|timeago }} ago
             {% if comment.edited %}
                 <a href="{% url 'mb:comment_history' comment.id %}">*</a>
             {% endif %}
             • <span class="score" id="score_{{ comment.id }}">{{ comment.nlikes }} point{{ comment.nlikes|pluralize }}</span>
             | <a href="{% url 'mb:comment_detail' comment.id %}"
-                    class="hover:text-base-100 cursor-pointer">link</a>
+    class="hover:text-base-100 cursor-pointer">link</a>
             {% if comment.user == request.user or request.user.has_mod_rights %}
                 | <a href="{% url 'mb:comment_delete' comment.id %}"
-                        class="hover:text-base-100 cursor-pointer">delete</a>
+    class="hover:text-base-100 cursor-pointer">delete</a>
                 | <a href="{% url 'mb:comment_edit' comment.id %}"
-                        class="hover:text-base-100 cursor-pointer">edit</a>
+    class="hover:text-base-100 cursor-pointer">edit</a>
             {% endif %}
         </div>
         <!-- Comment text -->
-        <div class="text-sm my-0">
-            {{ comment.content }}
-        </div>
+        <div class="text-sm my-0">{{ comment.content }}</div>
         <div class="text-base-600 text-xs">
             {% if request.user.is_authenticated %}
                 <a href="{% url 'mb:comment_reply' comment.id %}"
-                    class="hover:text-base-100 cursor-pointer">reply</a>
+                   class="hover:text-base-100 cursor-pointer">reply</a>
             {% endif %}
         </div>
     </div>

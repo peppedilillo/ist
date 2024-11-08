@@ -1,6 +1,5 @@
 {% load static %}
 {% load mb_extras %}
-
 <script src="{% static 'js/base.js' %}"></script>
 <html lang="en">
     <head>
@@ -13,16 +12,15 @@
         <!-- Container wrapper for positioning -->
         <div class="relative w-full max-w-4xl m-12 md:m-20">
             <!-- Wraparound container -->
-            <div class="absolute lg:rounded-3xl inset-x-0 -top-2 -bottom-2 lg:-inset-2
-            <!-- Selects the background color based on board-->
-            {% if header %}
-                bg-{{ header | board_color }} 
-            {% elif post.board %}
-                bg-{{ post.board_prefix | board_color }} 
-            {% else %}
-                bg-base-100
-            {% endif %}
-            "></div>
+            <div class="absolute lg:rounded-3xl inset-x-0 -top-2 -bottom-2 lg:-inset-2 <!-- Selects the background color based on board-->
+                {% if header %}
+                    bg-{{ header | board_color }}
+                {% elif post.board %}
+                    bg-{{ post.board_prefix | board_color }}
+                {% else %}
+                    bg-base-100
+                {% endif %}
+                "></div>
             <!-- Main content container -->
             <div class="relative bg-base-black py-8 px-2 sm:px-8 lg:rounded-3xl">
                 <!-- Navigation -->
@@ -38,8 +36,6 @@
             </div>
         </div>
         <!-- Footer text -->
-        <div class="text-center text-xs text-base-100 font-mono mb-8">
-            made by peppe • link to github • about
-        </div>
+        <div class="text-center text-xs text-base-100 font-mono mb-8">made by peppe • link to github • about</div>
     </body>
 </html>

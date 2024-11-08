@@ -33,10 +33,7 @@ def get_request_identifier(request: HttpRequest) -> tuple[str, int]:
 
 
 def request_is_limited(
-    red: Redis,
-    redis_key: str,
-    redis_limit: int,
-    redis_period: timedelta
+    red: Redis, redis_key: str, redis_limit: int, redis_period: timedelta
 ) -> bool:
     """
     Check if the request should be rate limited.
@@ -56,12 +53,16 @@ def rate_limiter(get_response):
     Django middleware for rate limiting requests based on authentication status.
     Uses username for authenticated users and IP address for anonymous users.
     """
+
     def middleware(request: HttpRequest) -> HttpResponse:
-        if request.method == 'POST':
+        if request.method == "POST":
             identifier, limit = get_request_identifier(request)
             rate_limit_key = f"{identifier}:{request.path}:post"
             if request_is_limited(redis_default, rate_limit_key, limit, PERIOD):
-                return HttpResponse("Too many requests, please try again later.", status=429)
+                return HttpResponse(
+                    "Too many requests, please try again later.", status=429
+                )
         response = get_response(request)
         return response
+
     return middleware

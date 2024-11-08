@@ -1,18 +1,16 @@
 {% extends 'base.html' %}
 {% load mb_extras %}
-
 {% block content %}
     <!--- comment recap -->
     <div class="my-4">{% include "mb/includes/comment.html" with comment=comment %}</div>
-    
     <h2 class="my-4 font-extralight text-6xl sm:text-7xl">edit comment</h2>
-    
     <!--- errors -->
     {% if form.errors %}
         <div>there were some problems with your submission:</div>
-        <div>{% for field, errors in form.errors.items %}{{ errors }}{% endfor %}</div>
+        <div>
+            {% for field, errors in form.errors.items %}{{ errors }}{% endfor %}
+        </div>
     {% endif %}
-    
     <!--- editing form -->
     <form method="post" action="{% url 'mb:comment_edit' comment.id %}">
         {% csrf_token %}

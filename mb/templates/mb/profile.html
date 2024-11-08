@@ -20,10 +20,15 @@
             <div>{{ user.get_status_display }}</div>
         </div>
     </div>
-
     <!-- links to contributions -->
     <div class="my-4 space y-2">
-        <div><a href="{% url 'mb:profile_posts' user.id %}" class="italic cursor-pointer">posts ({{ user.post_count }})</a></div>
-        <div><a href="{% url 'mb:profile_comments' user.id %}" class="italic cursor-pointer">comments ({{ user.comment_count }})</a></div>
+        <div>
+            <a href="{% url 'mb:profile_posts' user.id %}"
+               class="italic cursor-pointer">posts ({{ user.post_count }})</a>
+        </div>
+        <div>
+            <a href="{% url 'mb:profile_comments' user.id %}"
+               class="italic cursor-pointer">comments ({{ user.comment_count }})</a>
+        </div>
     </div>
 {% endblock %}

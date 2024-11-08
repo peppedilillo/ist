@@ -5,11 +5,11 @@
     <!-- comment form -->
     <div class="my-4 text-6xl font-extralight">history</div>
     {% for edit in history %}
-    <div class="my-4">
-        <div>{{ edit.content }}</div>
-        <div class="text-base-600 text-xs">modified on {{ edit.date }}</div>
-    </div>
+        <div class="my-4">
+            <div>{{ edit.content }}</div>
+            <div class="text-base-600 text-xs">modified on {{ edit.date }}</div>
+        </div>
     {% empty %}
-        <div class="my-4 text-xs">this comment was never edited.</p>
+        <div class="my-4 text-xs">this comment was never edited.</div>
     {% endfor %}
 {% endblock %}

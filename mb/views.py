@@ -3,7 +3,7 @@ from functools import partial
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -11,7 +11,6 @@ from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from django.db.models import Exists, OuterRef, Prefetch, Count
 from django.db.models.query import QuerySet
-from psutil import users
 
 from .forms import CommentForm
 from .forms import PostEditForm
@@ -26,18 +25,28 @@ from .settings import MAX_DEPTH
 EMPTY_MESSAGE = "It is empty here!"
 
 
-def _index(request, post_objects: QuerySet, order_by: str, header: str | None = None) -> HttpResponse:
+def _index(
+    request: HttpRequest,
+    post_objects: QuerySet,
+    order_by: str,
+    header: str | None = None,
+) -> HttpResponse:
     # we ask the db to annotate the post with a flag indicating wether the
     # request user has liked the posts we fetched or not. this is because
     # we have to highlight posts liked by the user. the request is at db level
     # to improve performances and avoid n+1 queries.
-    posts = post_objects.annotate(
-        is_fan=Exists(
-            Post.fans.through.objects.filter(
-                post_id=OuterRef('id'),
-                customuser_id=request.user.id,
-            )),
-    ).select_related("user", "board").order_by(order_by)
+    posts = (
+        post_objects.annotate(
+            is_fan=Exists(
+                Post.fans.through.objects.filter(
+                    post_id=OuterRef("id"),
+                    customuser_id=request.user.id,
+                )
+            ),
+        )
+        .select_related("user", "board")
+        .order_by(order_by)
+    )
     # TODO: fix this paginator so we can have one queries for the homepage
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
@@ -48,23 +57,46 @@ def _index(request, post_objects: QuerySet, order_by: str, header: str | None = 
     return render(request, "mb/index.html", context)
 
 
-index = partial(_index, header="all", post_objects=Post.objects.all(), order_by="-score")
+index = partial(
+    _index, header="all", post_objects=Post.objects.all(), order_by="-score"
+)
 news = partial(_index, header="news", post_objects=Post.objects.all(), order_by="-date")
-papers = partial(_index, header="papers", post_objects=Post.objects.filter(board__name="p"), order_by="-score")
-code = partial(_index, header="code", post_objects=Post.objects.filter(board__name="c"), order_by="-score")
-jobs = partial(_index, header="jobs", post_objects=Post.objects.filter(board__name="j"), order_by="-score")
+papers = partial(
+    _index,
+    header="papers",
+    post_objects=Post.objects.filter(board__name="p"),
+    order_by="-score",
+)
+code = partial(
+    _index,
+    header="code",
+    post_objects=Post.objects.filter(board__name="c"),
+    order_by="-score",
+)
+jobs = partial(
+    _index,
+    header="jobs",
+    post_objects=Post.objects.filter(board__name="j"),
+    order_by="-score",
+)
 
 
-def _board(request, name: str) -> HttpResponse:
+def _board(request: HttpRequest, name: str) -> HttpResponse:
     board = Board.objects.get(name=name)
     # see comment to `_index`
-    posts = Post.objects.annotate(
-        is_fan=Exists(
-            Post.fans.through.objects.filter(
-                post_id=OuterRef('id'),
-                customuser_id=request.user.id,
-            )),
-    ).select_related("user", "board").filter(board=board).order_by("-score")
+    posts = (
+        Post.objects.annotate(
+            is_fan=Exists(
+                Post.fans.through.objects.filter(
+                    post_id=OuterRef("id"),
+                    customuser_id=request.user.id,
+                )
+            ),
+        )
+        .select_related("user", "board")
+        .filter(board=board)
+        .order_by("-score")
+    )
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -76,10 +108,10 @@ def _board(request, name: str) -> HttpResponse:
     return render(request, "mb/index.html", context)
 
 
-def eager_replies(comments, depth: int, user_id=None):
+def eager_replies(comments: QuerySet, depth: int, user_id=None) -> QuerySet:
     base_annotation = Exists(
         Comment.fans.through.objects.filter(
-            comment_id=OuterRef('id'),
+            comment_id=OuterRef("id"),
             customuser_id=user_id,
         )
     )
@@ -89,17 +121,21 @@ def eager_replies(comments, depth: int, user_id=None):
     prefetch_chain = [
         Prefetch(
             "__".join(["replies"] * i),
-            queryset=Comment.objects.select_related('user').annotate(is_fan=base_annotation)
+            queryset=Comment.objects.select_related("user").annotate(
+                is_fan=base_annotation
+            ),
         )
         for i in range(1, depth + 1)
     ]
     return comments.prefetch_related(*prefetch_chain)
 
 
-def post_detail(request, post_id: int) -> HttpResponse:
+def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
     # TODO: this could be achieved with one less db query prefetching comments
     post = get_object_or_404(Post, pk=post_id)
-    post.is_fan = post.fans.through.objects.filter(customuser_id=request.user.id).exists()
+    post.is_fan = post.fans.through.objects.filter(
+        customuser_id=request.user.id
+    ).exists()
     comments = eager_replies(
         post.comments.filter(parent=None),
         depth=MAX_DEPTH,
@@ -120,10 +156,14 @@ def can_submit(user):
 
 
 def can_edit(user, contrib: Post | Comment):
-    return user.is_authenticated and not user.is_banned() and (user == contrib.user or user.has_mod_rights())
+    return (
+        user.is_authenticated
+        and not user.is_banned()
+        and (user == contrib.user or user.has_mod_rights())
+    )
 
 
-def post_submit(request) -> HttpResponse:
+def post_submit(request: HttpRequest) -> HttpResponse:
     if not can_submit(request.user):
         return redirect(settings.LOGIN_URL)
 
@@ -139,7 +179,7 @@ def post_submit(request) -> HttpResponse:
     return render(request, "mb/post_submit.html", {"form": form})
 
 
-def post_edit(request, post_id: int) -> HttpResponse:
+def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
     if not can_edit(request.user, post):
         return redirect(settings.LOGIN_URL)
@@ -154,7 +194,7 @@ def post_edit(request, post_id: int) -> HttpResponse:
     return render(request, "mb/post_edit.html", {"form": form, "post": post})
 
 
-def post_delete(request, post_id: int) -> HttpResponse:
+def post_delete(request: HttpRequest, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
     if not can_edit(request.user, post):
         return redirect(settings.LOGIN_URL)
@@ -166,7 +206,7 @@ def post_delete(request, post_id: int) -> HttpResponse:
 
 
 @require_POST  # allows for embedding under post detail
-def post_comment(request, post_id: int) -> HttpResponse:
+def post_comment(request: HttpRequest, post_id: int) -> HttpResponse:
     """Adds a top level comment to a post."""
     if not can_submit(request.user):
         return redirect(settings.LOGIN_URL)
@@ -182,11 +222,8 @@ def post_comment(request, post_id: int) -> HttpResponse:
     return redirect("mb:post_detail", post_id=post_id)
 
 
-def comment_detail(request, comment_id: int) -> HttpResponse:
-    comment = get_object_or_404(
-        Comment.objects.select_related('post'),
-        pk=comment_id
-    )
+def comment_detail(request: HttpRequest, comment_id: int) -> HttpResponse:
+    comment = get_object_or_404(Comment.objects.select_related("post"), pk=comment_id)
     comments = eager_replies(
         Comment.objects.filter(pk=comment_id),
         depth=MAX_DEPTH,
@@ -200,7 +237,7 @@ def comment_detail(request, comment_id: int) -> HttpResponse:
     return render(request, "mb/post_detail.html", context)
 
 
-def comment_reply(request, comment_id: int) -> HttpResponse:
+def comment_reply(request: HttpRequest, comment_id: int) -> HttpResponse:
     if not can_submit(request.user):
         return redirect(settings.LOGIN_URL)
 
@@ -219,7 +256,7 @@ def comment_reply(request, comment_id: int) -> HttpResponse:
     return render(request, "mb/comment_reply.html", {"form": form, "comment": comment})
 
 
-def comment_delete(request, comment_id: int) -> HttpResponse:
+def comment_delete(request: HttpRequest, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
     if not can_edit(request.user, comment):
         return redirect(settings.LOGIN_URL)
@@ -232,7 +269,7 @@ def comment_delete(request, comment_id: int) -> HttpResponse:
     return redirect("mb:post_detail", post_id=comment.post.id)
 
 
-def comment_edit(request, comment_id: int) -> HttpResponse:
+def comment_edit(request: HttpRequest, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
     if not can_edit(request.user, comment):
         return redirect(settings.LOGIN_URL)
@@ -247,7 +284,7 @@ def comment_edit(request, comment_id: int) -> HttpResponse:
     return render(request, "mb/comment_edit.html", {"form": form, "comment": comment})
 
 
-def comment_history(request, comment_id: int) -> HttpResponse:
+def comment_history(request: HttpRequest, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
     history = [
         {"content": c["content"], "date": c["pgh_created_at"]}
@@ -260,13 +297,13 @@ def comment_history(request, comment_id: int) -> HttpResponse:
     return render(request, "mb/comment_history.html", context)
 
 
-def can_upvote(user):
+def can_upvote(user) -> bool:
     return user.is_authenticated and not user.is_banned()
 
 
 @require_POST
 def _upvote(
-    request,
+    request: HttpRequest,
     contrib_id: int,
     contrib_model: Post | Comment,
 ):
@@ -281,22 +318,24 @@ def _upvote(
         item.fans.add(request.user)
         isupvote = True
     item.save()
-    return JsonResponse({
-        "success": True,
-        "nlikes": item.nlikes,
-        "isupvote": isupvote,
-    })
+    return JsonResponse(
+        {
+            "success": True,
+            "nlikes": item.nlikes,
+            "isupvote": isupvote,
+        }
+    )
 
 
-def comment_upvote(request, comment_id: int):
+def comment_upvote(request: HttpRequest, comment_id: int):
     return _upvote(request, comment_id, Comment)
 
 
-def post_upvote(request, post_id: int):
+def post_upvote(request: HttpRequest, post_id: int):
     return _upvote(request, post_id, Post)
 
 
-def profile(request, user_id: int):
+def profile(request: HttpRequest, user_id: int) -> HttpResponse:
     user = get_object_or_404(
         get_user_model().objects.annotate(
             post_count=Count("posts", distinct=True),
@@ -307,12 +346,14 @@ def profile(request, user_id: int):
     return render(request, "mb/profile.html", {"user": user})
 
 
-def profile_posts(request, user_id: int):
+def profile_posts(request: HttpRequest, user_id: int) -> HttpResponse:
     _ = get_object_or_404(get_user_model(), pk=user_id)
-    return _index(request, post_objects=Post.objects.filter(user_id=user_id), order_by="-date")
+    return _index(
+        request, post_objects=Post.objects.filter(user_id=user_id), order_by="-date"
+    )
 
 
-def profile_comments(request, user_id: int):
+def profile_comments(request: HttpRequest, user_id: int) -> HttpResponse:
     _ = get_object_or_404(get_user_model(), pk=user_id)
     comments = eager_replies(
         Comment.objects.filter(user_id=user_id),
