@@ -10,6 +10,8 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from django.db.models import Exists, OuterRef, Prefetch, Count
+from django.db.models.query import QuerySet
+from psutil import users
 
 from .forms import CommentForm
 from .forms import PostEditForm
@@ -20,17 +22,16 @@ from .models import CommentHistory
 from .models import Post
 from .settings import INDEX_NPOSTS
 from .settings import MAX_DEPTH
-from .settings import PROFILE_NENTRIES
 
 EMPTY_MESSAGE = "It is empty here!"
 
 
-def _index(request, title: str, order_by: str) -> HttpResponse:
+def _index(request, post_objects: QuerySet, order_by: str, header: str | None = None) -> HttpResponse:
     # we ask the db to annotate the post with a flag indicating wether the
     # request user has liked the posts we fetched or not. this is because
     # we have to highlight posts liked by the user. the request is at db level
     # to improve performances and avoid n+1 queries.
-    posts = Post.objects.annotate(
+    posts = post_objects.annotate(
         is_fan=Exists(
             Post.fans.through.objects.filter(
                 post_id=OuterRef('id'),
@@ -41,16 +42,17 @@ def _index(request, title: str, order_by: str) -> HttpResponse:
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    context = {
-        "page_obj": page_obj,
-        "header": title,
-        "empty_message": EMPTY_MESSAGE,
-    }
+    context = {"page_obj": page_obj, "empty_message": EMPTY_MESSAGE}
+    if header:
+        context["header"] = header
     return render(request, "mb/index.html", context)
 
 
-index = partial(_index, title="all", order_by="-score")
-news = partial(_index, title="news", order_by="-date")
+index = partial(_index, header="all", post_objects=Post.objects.all(), order_by="-score")
+news = partial(_index, header="news", post_objects=Post.objects.all(), order_by="-date")
+papers = partial(_index, header="papers", post_objects=Post.objects.filter(board__name="p"), order_by="-score")
+code = partial(_index, header="code", post_objects=Post.objects.filter(board__name="c"), order_by="-score")
+jobs = partial(_index, header="jobs", post_objects=Post.objects.filter(board__name="j"), order_by="-score")
 
 
 def _board(request, name: str) -> HttpResponse:
@@ -72,11 +74,6 @@ def _board(request, name: str) -> HttpResponse:
         "empty_message": EMPTY_MESSAGE,
     }
     return render(request, "mb/index.html", context)
-
-
-papers = partial(_board, name="p")
-code = partial(_board, name="c")
-jobs = partial(_board, name="j")
 
 
 def eager_replies(comments, depth: int, user_id=None):
@@ -300,20 +297,30 @@ def post_upvote(request, post_id: int):
 
 
 def profile(request, user_id: int):
-    user = get_object_or_404(get_user_model(), pk=user_id)
-    posts = user.posts.select_related("user")
-    comments = user.comments.select_related("user")
-
-    paginator = Paginator(
-        [
-            {"content": c, "ispost": isinstance(c, Post)}
-            for c in sorted((*posts, *comments), key=lambda x: x.date, reverse=True)
-        ],
-        PROFILE_NENTRIES,
+    user = get_object_or_404(
+        get_user_model().objects.annotate(
+            post_count=Count("posts", distinct=True),
+            comment_count=Count("comments", distinct=True),
+        ),
+        pk=user_id,
     )
+    return render(request, "mb/profile.html", {"user": user})
+
+
+def profile_posts(request, user_id: int):
+    _ = get_object_or_404(get_user_model(), pk=user_id)
+    return _index(request, post_objects=Post.objects.filter(user_id=user_id), order_by="-date")
+
+
+def profile_comments(request, user_id: int):
+    _ = get_object_or_404(get_user_model(), pk=user_id)
+    comments = eager_replies(
+        Comment.objects.filter(user_id=user_id),
+        depth=MAX_DEPTH,
+        user_id=request.user.id,
+    ).order_by("-date")
     context = {
-        "user": user,
-        "page_obj": paginator.get_page(request.GET.get("page")),
-        "empty_message": EMPTY_MESSAGE,
+        "comments": comments,
+        "max_depth": MAX_DEPTH,
     }
-    return render(request, "accounts/profile.html", context)
+    return render(request, "mb/post_detail.html", context)

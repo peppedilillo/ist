@@ -22,4 +22,6 @@ urlpatterns = [
     path("comments/<int:comment_id>/history", views.comment_history, name="comment_history"),
     path("comments/<int:comment_id>/upvote", views.comment_upvote, name="comment_upvote"),
     path("accounts/<int:user_id>/", views.profile, name="profile"),
+    path("accounts/<int:user_id>/posts", views.profile_posts, name="profile_posts"),
+    path("accounts/<int:user_id>/comments", views.profile_comments, name="profile_comments"),
 ]

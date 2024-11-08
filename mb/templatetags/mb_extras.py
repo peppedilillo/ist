@@ -6,20 +6,21 @@ from urllib.parse import urlparse
 
 register = template.Library()
 
+colors = {
+    'all': 'red-light',
+    'news': 'green-light',
+    'papers': 'yellow-light',
+    'code': 'blue-light',
+    'jobs': 'magenta-light'
+}
+
 
 @register.filter
 def board_color(header_text):
     """Associates a color to each of the messageboard board. 
     Note that these colors should also be safelisted in the tailwind config,
     otherwise tailwind may never now of them."""
-    colors = {
-        'all': 'red-light',
-        'news': 'green-light',
-        'papers': 'yellow-light',
-        'code': 'blue-light',
-        'jobs': 'magenta-light'
-    }
-    return colors.get(header_text, 'text-base-300')
+    return colors.get(header_text, 'base-100')
 
 
 @register.filter
