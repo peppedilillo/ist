@@ -8,11 +8,12 @@
         <title>Astrowebsite</title>
         <link rel="stylesheet" href="{% static 'css/output.css' %}" type="text/css">
     </head>
-    <body class="bg-base-black flex flex-col items-center font-sans text-base-100">
+    <body class="bg-base-black flex flex-col font-sans text-base-100  items-center">
         <!-- Container wrapper for positioning -->
         <div class="relative w-full max-w-4xl m-12 md:m-20">
             <!-- Wraparound container -->
-            <div class="absolute lg:rounded-3xl inset-x-0 -top-2 -bottom-2 lg:-inset-2 <!-- Selects the background color based on board-->
+            <div class="absolute lg:rounded-3xl inset-x-0 -top-1 -bottom-1 lg:-inset-1
+            <!-- Selects the background color based on board-->
                 {% if header %}
                     bg-{{ header | board_color }}
                 {% elif post.board %}
@@ -35,7 +36,27 @@
                 </main>
             </div>
         </div>
-        <!-- Footer text -->
-        <div class="text-center text-xs text-base-100 font-mono mb-8">made by peppe • link to github • about</div>
+        <!-- Footer -->
+        <div class="w-full max-w-4xl mb-8 mt-12 px-8 flex flex-row gap-8 justify-center">
+            <div class="hidden sm:flex sm:justify-end">
+                <img src="{% static 'pics/footer_sticker.gif' %}" alt="My image" alt="Footer image" class="w-40 object-scale-down">
+            </div>
+            <div class="text-xs text-base-100 font-mono text-left max-w-52">
+                The Internet Space Telescope is a message board for sharing and discussing research work in space sciences and astrophysics.
+                It's source code is open and free, and available online under GPL license. ~p24
+                <div class="flex gap-4 mt-4 justify-left">
+                    <img src="{% static 'pics/copyleft.svg' %}" alt="Second image" class="w-8">
+                    <img src="{% static 'pics/leftarrows.svg' %}" alt="Third image" class="w-8">
+                </div>
+            </div>
+            <div class="text-xs text-base-100 flex flex-col gap-2 font-mono">
+                <div>github</div>
+                <div>discord</div>
+                <div>about</div>
+                <div class="mt-4">
+                    <img src="{% static 'pics/ist.svg' %}" alt="Second image" class="w-32 flex-none">
+                </div>
+            </div>
+        </div>
     </body>
 </html>
