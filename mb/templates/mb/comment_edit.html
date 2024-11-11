@@ -14,7 +14,7 @@
     <!--- editing form -->
     <form method="post" action="{% url 'mb:comment_edit' comment.id %}">
         {% csrf_token %}
-        <div class="my-4">{{ form.content | addclass:'bg-base-900 text-base-100 w-full sm:w-1/2' }}</div>
+        <div class="my-4">{{ form.content | addclass:'form w-full sm:w-1/2' }}</div>
         <button type="submit" class="my-4 button">Submit</button>
     </form>
 {% endblock %}

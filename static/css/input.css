@@ -12,6 +12,6 @@
     @apply button hover:border-red hover:text-red;
   }
   .form {
-    @apply bg-base-black text-base-100 p-2 border border-base-100;
+    @apply bg-base-black text-base-100 p-2 border border-base-100 resize;
   }
 }
