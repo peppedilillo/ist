@@ -37,7 +37,7 @@
             {% endif %}
         </div>
         <!-- Comment text -->
-        <div class="text-sm my-0">{{ comment.content }}</div>
+        <div id="markdown" class="my-2 text-base-100 prose prose-invert prose-headings:text-base-100 prose-sm">{{ comment.content|markdown|safe }}</div>
         <div class="text-base-600 text-xs">
             {% if request.user.is_authenticated %}
                 <a href="{% url 'mb:comment_reply' comment.id %}"

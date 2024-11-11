@@ -190,7 +190,7 @@ def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
             post.save()
             return redirect("mb:post_detail", post_id=post.id)
     else:
-        form = PostEditForm()
+        form = PostEditForm(instance=post)
     return render(request, "mb/post_edit.html", {"form": form, "post": post})
 
 
@@ -280,7 +280,7 @@ def comment_edit(request: HttpRequest, comment_id: int) -> HttpResponse:
             comment.save()
             return redirect("mb:post_detail", post_id=comment.post.id)
     else:
-        form = CommentForm()
+        form = CommentForm(instance=comment)
     return render(request, "mb/comment_edit.html", {"form": form, "comment": comment})
 
 

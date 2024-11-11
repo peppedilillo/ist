@@ -1,5 +1,6 @@
 from django import template
 from django.utils.timesince import timesince
+import mistune
 
 from urllib.parse import urlparse
 
@@ -48,6 +49,22 @@ def timeago(value):
     return timesince(value, depth=1)
 
 
-@register.filter(name="addclass")
+@register.filter
 def addclass(value, arg):
     return value.as_widget(attrs={"class": arg})
+
+
+_markdown = mistune.create_markdown(
+    escape=True,
+    plugins=[
+        "url",
+        "strikethrough",
+        "footnotes",
+        "table",
+    ]
+)
+
+
+@register.filter
+def markdown(value: str):
+    return _markdown(value)
