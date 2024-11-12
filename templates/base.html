@@ -12,8 +12,7 @@
         <!-- Container wrapper for positioning -->
         <div class="relative w-full max-w-4xl m-12 md:m-20">
             <!-- Wraparound container -->
-            <div class="absolute lg:rounded-3xl inset-x-0 -top-1 -bottom-1 lg:-inset-1
-            <!-- Selects the background color based on board-->
+            <div class="absolute lg:rounded-3xl inset-x-0 -top-1 -bottom-1 lg:-inset-1 <!-- Selects the background color based on board-->
                 {% if header %}
                     bg-{{ header | board_color }}
                 {% elif post.board %}
@@ -39,12 +38,14 @@
         <!-- Footer -->
         <div class="w-full max-w-4xl mb-8 mt-12 px-8 flex flex-row gap-8 justify-center font-mono ">
             <div class="hidden sm:flex sm:justify-end">
-                <img src="{% static 'pics/footer_sticker.gif' %}" alt="My image" class="w-40 object-scale-down">
+                <img src="{% static 'pics/footer_sticker.gif' %}"
+                     alt="My image"
+                     class="w-40 object-scale-down">
             </div>
             <div class="text-xs text-base-100 flex flex-col max-w-64 gap-4 text-left ">
                 <div>
-                The Internet Space Telescope is a message board for sharing and discussing research work in space sciences and astrophysics.
-                It's source code is open and free, and available to everyone under GPL license. ~p24
+                    The Internet Space Telescope is a message board for sharing and discussing research work in space sciences and astrophysics.
+                    It's source code is open and free, and available to everyone under GPL license. ~p24
                 </div>
                 <div class="flex flex-row gap-4 justify-left mt-auto">
                     <img src="{% static 'pics/copyleft.svg' %}" alt="copyleft" class="w-6">
@@ -55,7 +56,9 @@
                 <div>github</div>
                 <div>discord</div>
                 <div>about</div>
-                <img src="{% static 'pics/ist.svg' %}" alt="Second image" class="w-32 mt-auto flex-none">
+                <img src="{% static 'pics/ist.svg' %}"
+                     alt="Second image"
+                     class="w-32 mt-auto flex-none">
             </div>
         </div>
     </body>

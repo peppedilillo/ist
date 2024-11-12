@@ -15,7 +15,6 @@ from django.db.models.query import QuerySet
 from .forms import CommentForm
 from .forms import PostEditForm
 from .forms import PostForm
-from .models import Board
 from .models import Comment
 from .models import CommentHistory
 from .models import Post
