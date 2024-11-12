@@ -30,12 +30,8 @@ from ..models import Post
 
 class PermissionsAndSecurityTests(TestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="test-user", password="test-password"
-        )
-        self.post = Post.objects.create(
-            title="test post", url="https://example.com", user=self.user
-        )
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-password")
+        self.post = Post.objects.create(title="test post", url="https://example.com", user=self.user)
 
     def test_unauthenticated_user_cannot_access_protected_views(self):
         self.client = Client()
@@ -69,9 +65,7 @@ class PermissionsAndSecurityTests(TestCase):
 
 class RateLimiterTests(TestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="test-user", password="test-password"
-        )
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-password")
         self.client = Client()
         self.client.login(username="test-user", password="test-password")
         self.post_data = {"title": f"test", "url": "www.test.com"}

@@ -61,7 +61,7 @@ _markdown = mistune.create_markdown(
         "strikethrough",
         "footnotes",
         "table",
-    ]
+    ],
 )
 
 

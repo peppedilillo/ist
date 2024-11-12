@@ -32,9 +32,7 @@ def get_request_identifier(request: HttpRequest) -> tuple[str, int]:
     return f"ip:{ip}", ANONYMOUS_LIMIT
 
 
-def request_is_limited(
-    red: Redis, redis_key: str, redis_limit: int, redis_period: timedelta
-) -> bool:
+def request_is_limited(red: Redis, redis_key: str, redis_limit: int, redis_period: timedelta) -> bool:
     """
     Check if the request should be rate limited.
     Returns True if request should be limited, False otherwise.
@@ -59,9 +57,7 @@ def rate_limiter(get_response):
             identifier, limit = get_request_identifier(request)
             rate_limit_key = f"{identifier}:{request.path}:post"
             if request_is_limited(redis_default, rate_limit_key, limit, PERIOD):
-                return HttpResponse(
-                    "Too many requests, please try again later.", status=429
-                )
+                return HttpResponse("Too many requests, please try again later.", status=429)
         response = get_response(request)
         return response
 

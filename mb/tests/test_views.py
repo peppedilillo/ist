@@ -102,13 +102,9 @@ class PostDetailViewTests(TestCase):
 
     def test_comment_are_displayed(self):
         """the page contains post informations"""
-        toplevel_comment = Comment(
-            content="test", post=self.post, parent=None, user=self.user
-        )
+        toplevel_comment = Comment(content="test", post=self.post, parent=None, user=self.user)
         toplevel_comment.save()
-        nested_comment = Comment(
-            content="test", post=self.post, parent=None, user=self.user
-        )
+        nested_comment = Comment(content="test", post=self.post, parent=None, user=self.user)
         nested_comment.save()
 
         response = self.client.get(reverse("mb:post_detail", args=(self.post.pk,)))
@@ -123,9 +119,7 @@ class PostDetailViewTests(TestCase):
 
 class PostSubmitViewTests(TestCase):
     def setUp(self):
-        self.logged_user = get_user_model().objects.create_user(
-            username="test-user", password="test-password"
-        )
+        self.logged_user = get_user_model().objects.create_user(username="test-user", password="test-password")
 
     def test_logged_user_can_post(self):
         post_data = {"title": "title", "url": "https://test.com/"}
@@ -143,9 +137,7 @@ class PostSubmitViewTests(TestCase):
     def test_visitor_submit_redirected_to_login(self):
         response = self.client.get(reverse("mb:post_submit"))
         self.assertEqual(response.status_code, 302)  # Check for redirection
-        self.assertRedirects(
-            response, f"{reverse('login')}?next={reverse('mb:post_submit')}"
-        )
+        self.assertRedirects(response, f"{reverse('login')}?next={reverse('mb:post_submit')}")
 
     def test_post_submit_template_on_get(self):
         self.client.login(username="test-user", password="test-password")
@@ -156,22 +148,14 @@ class PostSubmitViewTests(TestCase):
 
 class PostEditViewTests(TestCase):
     def setUp(self):
-        self.author = get_user_model().objects.create_user(
-            username="test-author", password="test-password"
-        )
-        self.post = Post.objects.create(
-            title="title", url="wwww.test.com", user=self.author
-        )
-        self.lurker = get_user_model().objects.create_user(
-            username="test-lurker", password="test-password"
-        )
+        self.author = get_user_model().objects.create_user(username="test-author", password="test-password")
+        self.post = Post.objects.create(title="title", url="wwww.test.com", user=self.author)
+        self.lurker = get_user_model().objects.create_user(username="test-lurker", password="test-password")
 
     def test_author_can_edit(self):
         edit_data = {"title": "updated title"}
         self.client.login(username="test-author", password="test-password")
-        response = self.client.post(
-            reverse("mb:post_edit", args=(self.post.id,)), edit_data
-        )
+        response = self.client.post(reverse("mb:post_edit", args=(self.post.id,)), edit_data)
         self.assertEqual(response.status_code, 302)
         self.post.refresh_from_db()
         self.assertEqual(self.post.title, edit_data["title"])
@@ -179,9 +163,7 @@ class PostEditViewTests(TestCase):
     def test_lurker_cant_edit(self):
         edit_data = {"title": "your code sucks"}
         self.client.login(username="test-lurker", password="test-password")
-        response = self.client.post(
-            reverse("mb:post_edit", args=(self.post.id,)), edit_data
-        )
+        response = self.client.post(reverse("mb:post_edit", args=(self.post.id,)), edit_data)
         self.assertEqual(response.status_code, 302)
         self.post.refresh_from_db()
         self.assertEqual(self.post.title, "title")
@@ -190,9 +172,7 @@ class PostEditViewTests(TestCase):
         over_max_length = Comment._meta.get_field("content").max_length + 1
         edit_data = {"title": "s" * over_max_length}
         self.client.login(username="test-author", password="test-password")
-        response = self.client.post(
-            reverse("mb:post_edit", args=(self.post.id,)), edit_data
-        )
+        response = self.client.post(reverse("mb:post_edit", args=(self.post.id,)), edit_data)
         self.assertEqual(response.status_code, 200)
         self.post.refresh_from_db()
         self.assertEqual(self.post.title, "title")
@@ -201,9 +181,7 @@ class PostEditViewTests(TestCase):
         self.client.login(username="test-author", password="test-password")
         response = self.client.get(reverse("mb:post_edit", args=[self.post.id]))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(
-            response, "mb/post_edit.html"
-        )  # Check that the correct template is used
+        self.assertTemplateUsed(response, "mb/post_edit.html")  # Check that the correct template is used
 
     def test_lurker_gets_redirected(self):
         response = self.client.get(reverse("mb:post_edit", args=[self.post.id]))
@@ -213,15 +191,9 @@ class PostEditViewTests(TestCase):
 
 class PostDeleteViewTests(TestCase):
     def setUp(self):
-        self.author = get_user_model().objects.create_user(
-            username="test-author", password="test-password"
-        )
-        self.post = Post.objects.create(
-            title="title", url="wwww.test.com", user=self.author
-        )
-        self.lurker = get_user_model().objects.create_user(
-            username="test-lurker", password="test-password"
-        )
+        self.author = get_user_model().objects.create_user(username="test-author", password="test-password")
+        self.post = Post.objects.create(title="title", url="wwww.test.com", user=self.author)
+        self.lurker = get_user_model().objects.create_user(username="test-lurker", password="test-password")
 
     def test_author_can_delete(self):
         self.client.login(username="test-author", password="test-password")
@@ -239,9 +211,7 @@ class PostDeleteViewTests(TestCase):
         self.client.login(username="test-author", password="test-password")
         response = self.client.get(reverse("mb:post_delete", args=[self.post.id]))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(
-            response, "mb/post_delete.html"
-        )  # Check that the correct template is used
+        self.assertTemplateUsed(response, "mb/post_delete.html")  # Check that the correct template is used
 
     def test_lurker_gets_redirected(self):
         response = self.client.get(reverse("mb:post_delete", args=[self.post.id]))
@@ -251,15 +221,9 @@ class PostDeleteViewTests(TestCase):
 
 class PostCommentViewTests(TestCase):
     def setUp(self):
-        self.author = get_user_model().objects.create_user(
-            username="test-author", password="test-password"
-        )
-        self.post = Post.objects.create(
-            title="title", url="www.test.com", user=self.author
-        )
-        self.commenter = get_user_model().objects.create_user(
-            username="test-commenter", password="test-password"
-        )
+        self.author = get_user_model().objects.create_user(username="test-author", password="test-password")
+        self.post = Post.objects.create(title="title", url="www.test.com", user=self.author)
+        self.commenter = get_user_model().objects.create_user(username="test-commenter", password="test-password")
 
     def test_user_can_post_toplevel_comment(self):
         self.client.login(username="test-commenter", password="test-password")
@@ -281,25 +245,15 @@ class PostCommentViewTests(TestCase):
 
 class CommentEditViewTests(TestCase):
     def setUp(self):
-        self.author = get_user_model().objects.create_user(
-            username="test-author", password="test-password"
-        )
-        self.post = Post.objects.create(
-            title="title", url="www.test.com", user=self.author
-        )
-        self.comment = Comment.objects.create(
-            content="This is a comment", post=self.post, user=self.author
-        )
-        self.lurker = get_user_model().objects.create_user(
-            username="test-lurker", password="test-password"
-        )
+        self.author = get_user_model().objects.create_user(username="test-author", password="test-password")
+        self.post = Post.objects.create(title="title", url="www.test.com", user=self.author)
+        self.comment = Comment.objects.create(content="This is a comment", post=self.post, user=self.author)
+        self.lurker = get_user_model().objects.create_user(username="test-lurker", password="test-password")
 
     def test_author_can_edit(self):
         edit_data = {"content": "updated comment"}
         self.client.login(username="test-author", password="test-password")
-        response = self.client.post(
-            reverse("mb:comment_edit", args=(self.comment.id,)), edit_data
-        )
+        response = self.client.post(reverse("mb:comment_edit", args=(self.comment.id,)), edit_data)
         self.assertEqual(response.status_code, 302)
         self.comment.refresh_from_db()
         self.assertEqual(self.comment.content, edit_data["content"])
@@ -307,9 +261,7 @@ class CommentEditViewTests(TestCase):
     def test_lurker_cant_edit(self):
         edit_data = {"content": "this is not my comment"}
         self.client.login(username="test-lurker", password="test-password")
-        response = self.client.post(
-            reverse("mb:comment_edit", args=(self.comment.id,)), edit_data
-        )
+        response = self.client.post(reverse("mb:comment_edit", args=(self.comment.id,)), edit_data)
         self.assertEqual(response.status_code, 302)
         self.comment.refresh_from_db()
         self.assertEqual(self.comment.content, "This is a comment")
@@ -318,9 +270,7 @@ class CommentEditViewTests(TestCase):
         over_max_length = Comment._meta.get_field("content").max_length + 1
         edit_data = {"content": "s" * over_max_length}  # Assuming max length is 300
         self.client.login(username="test-author", password="test-password")
-        response = self.client.post(
-            reverse("mb:comment_edit", args=(self.comment.id,)), edit_data
-        )
+        response = self.client.post(reverse("mb:comment_edit", args=(self.comment.id,)), edit_data)
         self.assertEqual(response.status_code, 200)
         self.comment.refresh_from_db()
         self.assertEqual(self.comment.content, "This is a comment")
@@ -339,32 +289,20 @@ class CommentEditViewTests(TestCase):
 
 class CommentDeleteViewTests(TestCase):
     def setUp(self):
-        self.author = get_user_model().objects.create_user(
-            username="test-author", password="test-password"
-        )
-        self.post = Post.objects.create(
-            title="title", url="www.test.com", user=self.author
-        )
-        self.comment = Comment.objects.create(
-            content="This is a comment", post=self.post, user=self.author
-        )
-        self.lurker = get_user_model().objects.create_user(
-            username="test-lurker", password="test-password"
-        )
+        self.author = get_user_model().objects.create_user(username="test-author", password="test-password")
+        self.post = Post.objects.create(title="title", url="www.test.com", user=self.author)
+        self.comment = Comment.objects.create(content="This is a comment", post=self.post, user=self.author)
+        self.lurker = get_user_model().objects.create_user(username="test-lurker", password="test-password")
 
     def test_author_can_delete_comment(self):
         self.client.login(username="test-author", password="test-password")
-        response = self.client.post(
-            reverse("mb:comment_delete", args=(self.comment.id,))
-        )
+        response = self.client.post(reverse("mb:comment_delete", args=(self.comment.id,)))
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Comment.objects.filter(id=self.comment.id).exists())
 
     def test_lurker_cant_delete_comment(self):
         self.client.login(username="test-lurker", password="test-password")
-        response = self.client.post(
-            reverse("mb:comment_delete", args=(self.comment.id,))
-        )
+        response = self.client.post(reverse("mb:comment_delete", args=(self.comment.id,)))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Comment.objects.filter(id=self.comment.id).exists())
 
@@ -372,9 +310,7 @@ class CommentDeleteViewTests(TestCase):
         self.client.login(username="test-author", password="test-password")
         response = self.client.get(reverse("mb:comment_delete", args=[self.comment.id]))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(
-            response, "mb/comment_delete.html"
-        )  # Check that the correct template is used
+        self.assertTemplateUsed(response, "mb/comment_delete.html")  # Check that the correct template is used
 
     def test_lurker_gets_redirected(self):
         response = self.client.get(reverse("mb:comment_delete", args=[self.comment.id]))

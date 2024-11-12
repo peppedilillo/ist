@@ -11,15 +11,9 @@ class Command(BaseCommand):
     help = "Populate the database with users, posts, and comments"
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            "--users", type=int, default=10, help="Number of users to create"
-        )
-        parser.add_argument(
-            "--posts", type=int, default=100, help="Number of posts to create"
-        )
-        parser.add_argument(
-            "--comments", type=int, default=1000, help="Number of comments to create"
-        )
+        parser.add_argument("--users", type=int, default=10, help="Number of users to create")
+        parser.add_argument("--posts", type=int, default=100, help="Number of posts to create")
+        parser.add_argument("--comments", type=int, default=1000, help="Number of comments to create")
 
     def handle(self, *args, **options):
         num_users = options["users"]

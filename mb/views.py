@@ -58,9 +58,17 @@ def _index(
 
 
 index = partial(
-    _index, header="all", post_objects=Post.objects.all(), order_by="-score",
+    _index,
+    header="all",
+    post_objects=Post.objects.all(),
+    order_by="-score",
 )
-news = partial(_index, header="news", post_objects=Post.objects.all(), order_by="-date",)
+news = partial(
+    _index,
+    header="news",
+    post_objects=Post.objects.all(),
+    order_by="-date",
+)
 papers = partial(
     _index,
     header="papers",
@@ -94,9 +102,7 @@ def eager_replies(comments: QuerySet, depth: int, user_id=None) -> QuerySet:
     prefetch_chain = [
         Prefetch(
             "__".join(["replies"] * i),
-            queryset=Comment.objects.select_related("user").annotate(
-                is_fan=base_annotation
-            ),
+            queryset=Comment.objects.select_related("user").annotate(is_fan=base_annotation),
         )
         for i in range(1, depth + 1)
     ]
@@ -127,11 +133,7 @@ def can_submit(user):
 
 
 def can_edit(user, contrib: Post | Comment):
-    return (
-        user.is_authenticated
-        and not user.is_banned()
-        and (user == contrib.user or user.has_mod_rights())
-    )
+    return user.is_authenticated and not user.is_banned() and (user == contrib.user or user.has_mod_rights())
 
 
 def post_submit(request: HttpRequest) -> HttpResponse:
@@ -336,9 +338,7 @@ def profile(request: HttpRequest, user_id: int) -> HttpResponse:
 
 def profile_posts(request: HttpRequest, user_id: int) -> HttpResponse:
     _ = get_object_or_404(get_user_model(), pk=user_id)
-    return _index(
-        request, post_objects=Post.objects.filter(user_id=user_id), order_by="-date"
-    )
+    return _index(request, post_objects=Post.objects.filter(user_id=user_id), order_by="-date")
 
 
 def profile_comments(request: HttpRequest, user_id: int) -> HttpResponse:

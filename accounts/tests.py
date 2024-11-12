@@ -24,9 +24,7 @@ from django.urls import reverse
 class CustomUserModelTests(TestCase):
     def setUp(self):
         # Create an authenticated user and a post
-        self.user = get_user_model().objects.create_user(
-            username="test-user", password="test-password"
-        )
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-password")
 
     def test_create_user_with_custom_model(self):
         self.assertEqual(self.user.username, "test-user")
@@ -45,9 +43,7 @@ class SignupTests(TestCase):
         }
         response = self.client.post(reverse("accounts:signup"), form_data)
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(
-            get_user_model().objects.filter(username=form_data["username"]).exists()
-        )
+        self.assertTrue(get_user_model().objects.filter(username=form_data["username"]).exists())
 
     def test_create_account_with_mismatched_passwords(self):
         form_data = {
@@ -57,17 +53,13 @@ class SignupTests(TestCase):
         }
         response = self.client.post(reverse("accounts:signup"), form_data)
         self.assertEqual(response.status_code, 200)  # form should re-render with error
-        self.assertFalse(
-            get_user_model().objects.filter(username=form_data["username"]).exists()
-        )
+        self.assertFalse(get_user_model().objects.filter(username=form_data["username"]).exists())
         self.assertContains(response, "password fields didn’t match.")
 
 
 class LoginTests(TestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="test-user", password="test-password"
-        )
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-password")
 
     def test_login_with_valid_credentials(self):
         form_data = {
@@ -92,9 +84,7 @@ class LoginTests(TestCase):
 class LogoutTests(TestCase):
     def setUp(self):
         # Create and log in the user for logout tests
-        self.user = get_user_model().objects.create_user(
-            username="test-user", password="test-password"
-        )
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-password")
         self.client.login(username="test-user", password="test-password")
 
     def test_logout_successfully(self):
