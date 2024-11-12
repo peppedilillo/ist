@@ -59,19 +59,14 @@ class Post(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     edited = models.BooleanField(default=False)
     score = models.FloatField(editable=False, default=0)
-    fans = models.ManyToManyField(
-        to=get_user_model(), related_name="liked_posts", editable=False
-    )
+    fans = models.ManyToManyField(to=get_user_model(), related_name="liked_posts", editable=False)
     keywords = models.ManyToManyField(Keyword, related_name="posts", blank=True)
-    board = models.ForeignKey(
-        to=Board, on_delete=models.SET_NULL, related_name="posts", null=True, blank=True
-    )
-    user = models.ForeignKey(
-        to=get_user_model(), related_name="posts", on_delete=models.CASCADE
-    )
+    board = models.ForeignKey(to=Board, on_delete=models.SET_NULL, related_name="posts", null=True, blank=True)
+    user = models.ForeignKey(to=get_user_model(), related_name="posts", on_delete=models.CASCADE)
     # to avoid dealing with counts we memorize the number of likes and update it at save time.
     nlikes = models.IntegerField(default=0)
     ncomments = models.IntegerField(default=0)
+    pinned = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.title} ({self.url})"

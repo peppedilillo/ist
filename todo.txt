@@ -1,4 +1,3 @@
-* comment formatting
 * pinned posts
 * hide posts/comment
 * favorites

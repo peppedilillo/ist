@@ -45,7 +45,7 @@ def _index(
             ),
         )
         .select_related("user", "board")
-        .order_by(order_by)
+        .order_by("-pinned", order_by)
     )
     # TODO: fix this paginator so we can have one queries for the homepage
     paginator = Paginator(posts, INDEX_NPOSTS)
@@ -58,9 +58,9 @@ def _index(
 
 
 index = partial(
-    _index, header="all", post_objects=Post.objects.all(), order_by="-score"
+    _index, header="all", post_objects=Post.objects.all(), order_by="-score",
 )
-news = partial(_index, header="news", post_objects=Post.objects.all(), order_by="-date")
+news = partial(_index, header="news", post_objects=Post.objects.all(), order_by="-date",)
 papers = partial(
     _index,
     header="papers",
@@ -79,33 +79,6 @@ jobs = partial(
     post_objects=Post.objects.filter(board__name="j"),
     order_by="-score",
 )
-
-
-def _board(request: HttpRequest, name: str) -> HttpResponse:
-    board = Board.objects.get(name=name)
-    # see comment to `_index`
-    posts = (
-        Post.objects.annotate(
-            is_fan=Exists(
-                Post.fans.through.objects.filter(
-                    post_id=OuterRef("id"),
-                    customuser_id=request.user.id,
-                )
-            ),
-        )
-        .select_related("user", "board")
-        .filter(board=board)
-        .order_by("-score")
-    )
-    paginator = Paginator(posts, INDEX_NPOSTS)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    context = {
-        "page_obj": page_obj,
-        "header": board.get_name_display(),
-        "empty_message": EMPTY_MESSAGE,
-    }
-    return render(request, "mb/index.html", context)
 
 
 def eager_replies(comments: QuerySet, depth: int, user_id=None) -> QuerySet:
@@ -133,9 +106,7 @@ def eager_replies(comments: QuerySet, depth: int, user_id=None) -> QuerySet:
 def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
     # TODO: this could be achieved with one less db query prefetching comments
     post = get_object_or_404(Post, pk=post_id)
-    post.is_fan = post.fans.through.objects.filter(
-        customuser_id=request.user.id
-    ).exists()
+    post.is_fan = post.fans.filter(id=request.user.id).exists()
     comments = eager_replies(
         post.comments.filter(parent=None),
         depth=MAX_DEPTH,
@@ -190,6 +161,7 @@ def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
             post.save()
             return redirect("mb:post_detail", post_id=post.id)
     else:
+        post.is_fan = post.fans.filter(id=request.user.id).exists()
         form = PostEditForm(instance=post)
     return render(request, "mb/post_edit.html", {"form": form, "post": post})
 
@@ -222,6 +194,21 @@ def post_comment(request: HttpRequest, post_id: int) -> HttpResponse:
     return redirect("mb:post_detail", post_id=post_id)
 
 
+def can_pin(user):
+    return user.has_mod_rights()
+
+
+@require_POST
+def post_pin(request: HttpRequest, post_id: int) -> HttpResponse:
+    if not can_pin(request.user):
+        return redirect(settings.LOGIN_URL)
+
+    post = get_object_or_404(Post, pk=post_id)
+    post.pinned = not post.pinned
+    post.save()
+    return redirect("mb:post_detail", post_id=post_id)
+
+
 def comment_detail(request: HttpRequest, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment.objects.select_related("post"), pk=comment_id)
     comments = eager_replies(
@@ -229,6 +216,7 @@ def comment_detail(request: HttpRequest, comment_id: int) -> HttpResponse:
         depth=MAX_DEPTH,
         user_id=request.user.id,
     ).order_by("-date")
+    comment.post.is_fan = comment.post.fans.filter(id=request.user.id).exists()
     context = {
         "post": comment.post,
         "comments": comments,

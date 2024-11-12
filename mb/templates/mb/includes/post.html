@@ -18,7 +18,11 @@
                       data-state="active">🔥</span>
             </a>
         {% endif %}
-        <a href="{{ post.url }}">{{ post.title }}</a>
+        {% if post.pinned %}
+            <a href="{{ post.url }}" class="text-yellow-light font-bold"> {{ post.title }}</a>
+        {% else %}
+            <a href="{{ post.url }}">{{ post.title }}</a>
+        {% endif %}
         <span class="text-base-600 text-xs">({{ post.url|truncatesmart }})</span>
     </div>
     <!--post metadata and buttons-->
@@ -39,6 +43,14 @@
     class="hover:text-base-100 cursor-pointer">delete</a>
             | <a href="{% url 'mb:post_edit' post.id %}"
     class="hover:text-base-100 cursor-pointer">edit</a>
+        {% endif %}
+        {% if request.user.has_mod_rights %}
+            <form method="post" action="{% url 'mb:post_pin' post.id %}" class="m-0 inline-block">
+                {% csrf_token %}
+                <button type="submit" class="inline-block">
+                    | {% if post.pinned %}unpin{% else %}pin{% endif %}
+                </button>
+            </form>
         {% endif %}
     </div>
 </div>
