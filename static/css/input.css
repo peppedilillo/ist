@@ -15,3 +15,9 @@
     @apply bg-base-black text-base-100 p-2 border border-base-100 resize;
   }
 }
+
+.mark {
+  background: linear-gradient(-100deg, hsla(48, 94%, 62%, 0.6), hsla(48, 100%, 69%, 0.7) 95%, hsla(48, 100%, 70%, 0.7));
+  border-radius: .5em 0;
+  padding: .05rem;
+}

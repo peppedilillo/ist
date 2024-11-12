@@ -1,15 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './templates/**/*.html',
-    './*/templates/**/*.html',
-    './*/templates/**/**/*.html',
+    'templates/*.html',
+    'templates/registration/*.html',
+    'mb/templates/mb/*.html',
+    'mb/templates/mb/includes/*.html',
   ],
   safelist: [
     'text-base-100',
     'text-red-light',
     'text-green-light',
     'text-yellow-light', 
+    'text-orange-light',
     'text-magenta-light',
     'text-blue-light',
     'bg-base-100',
@@ -17,6 +19,7 @@ module.exports = {
     'bg-green-light',
     'bg-yellow-light', 
     'bg-magenta-light',
+    'bg-orange-light',
     'bg-blue-light',
   ],
   theme: {
