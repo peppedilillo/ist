@@ -52,9 +52,9 @@
     class="hover:text-base-100 cursor-pointer">edit</a>
         {% endif %}
         <!-- pin functionalities are displayed only to mods -->
-    {% if request.user.has_mod_rights %}
+        {% if request.user.has_mod_rights %}
             | <a href="{% url 'mb:post_pin' post.id %}"
     class="hover:text-base-100 cursor-pointer">pin</a>
-    {% endif %}
+        {% endif %}
     </div>
 </div>

@@ -118,13 +118,16 @@ def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
         user_id=request.user.id,
     ).order_by("-date")
     comment_form = CommentForm()
-    context = {
-        "post": post,
-        "comments": comments,
-        "comment_form": comment_form,
-        "max_depth": MAX_DEPTH,
-    }
-    return render(request, "mb/post_detail.html", context)
+    return render(
+        request,
+        "mb/post_detail.html",
+        {
+            "post": post,
+            "comments": comments,
+            "comment_form": comment_form,
+            "max_depth": MAX_DEPTH,
+        },
+    )
 
 
 def can_submit(user):
@@ -148,7 +151,13 @@ def post_submit(request: HttpRequest) -> HttpResponse:
             return redirect("mb:index")
     else:
         form = PostForm()
-    return render(request, "mb/post_submit.html", {"form": form})
+    return render(
+        request,
+        "mb/post_submit.html",
+        {
+            "form": form,
+        },
+    )
 
 
 def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
@@ -164,7 +173,14 @@ def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
     else:
         post.is_fan = post.fans.filter(id=request.user.id).exists()
         form = PostEditForm(instance=post)
-    return render(request, "mb/post_edit.html", {"form": form, "post": post})
+    return render(
+        request,
+        "mb/post_edit.html",
+        {
+            "form": form,
+            "post": post,
+        },
+    )
 
 
 def post_delete(request: HttpRequest, post_id: int) -> HttpResponse:
@@ -173,7 +189,13 @@ def post_delete(request: HttpRequest, post_id: int) -> HttpResponse:
         return redirect(settings.LOGIN_URL)
 
     if request.method == "GET":
-        return render(request, "mb/post_delete.html", {"post": post})
+        return render(
+            request,
+            "mb/post_delete.html",
+            {
+                "post": post,
+            },
+        )
     post.delete()
     return redirect("mb:index")
 
@@ -219,12 +241,15 @@ def comment_detail(request: HttpRequest, comment_id: int) -> HttpResponse:
         user_id=request.user.id,
     ).order_by("-date")
     comment.post.is_fan = comment.post.fans.filter(id=request.user.id).exists()
-    context = {
-        "post": comment.post,
-        "comments": comments,
-        "max_depth": MAX_DEPTH,
-    }
-    return render(request, "mb/post_detail.html", context)
+    return render(
+        request,
+        "mb/post_detail.html",
+        {
+            "post": comment.post,
+            "comments": comments,
+            "max_depth": MAX_DEPTH,
+        },
+    )
 
 
 def comment_reply(request: HttpRequest, comment_id: int) -> HttpResponse:
@@ -243,7 +268,14 @@ def comment_reply(request: HttpRequest, comment_id: int) -> HttpResponse:
             return redirect("mb:post_detail", post_id=reply.post.id)
     else:
         form = CommentForm()
-    return render(request, "mb/comment_reply.html", {"form": form, "comment": comment})
+    return render(
+        request,
+        "mb/comment_reply.html",
+        {
+            "form": form,
+            "comment": comment,
+        },
+    )
 
 
 def comment_delete(request: HttpRequest, comment_id: int) -> HttpResponse:
@@ -271,17 +303,34 @@ def comment_edit(request: HttpRequest, comment_id: int) -> HttpResponse:
             return redirect("mb:post_detail", post_id=comment.post.id)
     else:
         form = CommentForm(instance=comment)
-    return render(request, "mb/comment_edit.html", {"form": form, "comment": comment})
+    return render(
+        request,
+        "mb/comment_edit.html",
+        {
+            "form": form,
+            "comment": comment,
+        },
+    )
 
 
 def comment_history(request: HttpRequest, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
-    history = [{"content": c["content"], "date": c["pgh_created_at"]} for c in CommentHistory.objects.filter(pgh_obj=comment).values()]
-    context = {
-        "history": history,
-        "comment": comment,
-    }
-    return render(request, "mb/comment_history.html", context)
+    history = [
+        {
+            "content": c["content"],
+            "date": c["pgh_created_at"],
+        }
+        for c in CommentHistory.objects.filter(pgh_obj=comment).values()
+    ]
+    context = {"history": history, "comment": comment}
+    return render(
+        request,
+        "mb/comment_history.html",
+        {
+            "history": history,
+            "comment": comment,
+        },
+    )
 
 
 def can_upvote(user) -> bool:
@@ -330,7 +379,13 @@ def profile(request: HttpRequest, user_id: int) -> HttpResponse:
         ),
         pk=user_id,
     )
-    return render(request, "mb/profile.html", {"user": user})
+    return render(
+        request,
+        "mb/profile.html",
+        {
+            "user": user,
+        },
+    )
 
 
 def profile_posts(request: HttpRequest, user_id: int) -> HttpResponse:
@@ -345,8 +400,12 @@ def profile_comments(request: HttpRequest, user_id: int) -> HttpResponse:
         depth=MAX_DEPTH,
         user_id=request.user.id,
     ).order_by("-date")
-    context = {
-        "comments": comments,
-        "max_depth": MAX_DEPTH,
-    }
-    return render(request, "mb/post_detail.html", context)
+
+    return render(
+        request,
+        "mb/post_detail.html",
+        {
+            "comments": comments,
+            "max_depth": MAX_DEPTH,
+        },
+    )
