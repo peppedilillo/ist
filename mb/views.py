@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 from django.db.models import Exists, OuterRef, Prefetch, Count
 from django.db.models.query import QuerySet
 
+from accounts.models import CustomUser
 from .forms import CommentForm
 from .forms import PostEditForm
 from .forms import PostForm
@@ -24,27 +25,21 @@ from .settings import MAX_DEPTH
 EMPTY_MESSAGE = "It is empty here!"
 
 
+CustomUser = get_user_model()
+
+
 def _index(
     request: HttpRequest,
-    post_objects: QuerySet,
     order_by: str,
+    filter: dict,
     header: str | None = None,
 ) -> HttpResponse:
-    # we ask the db to annotate the post with a flag indicating wether the
-    # request user has liked the posts we fetched or not. this is because
-    # we have to highlight posts liked by the user. the request is at db level
-    # to improve performances and avoid n+1 queries.
     posts = (
-        post_objects.annotate(
-            is_fan=Exists(
-                Post.fans.through.objects.filter(
-                    post_id=OuterRef("id"),
-                    customuser_id=request.user.id,
-                )
-            ),
-        )
+        Post.objects
+        .with_fan_status(request.user)
         .select_related("user", "board")
         .order_by("-pinned", order_by)
+        .filter(**filter)
     )
     # TODO: fix this paginator so we can have one queries for the homepage
     paginator = Paginator(posts, INDEX_NPOSTS)
@@ -59,64 +54,44 @@ def _index(
 index = partial(
     _index,
     header="all",
-    post_objects=Post.objects.all(),
+    filter={},
     order_by="-score",
 )
 news = partial(
     _index,
     header="news",
-    post_objects=Post.objects.all(),
+    filter={},
     order_by="-date",
 )
 papers = partial(
     _index,
     header="papers",
-    post_objects=Post.objects.filter(board__name="p"),
+    filter={"board__name": "p"},
     order_by="-score",
 )
 code = partial(
     _index,
     header="code",
-    post_objects=Post.objects.filter(board__name="c"),
+    filter={"board__name": "c"},
     order_by="-score",
 )
 jobs = partial(
     _index,
     header="jobs",
-    post_objects=Post.objects.filter(board__name="j"),
+    filter={"board__name": "j"},
     order_by="-score",
 )
 
 
-def eager_replies(comments: QuerySet, depth: int, user_id=None) -> QuerySet:
-    base_annotation = Exists(
-        Comment.fans.through.objects.filter(
-            comment_id=OuterRef("id"),
-            customuser_id=user_id,
-        )
-    )
-    # annotate top level comments
-    comments = comments.select_related("user").annotate(is_fan=base_annotation)
-    # annotate and prefetch nested comments
-    prefetch_chain = [
-        Prefetch(
-            "__".join(["replies"] * i),
-            queryset=Comment.objects.select_related("user").annotate(is_fan=base_annotation),
-        )
-        for i in range(1, depth + 1)
-    ]
-    return comments.prefetch_related(*prefetch_chain)
-
-
 def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
     # TODO: this could be achieved with one less db query prefetching comments
-    post = get_object_or_404(Post, pk=post_id)
-    post.is_fan = post.fans.filter(id=request.user.id).exists()
-    comments = eager_replies(
-        post.comments.filter(parent=None),
-        depth=MAX_DEPTH,
-        user_id=request.user.id,
-    ).order_by("-date")
+    post = get_object_or_404(Post.objects.with_fan_status(request.user), pk=post_id)
+    comments = (
+        Comment.objects
+        .with_nested_replies(MAX_DEPTH, request.user)
+        .filter(parent=None, post=post)
+        .order_by("-date")
+    )
     comment_form = CommentForm()
     return render(
         request,
@@ -130,11 +105,11 @@ def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
     )
 
 
-def can_submit(user):
+def can_submit(user: CustomUser):
     return user.is_authenticated and not user.is_banned()
 
 
-def can_edit(user, contrib: Post | Comment):
+def can_edit(user: CustomUser, contrib: Post | Comment):
     return user.is_authenticated and not user.is_banned() and (user == contrib.user or user.has_mod_rights())
 
 
@@ -161,7 +136,7 @@ def post_submit(request: HttpRequest) -> HttpResponse:
 
 
 def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
-    post = get_object_or_404(Post, pk=post_id)
+    post = get_object_or_404(Post.objects.with_fan_status(request.user), pk=post_id)
     if not can_edit(request.user, post):
         return redirect(settings.LOGIN_URL)
 
@@ -171,7 +146,6 @@ def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
             post.save()
             return redirect("mb:post_detail", post_id=post.id)
     else:
-        post.is_fan = post.fans.filter(id=request.user.id).exists()
         form = PostEditForm(instance=post)
     return render(
         request,
@@ -217,7 +191,7 @@ def post_comment(request: HttpRequest, post_id: int) -> HttpResponse:
     return redirect("mb:post_detail", post_id=post_id)
 
 
-def can_pin(user):
+def can_pin(user: CustomUser):
     return user.has_mod_rights()
 
 
@@ -235,17 +209,18 @@ def post_pin(request: HttpRequest, post_id: int) -> HttpResponse:
 
 def comment_detail(request: HttpRequest, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment.objects.select_related("post"), pk=comment_id)
-    comments = eager_replies(
-        Comment.objects.filter(pk=comment_id),
-        depth=MAX_DEPTH,
-        user_id=request.user.id,
-    ).order_by("-date")
-    comment.post.is_fan = comment.post.fans.filter(id=request.user.id).exists()
+    comments = (
+        Comment.objects
+        .with_nested_replies(MAX_DEPTH, request.user)
+        .filter(pk=comment_id)
+        .order_by("-date")
+    )
+    post = Post.objects.with_fan_status(request.user).get(pk=comment.post.pk)
     return render(
         request,
         "mb/post_detail.html",
         {
-            "post": comment.post,
+            "post": post,
             "comments": comments,
             "max_depth": MAX_DEPTH,
         },
@@ -395,12 +370,12 @@ def profile_posts(request: HttpRequest, user_id: int) -> HttpResponse:
 
 def profile_comments(request: HttpRequest, user_id: int) -> HttpResponse:
     _ = get_object_or_404(get_user_model(), pk=user_id)
-    comments = eager_replies(
-        Comment.objects.filter(user_id=user_id),
-        depth=MAX_DEPTH,
-        user_id=request.user.id,
-    ).order_by("-date")
-
+    comments = (
+        Comment.objects
+        .with_nested_replies(MAX_DEPTH, request.user)
+        .filter(user_id=user_id)
+        .order_by("-date")
+    )
     return render(
         request,
         "mb/post_detail.html",
