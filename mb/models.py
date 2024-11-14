@@ -106,7 +106,6 @@ class Post(models.Model):
         else:
             original_post = Post.objects.get(pk=self.pk)
             if self.title != original_post.title or self.url != original_post.url:
-                # we mark the post as edited
                 self.edited = True
             current_fans = self.fans.count()
             if current_fans != original_post.nlikes:

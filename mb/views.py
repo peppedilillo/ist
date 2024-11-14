@@ -9,10 +9,8 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
-from django.db.models import Exists, OuterRef, Prefetch, Count
-from django.db.models.query import QuerySet
+from django.db.models import Count
 
-from accounts.models import CustomUser
 from .forms import CommentForm
 from .forms import PostEditForm
 from .forms import PostForm
@@ -34,6 +32,7 @@ def _index(
     filter: dict,
     header: str | None = None,
 ) -> HttpResponse:
+    # fmt: off
     posts = (
         Post.objects
         .with_fan_status(request.user)
@@ -41,6 +40,7 @@ def _index(
         .order_by("-pinned", order_by)
         .filter(**filter)
     )
+    # fmt: on
     # TODO: fix this paginator so we can have one queries for the homepage
     paginator = Paginator(posts, INDEX_NPOSTS)
     page_number = request.GET.get("page")
@@ -84,14 +84,15 @@ jobs = partial(
 
 
 def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
-    # TODO: this could be achieved with one less db query prefetching comments
     post = get_object_or_404(Post.objects.with_fan_status(request.user), pk=post_id)
+    # fmt: off
     comments = (
         Comment.objects
         .with_nested_replies(MAX_DEPTH, request.user)
         .filter(parent=None, post=post)
         .order_by("-date")
     )
+    # fmt: on
     comment_form = CommentForm()
     return render(
         request,
@@ -209,12 +210,14 @@ def post_pin(request: HttpRequest, post_id: int) -> HttpResponse:
 
 def comment_detail(request: HttpRequest, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment.objects.select_related("post"), pk=comment_id)
+    # fmt: off
     comments = (
         Comment.objects
         .with_nested_replies(MAX_DEPTH, request.user)
         .filter(pk=comment_id)
         .order_by("-date")
     )
+    # fmt: on
     post = Post.objects.with_fan_status(request.user).get(pk=comment.post.pk)
     return render(
         request,
@@ -370,12 +373,14 @@ def profile_posts(request: HttpRequest, user_id: int) -> HttpResponse:
 
 def profile_comments(request: HttpRequest, user_id: int) -> HttpResponse:
     _ = get_object_or_404(get_user_model(), pk=user_id)
+    # fmt: off
     comments = (
         Comment.objects
         .with_nested_replies(MAX_DEPTH, request.user)
         .filter(user_id=user_id)
         .order_by("-date")
     )
+    # fmt: on
     return render(
         request,
         "mb/post_detail.html",
