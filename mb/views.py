@@ -199,15 +199,16 @@ def can_pin(user):
     return user.has_mod_rights()
 
 
-@require_POST
 def post_pin(request: HttpRequest, post_id: int) -> HttpResponse:
     if not can_pin(request.user):
         return redirect(settings.LOGIN_URL)
 
     post = get_object_or_404(Post, pk=post_id)
+    if request.method == "GET":
+        return render(request, "mb/post_pin.html", {"post": post})
     post.pinned = not post.pinned
     post.save()
-    return redirect("mb:post_detail", post_id=post_id)
+    return redirect("mb:index")
 
 
 def comment_detail(request: HttpRequest, comment_id: int) -> HttpResponse:

@@ -52,20 +52,9 @@
     class="hover:text-base-100 cursor-pointer">edit</a>
         {% endif %}
         <!-- pin functionalities are displayed only to mods -->
-        {% if request.user.has_mod_rights %}
-            <form method="post"
-                  action="{% url 'mb:post_pin' post.id %}"
-                  class="m-0 inline-block">
-                {% csrf_token %}
-                <button type="submit" class="inline-block">
-                    |
-                    {% if post.pinned %}
-                        unpin
-                    {% else %}
-                        pin
-                    {% endif %}
-                </button>
-            </form>
-        {% endif %}
+    {% if request.user.has_mod_rights %}
+            | <a href="{% url 'mb:post_pin' post.id %}"
+    class="hover:text-base-100 cursor-pointer">pin</a>
+    {% endif %}
     </div>
 </div>
