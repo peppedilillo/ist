@@ -1815,9 +1815,9 @@ video {
 }
 
 .mark {
-  background: linear-gradient(-100deg, hsla(48, 94%, 62%, 0.6), hsla(48, 100%, 69%, 0.7) 95%, hsla(48, 100%, 70%, 0.7));
+  background: linear-gradient(-100deg, hsla(61, 100%, 60%, 0.8), hsla(61, 100%, 60%, 0.9) 95%, hsl(61, 100%, 60%));
   border-radius: .5em 0;
-  padding: .05rem;
+  padding: .05rem .2rem;
 }
 
 .hover\:text-base-100:hover {
