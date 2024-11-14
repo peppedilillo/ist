@@ -276,10 +276,7 @@ def comment_edit(request: HttpRequest, comment_id: int) -> HttpResponse:
 
 def comment_history(request: HttpRequest, comment_id: int) -> HttpResponse:
     comment = get_object_or_404(Comment, pk=comment_id)
-    history = [
-        {"content": c["content"], "date": c["pgh_created_at"]}
-        for c in CommentHistory.objects.filter(pgh_obj=comment).values()
-    ]
+    history = [{"content": c["content"], "date": c["pgh_created_at"]} for c in CommentHistory.objects.filter(pgh_obj=comment).values()]
     context = {
         "history": history,
         "comment": comment,
