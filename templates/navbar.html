@@ -14,7 +14,8 @@
 <!-- right side of navigation bar-->
 <div class="text-base-600 space-x-1">
     {% if user.is_authenticated %}
-        <a href="{% url 'mboard:post_submit' %}" class="text-base-50 font-semibold">submit</a>
+        <a href="{% url 'mboard:post_submit' %}"
+           class="text-base-50 font-semibold">submit</a>
         &ltuser:
         <a href="{% url 'mboard:profile' user.id %}"
            class="italic hover:text-base-100 cursor-pointer">{{ user }}</a>,

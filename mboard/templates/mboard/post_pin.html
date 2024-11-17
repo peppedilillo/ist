@@ -21,7 +21,9 @@
             {% endif %}
             this post?
         </div>
-        <form action="{% url 'mboard:post_pin' post.id %}"  method="post" class="mt-4">
+        <form action="{% url 'mboard:post_pin' post.id %}"
+              method="post"
+              class="mt-4">
             {% csrf_token %}
             <button type="submit" class="button-red my-4">
                 YES,
