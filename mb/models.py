@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Exists, OuterRef, Prefetch
-from astrowebsite.settings import AUTH_USER_MODEL
+from ist.settings import AUTH_USER_MODEL
 
 import pghistory
 
