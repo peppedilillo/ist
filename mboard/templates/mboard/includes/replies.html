@@ -1,0 +1,12 @@
+{% for reply in comment.replies.all %}
+    {% include "mboard/includes/comment.html" with comment=reply %}
+    {% if depth < max_depth %}
+        <ul class="ml-8">
+            {% include "mboard/includes/replies.html" with comment=reply depth=depth|add:"1" %}
+        </ul>
+    {% else %}
+        <div class="mb-4 text-xs text-base-600 hover:text-base-100 cursor-pointer">
+            <a href="{% url 'mboard:comment_detail' reply.id %}">more replies...</a>
+        </div>
+    {% endif %}
+{% endfor %}

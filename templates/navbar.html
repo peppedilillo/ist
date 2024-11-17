@@ -1,22 +1,22 @@
-{% load mb_extras %}
+{% load mboard_extras %}
 <div class="space-x-1">
-    <a href="{% url 'mb:index' %}"
+    <a href="{% url 'mboard:index' %}"
        class="font-semibold text-{{ 'all'|board_color }}">all</a>
-    <a href="{% url 'mb:news' %}"
+    <a href="{% url 'mboard:news' %}"
        class="font-semibold text-{{ 'news'|board_color }}">news</a>
-    <a href="{% url 'mb:papers' %}"
+    <a href="{% url 'mboard:papers' %}"
        class="font-semibold text-{{ 'papers'|board_color }}">papers</a>
-    <a href="{% url 'mb:code' %}"
+    <a href="{% url 'mboard:code' %}"
        class="font-semibold text-{{ 'code'|board_color }}">code</a>
-    <a href="{% url 'mb:jobs' %}"
+    <a href="{% url 'mboard:jobs' %}"
        class="font-semibold text-{{ 'jobs'|board_color }}">jobs</a>
 </div>
 <!-- right side of navigation bar-->
 <div class="text-base-600 space-x-1">
     {% if user.is_authenticated %}
-        <a href="{% url 'mb:post_submit' %}" class="text-base-50 font-semibold">submit</a>
+        <a href="{% url 'mboard:post_submit' %}" class="text-base-50 font-semibold">submit</a>
         &ltuser:
-        <a href="{% url 'mb:profile' user.id %}"
+        <a href="{% url 'mboard:profile' user.id %}"
            class="italic hover:text-base-100 cursor-pointer">{{ user }}</a>,
         <a href="{% url 'accounts:logout' %}"
            class="hover:text-base-100 cursor-pointer">logout</a>&gt

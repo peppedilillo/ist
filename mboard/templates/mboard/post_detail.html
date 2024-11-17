@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load mboard_extras %}
+{% block content %}
+    <!-- post title and content -->
+    <!-- if a post is not passed this basically becomes a list of comments
+    so we can recycle it for other stuff, such as user's comments contributions-->
+    {% if post %}
+        <div class="my-4">{% include "mboard/includes/post.html" with post=post show_prefix=show_prefix %}</div>
+    {% endif %}
+    <!-- comment form -->
+    {% if comment_form %}
+        {% if user.is_authenticated %}
+            <div class="my-4">Add a comment</div>
+            <form method="post"
+                  class="my-4"
+                  action="{% url 'mboard:post_comment' post.id %}">
+                {% csrf_token %}
+                <div class="my-4">{{ comment_form.content | addclass:'form' }}</div>
+                <button type="submit" class="button ">Submit</button>
+            </form>
+        {% else %}
+            <div class="my-4">
+                <a href="{% url 'login' %}">Login</a> to add a comment.
+            </div>
+        {% endif %}
+        <!-- comment section -->
+        <h2 class="text-6xl font-extrabold my-8">comments</h2>
+    {% endif %}
+    <div class="my-4">
+        {% for comment in comments %}
+            <div>{% include "mboard/includes/comment.html" with comment=comment %}</div>
+            <ul class="ml-8">
+                {% include "mboard/includes/replies.html" with depth=1 %}
+            </ul>
+        {% empty %}
+            <div>No comments yet.</div>
+        {% endfor %}
+    </div>
+{% endblock %}

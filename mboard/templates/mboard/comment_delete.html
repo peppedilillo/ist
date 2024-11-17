@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load mboard_extras %}
+{% block content %}
+    <!-- comment recap -->
+    <div class="mb-8">{% include "mboard/includes/comment.html" with comment=comment %}</div>
+    <div class="text-6xl my-8 font-extrabold">delete</div>
+    <!-- delete form -->
+    <div class="my-4">
+        Are you sure you want to delete this comment?
+        <form action="{% url 'mboard:comment_delete' comment.id %}"
+              method="post"
+              class="mt-4">
+            {% csrf_token %}
+            <button type="submit" class="button-red">YES, delete</button>
+        </form>
+    </div>
+{% endblock %}

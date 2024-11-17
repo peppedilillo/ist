@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load mboard_extras %}
+{% block content %}
+    <h1 class="text-6xl my-8 font-extrabold">new post</h1>
+    <!--- errors -->
+    {% if form.errors %}
+        <div class="my-4">there were some problems with your submission:</div>
+        <div class="my-4">
+            {% for field, errors in form.errors.items %}{{ errors }}{% endfor %}
+        </div>
+    {% endif %}
+    <!--- post submit form -->
+    <form method="post" actions="{% url 'mboard:post_submit' %}">
+        {% csrf_token %}
+        <div class="my-4 space-y-2">
+            <div class="flex">
+                <div class="w-24 pr-4">*{{ form.title.label_tag }}</div>
+                <div class="flex-1 max-w-[28rem]">{{ form.title | addclass:'form w-full' }}</div>
+            </div>
+            <div class="flex">
+                <div class="w-24 pr-4">*{{ form.url.label_tag }}</div>
+                <div class="flex-1 max-w-[28rem]">{{ form.url | addclass:'form w-full' }}</div>
+            </div>
+            <div class="flex pt-4">
+                <div class="w-24 pr-4">{{ form.board.label_tag }}</div>
+                <div>{{ form.board | addclass:'form w-40' }}</div>
+            </div>
+            <div class="flex">
+                <div class="w-24 pr-4">{{ form.keywords.label_tag }}</div>
+                <div>{{ form.keywords | addclass:'form w-40' }}</div>
+            </div>
+        </div>
+        <button type="submit" class="my-2 button">Submit</button>
+    </form>
+{% endblock %}

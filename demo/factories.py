@@ -4,10 +4,10 @@ from random import randint
 from django.contrib.auth import get_user_model
 from faker import Faker
 
-from mb.models import Board
-from mb.models import Comment
-from mb.models import Keyword
-from mb.models import Post
+from mboard.models import Board
+from mboard.models import Comment
+from mboard.models import Keyword
+from mboard.models import Post
 
 User = get_user_model()
 

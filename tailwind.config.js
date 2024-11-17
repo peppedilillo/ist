@@ -3,8 +3,8 @@ module.exports = {
   content: [
     'templates/*.html',
     'templates/registration/*.html',
-    'mb/templates/mb/*.html',
-    'mb/templates/mb/includes/*.html',
+    'mboard/templates/mboard/*.html',
+    'mboard/templates/mboard/includes/*.html',
   ],
   safelist: [
     'text-base-100',
