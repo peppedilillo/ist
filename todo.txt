@@ -1,3 +1,2 @@
-* improve `is_fan` logic using context manager
 * hide posts/comment
 * favorites

@@ -94,29 +94,33 @@ class Post(models.Model):
     def __str__(self):
         return f"{self.title} ({self.url})"
 
-    def save(self, *args, **kwargs):
-        if self.pk is None:
-            # object has been just created and has yet to be saved
-            super().save(*args, **kwargs)
-            # we update the object to have its initial score computed
-            self.fans.add(self.user)
-            self.nlikes = 1
-            self.score = compute_score(self.nlikes, self.date)
-            self.save(update_fields=["nlikes", "score"])
-        else:
-            original_post = Post.objects.get(pk=self.pk)
-            if self.title != original_post.title or self.url != original_post.url:
-                self.edited = True
-            current_fans = self.fans.count()
-            if current_fans != original_post.nlikes:
-                self.nlikes = current_fans
-                self.score = compute_score(self.nlikes, self.date)
-
-            super().save(*args, **kwargs)
-        return
-
     def board_prefix(self):
         return f"{self.board.get_name_display()}" if self.board else ""
+
+
+def save_new_post(title: str, author: CustomUser, url: str) -> Post:
+    post = Post(title=title, user=author, url=url)
+    post.save()
+    post.fans.add(author)
+    post.nlikes = 1
+    post.score = compute_score(post.nlikes, post.date)
+    post.save(update_fields=["nlikes", "score"])
+    return post
+
+
+def save_edited_post(new_title: str, post: Post) -> Post:
+    original_post = Post.objects.get(pk=post.pk)
+    if new_title != original_post.title:
+        post.edited = True
+        post.title = new_title
+        post.save(update_fields=["title", "edited"])
+    return post
+
+
+def save_toggle_pin(post: Post):
+    post.pinned = not post.pinned
+    post.save()
+    return post
 
 
 class CommentManager(models.Manager):
@@ -168,28 +172,42 @@ class Comment(models.Model):
     def __str__(self):
         return f"Comment by {self.user.username} on {self.post.title}"
 
-    def save(self, *args, **kwargs):
-        if self.pk is None:
-            super().save(*args, **kwargs)
-            self.fans.add(self.user)
-            self.nlikes = 1
-            self.save(update_fields=["nlikes"])
-            # also post needs updating
-            self.post.ncomments += 1
-            self.post.save(update_fields=["ncomments"])
-        else:
-            original_comment = Comment.objects.get(pk=self.pk)
-            if self.content != original_comment.content:
-                self.edited = True
-            current_fans = self.fans.count()
-            if current_fans != original_comment.nlikes:
-                self.nlikes = current_fans
-
-            super().save(*args, **kwargs)
-        return
-
     def delete(self, *args, **kwargs):
         post = self.post
         super().delete(*args, **kwargs)
         post.ncomments = post.comments.count()
         self.post.save(update_fields=["ncomments"])
+
+
+def save_new_comment(content: str, author: CustomUser, post: Post, parent: Comment | None):
+    comment = Comment(content=content, user=author, post=post, parent=parent)
+    comment.save()
+    comment.fans.add(author)
+    comment.nlikes = 1
+    comment.save(update_fields=["nlikes"])
+    post.ncomments += 1
+    post.save(update_fields=["ncomments"])
+    return comment
+
+
+def save_edited_comment(new_content: str, comment: Comment) -> Comment:
+    original_comment = Comment.objects.get(pk=comment.pk)
+    if new_content != original_comment.content:
+        comment.edited = True
+        comment.content = new_content
+        comment.save(update_fields=["content", "edited"])
+    return comment
+
+
+def save_new_like(content: Comment | Post, fan: CustomUser) -> Comment | Post:
+    content.fans.add(fan)
+    content.nlikes += 1
+    content.save(update_fields=["nlikes"])
+    return content
+
+
+def save_remove_like(content: Comment | Post, fan: CustomUser) -> Comment:
+    content.fans.remove(fan)
+    content.nlikes -= 1
+    content.save(update_fields=["nlikes"])
+    return content

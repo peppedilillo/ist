@@ -16,6 +16,13 @@ from .forms import PostEditForm
 from .forms import PostForm
 from .models import Comment
 from .models import CommentHistory
+from .models import save_new_post
+from .models import save_edited_post
+from .models import save_new_comment
+from .models import save_toggle_pin
+from .models import save_edited_comment
+from .models import save_new_like
+from .models import save_remove_like
 from .models import Post
 from .settings import INDEX_NPOSTS
 from .settings import MAX_DEPTH
@@ -121,9 +128,11 @@ def post_submit(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():
-            post = form.save(commit=False)
-            post.user = request.user
-            post.save()
+            _ = save_new_post(
+                title=form.cleaned_data["title"],
+                url=form.cleaned_data["url"],
+                author=request.user,
+            )
             return redirect("mboard:index")
     else:
         form = PostForm()
@@ -144,7 +153,10 @@ def post_edit(request: HttpRequest, post_id: int) -> HttpResponse:
     if request.method == "POST":
         form = PostEditForm(request.POST, instance=post)
         if form.is_valid():
-            post.save()
+            _ = save_edited_post(
+                new_title=form.cleaned_data["title"],
+                post=post,
+            )
             return redirect("mboard:post_detail", post_id=post.id)
     else:
         form = PostEditForm(instance=post)
@@ -184,11 +196,12 @@ def post_comment(request: HttpRequest, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
     form = CommentForm(request.POST)
     if form.is_valid():
-        comment = form.save(commit=False)
-        comment.post = post
-        comment.user = request.user
-        comment.parent = None
-        comment.save()
+        _ = save_new_comment(
+            content=form.cleaned_data["content"],
+            author=request.user,
+            post=post,
+            parent=None,
+        )
     return redirect("mboard:post_detail", post_id=post_id)
 
 
@@ -203,8 +216,7 @@ def post_pin(request: HttpRequest, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)
     if request.method == "GET":
         return render(request, "mboard/post_pin.html", {"post": post})
-    post.pinned = not post.pinned
-    post.save()
+    _ = save_toggle_pin(post=post)
     return redirect("mboard:index")
 
 
@@ -238,12 +250,13 @@ def comment_reply(request: HttpRequest, comment_id: int) -> HttpResponse:
     if request.method == "POST":
         form = CommentForm(request.POST)
         if form.is_valid():
-            reply = form.save(commit=False)
-            reply.post = comment.post
-            reply.user = request.user
-            reply.parent = comment
-            reply.save()
-            return redirect("mboard:post_detail", post_id=reply.post.id)
+            _ = save_new_comment(
+                content=form.cleaned_data["content"],
+                author=request.user,
+                post=comment.post,
+                parent=comment,
+            )
+            return redirect("mboard:post_detail", post_id=comment.post.id)
     else:
         form = CommentForm()
     return render(
@@ -277,7 +290,10 @@ def comment_edit(request: HttpRequest, comment_id: int) -> HttpResponse:
     if request.method == "POST":
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
-            comment.save()
+            _ = save_edited_comment(
+                new_content=form.cleaned_data["content"],
+                comment=comment,
+            )
             return redirect("mboard:post_detail", post_id=comment.post.id)
     else:
         form = CommentForm(instance=comment)
@@ -326,12 +342,11 @@ def _upvote(
 
     item = get_object_or_404(contrib_model, pk=contrib_id)
     if item.fans.contains(request.user):
-        item.fans.remove(request.user)
+        _ = save_new_like(item, request.user)
         isupvote = False
     else:
-        item.fans.add(request.user)
+        _ = save_remove_like(item, request.user)
         isupvote = True
-    item.save()
     return JsonResponse(
         {
             "success": True,
