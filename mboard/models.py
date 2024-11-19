@@ -1,11 +1,12 @@
 from django.db import models
-from django.db.models import Exists, OuterRef, Prefetch
-from ist.settings import AUTH_USER_MODEL
-
+from django.db.models import Exists
+from django.db.models import OuterRef
+from django.db.models import Prefetch
 import pghistory
 
-from .scores import compute_score
+from ist.settings import AUTH_USER_MODEL
 
+from .scores import compute_score
 
 CustomUser = AUTH_USER_MODEL
 

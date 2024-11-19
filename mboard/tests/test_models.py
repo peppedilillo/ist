@@ -17,7 +17,8 @@ from django.contrib.auth import get_user_model
 from django.db import DataError
 from django.test import TestCase
 
-from ..models import Post, Comment
+from ..models import Comment
+from ..models import Post
 
 
 class PostModelTests(TestCase):

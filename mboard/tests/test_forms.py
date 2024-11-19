@@ -14,7 +14,8 @@ b. CommentForm:
 
 from django.test import TestCase
 
-from ..forms import PostForm, CommentForm
+from ..forms import CommentForm
+from ..forms import PostForm
 
 
 class PostFormTests(TestCase):

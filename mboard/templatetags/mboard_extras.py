@@ -1,9 +1,8 @@
+from urllib.parse import urlparse
+
 from django import template
 from django.utils.timesince import timesince
 import mistune
-
-from urllib.parse import urlparse
-
 
 register = template.Library()
 

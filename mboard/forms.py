@@ -1,9 +1,9 @@
+from urllib.parse import urlparse
+
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.forms import ModelForm
 from django.forms import Textarea
-
-from urllib.parse import urlparse
 
 from .models import Board
 from .models import Comment

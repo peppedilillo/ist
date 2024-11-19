@@ -60,13 +60,14 @@ g. Comment Detail View:
 [v] Test proper ordering of nested comments with no likes
 """
 
-from django.test import Client
 from django.contrib.auth import get_user_model
+from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
 
+from ..models import Comment
+from ..models import Post
 from ..settings import MAX_DEPTH
-from ..models import Post, Comment
 
 
 class IndexViewTests(TestCase):
@@ -358,38 +359,34 @@ class PostPinTests(TestCase):
             password="test-password",
             status="b",
         )
-        self.post = Post.objects.create(
-            title="Test Post",
-            url="https://example.com",
-            user=self.regular_user
-        )
-        self.pin_url = reverse('mboard:post_pin', args=[self.post.id])
+        self.post = Post.objects.create(title="Test Post", url="https://example.com", user=self.regular_user)
+        self.pin_url = reverse("mboard:post_pin", args=[self.post.id])
         self.client = Client()
 
     def test_admin_can_access_pin_page(self):
         self.client.login(username="test-admin", password="test-password")
         response = self.client.get(self.pin_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'mboard/post_pin.html')
+        self.assertTemplateUsed(response, "mboard/post_pin.html")
 
     def test_moderator_can_access_pin_page(self):
         self.client.login(username="test-moderator", password="test-password")
         response = self.client.get(self.pin_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'mboard/post_pin.html')
+        self.assertTemplateUsed(response, "mboard/post_pin.html")
 
     def test_regular_user_cannot_access_pin_page(self):
         self.client.login(username="test-user", password="test-password")
         response = self.client.get(self.pin_url)
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(response.url.startswith(reverse('login')))
+        self.assertTrue(response.url.startswith(reverse("login")))
 
     def test_banned_user_cannot_access_pin_page(self):
         # note: no need to test for banned admins or mods: status is `one of`.
         self.client.login(username="test-banned", password="test-password")
         response = self.client.get(self.pin_url)
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(response.url.startswith(reverse('login')))
+        self.assertTrue(response.url.startswith(reverse("login")))
 
     def test_admin_can_pin_post(self):
         self.client.login(username="test-admin", password="test-password")
@@ -435,14 +432,12 @@ class PostPinTests(TestCase):
 
     def test_pinned_posts_appear_first(self):
         unpinned_post = Post.objects.create(
-            title="Unpinned Post",
-            url="https://example.com/unpinned",
-            user=self.regular_user
+            title="Unpinned Post", url="https://example.com/unpinned", user=self.regular_user
         )
         self.client.login(username="test-admin", password="test-password")
         self.client.post(self.pin_url)
-        response = self.client.get(reverse('mboard:index'))
-        posts = response.context['page_obj']
+        response = self.client.get(reverse("mboard:index"))
+        posts = response.context["page_obj"]
         self.assertEqual(posts[0].id, self.post.id)
         self.assertTrue(posts[0].pinned)
         unpinned_posts = [p for p in posts if not p.pinned]
@@ -450,54 +445,34 @@ class PostPinTests(TestCase):
 
     def test_pin_nonexistent_post(self):
         self.client.login(username="test-admin", password="test-password")
-        non_existent_pin_url = reverse('mboard:post_pin', args=[99999])
+        non_existent_pin_url = reverse("mboard:post_pin", args=[99999])
         response = self.client.post(non_existent_pin_url)
         self.assertEqual(response.status_code, 404)
 
 
 class CommentDetailTests(TestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="test-user",
-            password="test-password"
-        )
-        self.post = Post.objects.create(
-            title="Test Post",
-            url="https://example.com",
-            user=self.user
-        )
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-password")
+        self.post = Post.objects.create(title="Test Post", url="https://example.com", user=self.user)
         self.top_comment = Comment.objects.create(
-            content="Top level comment",
-            user=self.user,
-            post=self.post,
-            parent=None
+            content="Top level comment", user=self.user, post=self.post, parent=None
         )
 
     def test_detail_view_returns_200(self):
-        url = reverse('mboard:comment_detail', args=[self.top_comment.id])
+        url = reverse("mboard:comment_detail", args=[self.top_comment.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_detail_view_404_for_invalid_comment(self):
-        url = reverse('mboard:comment_detail', args=[666])
+        url = reverse("mboard:comment_detail", args=[666])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
     def test_nested_replies_are_included(self):
-        reply1 = Comment.objects.create(
-            content="First reply",
-            user=self.user,
-            post=self.post,
-            parent=self.top_comment
-        )
-        reply2 = Comment.objects.create(
-            content="Reply to reply",
-            user=self.user,
-            post=self.post,
-            parent=reply1
-        )
+        reply1 = Comment.objects.create(content="First reply", user=self.user, post=self.post, parent=self.top_comment)
+        reply2 = Comment.objects.create(content="Reply to reply", user=self.user, post=self.post, parent=reply1)
 
-        url = reverse('mboard:comment_detail', args=[self.top_comment.id])
+        url = reverse("mboard:comment_detail", args=[self.top_comment.id])
         response = self.client.get(url)
 
         self.assertContains(response, "Top level comment")
@@ -508,13 +483,10 @@ class CommentDetailTests(TestCase):
         current_comment = self.top_comment
         for i in range(MAX_DEPTH + 1):
             current_comment = Comment.objects.create(
-                content=f"Nested reply level {i + 1}",
-                user=self.user,
-                post=self.post,
-                parent=current_comment
+                content=f"Nested reply level {i + 1}", user=self.user, post=self.post, parent=current_comment
             )
 
-        url = reverse('mboard:comment_detail', args=[self.top_comment.id])
+        url = reverse("mboard:comment_detail", args=[self.top_comment.id])
         response = self.client.get(url)
 
         for i in range(MAX_DEPTH):
@@ -523,19 +495,19 @@ class CommentDetailTests(TestCase):
         self.assertContains(response, "more replies...")
 
     def test_detail_view_shows_post_context(self):
-        url = reverse('mboard:comment_detail', args=[self.top_comment.id])
+        url = reverse("mboard:comment_detail", args=[self.top_comment.id])
         response = self.client.get(url)
-        self.assertEqual(response.context['post'], self.post)
+        self.assertEqual(response.context["post"], self.post)
 
     def test_fan_status_for_authenticated_user(self):
         self.client.login(username="test-user", password="test-password")
         self.top_comment.fans.add(self.user)
 
-        url = reverse('mboard:comment_detail', args=[self.top_comment.id])
+        url = reverse("mboard:comment_detail", args=[self.top_comment.id])
         response = self.client.get(url)
 
-        comment_in_context = response.context['comments'][0]
-        self.assertTrue(hasattr(comment_in_context, 'is_fan'))
+        comment_in_context = response.context["comments"][0]
+        self.assertTrue(hasattr(comment_in_context, "is_fan"))
         self.assertTrue(comment_in_context.is_fan)
 
     def test_ordering_of_nested_comments(self):
@@ -552,7 +524,7 @@ class CommentDetailTests(TestCase):
             parent=self.top_comment,
         )
 
-        url = reverse('mboard:comment_detail', args=[self.top_comment.id])
+        url = reverse("mboard:comment_detail", args=[self.top_comment.id])
         response = self.client.get(url)
         content = response.content.decode()
         newer_position = content.find("Newer reply")

@@ -1,12 +1,11 @@
 from datetime import timedelta
 
 from django.conf import settings
-from django.http import HttpRequest, HttpResponse
 from django.contrib.auth import get_user
-
+from django.http import HttpRequest
+from django.http import HttpResponse
 from ipware import get_client_ip
 from redis import Redis
-
 
 redis_default = Redis.from_url(url=settings.CACHES["default"]["LOCATION"])
 PERIOD = timedelta(seconds=1)

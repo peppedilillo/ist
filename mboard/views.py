@@ -3,27 +3,28 @@ from functools import partial
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpRequest
+from django.db.models import Count
+from django.http import HttpRequest
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
-from django.db.models import Count
 
 from .forms import CommentForm
 from .forms import PostEditForm
 from .forms import PostForm
 from .models import Comment
 from .models import CommentHistory
-from .models import save_new_post
+from .models import Post
+from .models import save_edited_comment
 from .models import save_edited_post
 from .models import save_new_comment
-from .models import save_toggle_pin
-from .models import save_edited_comment
 from .models import save_new_like
+from .models import save_new_post
 from .models import save_remove_like
-from .models import Post
+from .models import save_toggle_pin
 from .settings import INDEX_NPOSTS
 from .settings import MAX_DEPTH
 

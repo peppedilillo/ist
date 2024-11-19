@@ -21,7 +21,8 @@ Ratelimits Tests
 import re
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase, Client
+from django.test import Client
+from django.test import TestCase
 from django.urls import reverse
 
 from ..middleware import AUTHENTICATED_LIMIT
