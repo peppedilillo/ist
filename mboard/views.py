@@ -339,15 +339,17 @@ def _upvote(
     contrib_model: Post | Comment,
 ):
     if not can_upvote(request.user):
-        return JsonResponse({"success": False})
+        return JsonResponse({
+            "success": False,
+        })
 
     item = get_object_or_404(contrib_model, pk=contrib_id)
-    if item.fans.contains(request.user):
+    if not item.fans.contains(request.user):
         _ = save_new_like(item, request.user)
-        isupvote = False
+        isupvote = True
     else:
         _ = save_remove_like(item, request.user)
-        isupvote = True
+        isupvote = False
     return JsonResponse(
         {
             "success": True,

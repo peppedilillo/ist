@@ -204,6 +204,9 @@ def save_new_like(content: Comment | Post, fan: CustomUser) -> Comment | Post:
     content.fans.add(fan)
     content.nlikes += 1
     content.save(update_fields=["nlikes"])
+    if isinstance(content, Post):
+        content.score = compute_score(content.nlikes, content.date)
+        content.save(update_fields=["score"])
     return content
 
 
@@ -211,4 +214,7 @@ def save_remove_like(content: Comment | Post, fan: CustomUser) -> Comment:
     content.fans.remove(fan)
     content.nlikes -= 1
     content.save(update_fields=["nlikes"])
+    if isinstance(content, Post):
+        content.score = compute_score(content.nlikes, content.date)
+        content.save(update_fields=["score"])
     return content
