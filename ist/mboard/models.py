@@ -120,7 +120,7 @@ def save_edited_post(new_title: str, post: Post) -> Post:
 
 def save_toggle_pin(post: Post):
     post.pinned = not post.pinned
-    post.save()
+    post.save(update_fields=["pinned"])
     return post
 
 
