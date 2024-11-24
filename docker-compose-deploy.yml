@@ -34,7 +34,7 @@ services:
       context: ./cache
     restart: always
     environment:
-      - REDIS_PASSWORD=changeme
+      - REDIS_PASSWORD=${REDIS_PASS}
 
   proxy:
     build:
