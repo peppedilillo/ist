@@ -132,6 +132,7 @@ def post_submit(request: HttpRequest) -> HttpResponse:
             _ = save_new_post(
                 title=form.cleaned_data["title"],
                 url=form.cleaned_data["url"],
+                board=form.cleaned_data["board"],
                 author=request.user,
             )
             return redirect("mboard:index")

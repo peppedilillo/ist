@@ -13,11 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
-
-load_dotenv(dotenv_path=".env.dev")
-
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,12 +21,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+# p: pull the secret key from environment
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# p: pull debug config from environment
+DEBUG = bool(int(os.environ.get("DEBUG", 0)))
 
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split(",")
+# p: pull allowed hosts from environment
+ALLOWED_HOSTS = []
+ALLOWED_HOSTS.extend(
+    filter(
+        None,
+        os.environ.get("ALLOWED_HOSTS", "").split(","),
+    )
+)
+if DEBUG:
+    # p: for testing on mobile
+    ALLOWED_HOSTS.extend(["*"])
 
 
 # Application definition
@@ -102,15 +109,15 @@ WSGI_APPLICATION = "ist.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+# p: again, pulls database info from environment
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DATABASE_NAME"),
-        "USER": os.getenv("DATABASE_USER"),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD"),
-        "HOST": os.getenv("DATABASE_HOST"),
-        "PORT": os.getenv("DATABASE_PORT"),
+        "HOST": os.environ.get("DB_HOST"),
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASS"),
     }
 }
 
@@ -138,7 +145,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "Europe/Rome"
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -148,7 +155,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "static/"
+# p: double static is because we will use the first one to unambiguously catch
+# p: requests that should be addressed to nginx proxy
+STATIC_URL = "static/static/"
+
+if not DEBUG:
+    STATIC_ROOT = "/vol/web/static"
+
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
@@ -158,27 +171,29 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Redirect to home URL after login (Default redirects to /accounts/profile/)
+# p: redirect to home URL after login (default redirects to /accounts/profile/)
 LOGIN_REDIRECT_URL = "/"
 
-# This will redirect emails to the console.
+# p: this will redirect emails to the console.
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# Custom user model
+# p: custom user model
 AUTH_USER_MODEL = "accounts.CustomUser"
 
-# Needed by debug toolbar
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
-
-# Allowed hosts
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.1.58", "150.146.144.83"]
+if DEBUG:
+    # :p needed by debug toolbar
+    INTERNAL_IPS = [
+        "127.0.0.1",
+    ]
 
 # Caches
+# p: again we get these from the environment
+REDIS_HOST = os.environ.get('REDIS_HOST')
+REDIS_PASS = os.environ.get('REDIS_PASS')
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": os.getenv("REDIS_URL"),
+        "LOCATION": f"redis://:{REDIS_PASS}@{REDIS_HOST}",
     }
 }

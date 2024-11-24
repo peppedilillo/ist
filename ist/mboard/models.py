@@ -99,8 +99,8 @@ class Post(models.Model):
         return f"{self.board.get_name_display()}" if self.board else ""
 
 
-def save_new_post(title: str, author: CustomUser, url: str) -> Post:
-    post = Post(title=title, user=author, url=url)
+def save_new_post(title: str, author: CustomUser, url: str, board: str | None) -> Post:
+    post = Post(title=title, user=author, url=url, board=board)
     post.save()
     post.fans.add(author)
     post.nlikes = 1

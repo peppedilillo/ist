@@ -3,9 +3,10 @@
 **/__pycache__/**
 **/.ipynb_checkpoints
 **/.mypy-cache
+ist/tailwindcss
 .env.dev
+.env
 .idea
 .coverage
-tailwindcss
 repopack-output.txt
-todo.txt
+notes.md

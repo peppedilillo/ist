@@ -27,7 +27,8 @@ class VotingSystemTests(TestCase):
         self.post = save_new_post(
             title="Test Post",
             author=self.author,
-            url="https://example.com"
+            url="https://example.com",
+            board=None,
         )
 
         self.comment = save_new_comment(
@@ -147,6 +148,7 @@ class VotingSystemTests(TestCase):
             title="Old Post",
             url="https://example.com/old",
             author=self.author,
+            board=None,
         )
         old_post.date = now - timedelta(days=7)
         old_post.save()
@@ -154,6 +156,7 @@ class VotingSystemTests(TestCase):
             title="New Post",
             url="https://example.com/new",
             author=self.author,
+            board=None,
         )
 
         # Give both posts same number of likes

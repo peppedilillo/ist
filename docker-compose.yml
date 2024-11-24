@@ -1,28 +1,39 @@
-name: ist
-
 services:
-  db:
-    restart: always
-    image: postgres:17rc1-bookworm
-    container_name: db
-    environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
+  ist:
+    build:
+      context: .
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
     ports:
-     - "5432:5432"
+      - 8000:8000
     volumes:
-     - ./postgres/scripts:/docker-entrypoint-initdb.d
+      - ./ist:/ist
+    environment:
+      - SECRET_KEY=devsecretkey
+      - DEBUG=1
+      - DB_HOST=db
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASS=changeme
+      - REDIS_HOST=cache
+      - REDIS_PASS=changeme
+    depends_on:
+      - db
+      - cache
 
-  # this is some user interface to the docker database.
+  db:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=changeme
+
+  cache:
+    build:
+      context: ./cache
+    environment:
+      - REDIS_PASSWORD=changeme
+
   adminer:
-    restart: always
     image: adminer
-    container_name: adminer
-    ports:
-     - "8080:8080"
-
-  redis:
-    image: redis:7.2
-    container_name: redis
-    ports:
-      - "6379:6379"

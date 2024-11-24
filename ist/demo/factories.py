@@ -8,6 +8,7 @@ from mboard.models import Board
 from mboard.models import Comment
 from mboard.models import Keyword
 from mboard.models import Post
+from mboard.models import save_new_post, save_new_comment
 
 User = get_user_model()
 
@@ -44,16 +45,15 @@ def generate_post(
     max_title: int = 120,
 ) -> Post:
     fake = Faker()
-    post = Post(
+    post = save_new_post(
+        author=author if author is not None else random_user(),
         url=fake.url(),
         title=fake.sentence(
             nb_words=randint(*POST_LEN),
             variable_nb_words=True,
         )[:max_title],
-        user=author if author is not None else random_user(),
-        board=random_board(),
+        board=random_board()
     )
-    post.save()
     post.keywords.set(random_keywords())
     return post
 
@@ -81,9 +81,9 @@ def generate_comment(
         parent = random_comment(random_post())
 
     fake = Faker()
-    comment = Comment(
+    comment = save_new_comment(
         content=fake.paragraph(nb_sentences=randint(*COMMENT_LEN))[:max_content],
-        user=author if author is not None else random_user(),
+        author=author if author is not None else random_user(),
         post=parent if isinstance(parent, Post) else parent.post,
         parent=None if isinstance(parent, Post) else parent,
     )
