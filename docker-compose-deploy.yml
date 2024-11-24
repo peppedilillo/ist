@@ -1,7 +1,7 @@
 services:
   ist:
     build:
-      context: .
+      context: ./ist
       dockerfile: Dockerfile-deploy
     restart: always
     volumes:

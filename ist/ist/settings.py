@@ -44,6 +44,7 @@ if DEBUG:
 # Application definition
 INSTALLED_APPS = [
     "mboard.apps.AppConfig",
+    "demo.apps.DemoConfig",
     "accounts.apps.AccountsConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -59,7 +60,6 @@ INSTALLED_APPS = [
 
 if DEBUG:
     INSTALLED_APPS += [
-        "demo.apps.DemoConfig",
         "debug_toolbar",
     ]
 
