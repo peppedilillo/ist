@@ -188,12 +188,12 @@ if DEBUG:
 
 # Caches
 # p: again we get these from the environment
-REDIS_HOST = os.environ.get('REDIS_HOST')
-REDIS_PASS = os.environ.get('REDIS_PASS')
+CACHE_HOST = os.environ.get('CACHE_HOST')
+CACHE_PASS = os.environ.get('CACHE_PASS')
 
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": f"redis://:{REDIS_PASS}@{REDIS_HOST}",
+        "LOCATION": f"redis://:{CACHE_PASS}@{CACHE_HOST}",
     }
 }

@@ -7,14 +7,14 @@ services:
     volumes:
       - static-data:/vol/web
     environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
       - DB_HOST=db
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
-      - SECRET_KEY=${SECRET_KEY}
-      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
-      - REDIS_HOST=cache
-      - REDIS_PASS=${REDIS_PASS}
+      - CACHE_HOST=cache
+      - CACHE_PASS=${CACHE_PASS}
     depends_on:
       - db
       - cache
@@ -34,14 +34,14 @@ services:
       context: ./cache
     restart: always
     environment:
-      - REDIS_PASSWORD=${REDIS_PASS}
+      - REDIS_PASSWORD=${CACHE_PASS}
 
   proxy:
     build:
       context: ./proxy
     restart: always
     depends_on:
-      - app
+      - cache
     ports:
       - 80:8000
     volumes:

@@ -11,13 +11,12 @@ services:
       - ./ist:/ist
     environment:
       - SECRET_KEY=devsecretkey
-      - DEBUG=1
       - DB_HOST=db
       - DB_NAME=devdb
       - DB_USER=devuser
       - DB_PASS=changeme
-      - REDIS_HOST=cache
-      - REDIS_PASS=changeme
+      - CACHE_HOST=cache
+      - CACHE_PASS=changeme
     depends_on:
       - db
       - cache

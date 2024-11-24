@@ -1,10 +1,9 @@
 echo "[1/3] Running migrations.."
-docker-compose run --rm ist sh -c "python manage.py makemigrations accounts"
-docker-compose run --rm ist sh -c "python manage.py makemigrations mboard"
-docker-compose run --rm ist sh -c "python manage.py migrate"
+python manage.py makemigrations accounts
+python manage.py makemigrations mboard
+python manage.py migrate
 echo "[2/3] Creating superuser.."
-docker-compose run --rm ist sh -c "python manage.py createsuperuser"
+python manage.py createsuperuser
 echo "[3/3] Creating keywords and boards.."
-docker-compose run --rm ist sh -c "python manage.py createkeywords"
-docker-compose run --rm ist sh -c "python manage.py createboards"
-r
+python manage.py createkeywords
+python manage.py createboards

@@ -36,7 +36,7 @@ CustomUser = get_user_model()
 
 def _index(
     request: HttpRequest,
-    order_by: str,
+    order_by: tuple[str],
     filter: dict,
     header: str | None = None,
 ) -> HttpResponse:
@@ -45,7 +45,7 @@ def _index(
         Post.objects
         .with_fan_status(request.user)
         .select_related("user", "board")
-        .order_by("-pinned", order_by)
+        .order_by("-pinned", *order_by)
         .filter(**filter)
     )
     # fmt: on
@@ -63,31 +63,31 @@ index = partial(
     _index,
     header="all",
     filter={},
-    order_by="-score",
+    order_by=("-score", "-date"),
 )
 news = partial(
     _index,
     header="news",
     filter={},
-    order_by="-date",
+    order_by=("-date",),
 )
 papers = partial(
     _index,
     header="papers",
     filter={"board__name": "p"},
-    order_by="-score",
+    order_by=("-score",),
 )
 code = partial(
     _index,
     header="code",
     filter={"board__name": "c"},
-    order_by="-score",
+    order_by=("-score",),
 )
 jobs = partial(
     _index,
     header="jobs",
     filter={"board__name": "j"},
-    order_by="-score",
+    order_by=("-score",),
 )
 
 

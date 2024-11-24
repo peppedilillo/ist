@@ -8,6 +8,7 @@ COPY ./scripts /scripts
 
 WORKDIR /ist
 EXPOSE 8000
+ENV DEBUG=1
 
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
