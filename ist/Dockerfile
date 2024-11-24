@@ -13,12 +13,13 @@ RUN python -m venv /py && \
     apk add --update --no-cache postgresql-client && \
     apk add --update --no-cache --virtual .tmp-deps \
         build-base postgresql-dev musl-dev linux-headers && \
-    /py/bin/pip install '.[dev]' && \
+    /py/bin/pip install -e '.[dev]' && \
     apk del .tmp-deps && \
     adduser --disabled-password --no-create-home istuser && \
     mkdir -p /vol/web/static && \
     chown -R istuser:istuser /vol && \
     chmod -R 755 /vol && \
+    chmod -R 755 . && \
     chmod -R +x ./scripts
 
 ENV PATH="/ist/scripts:/py/bin:$PATH"

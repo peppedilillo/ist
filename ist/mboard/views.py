@@ -387,7 +387,7 @@ def profile(request: HttpRequest, user_id: int) -> HttpResponse:
 
 def profile_posts(request: HttpRequest, user_id: int) -> HttpResponse:
     _ = get_object_or_404(get_user_model(), pk=user_id)
-    return _index(request, post_objects=Post.objects.filter(user_id=user_id), order_by="-date")
+    return _index(request, filter={"user_id": user_id}, order_by=("-date",))
 
 
 def profile_comments(request: HttpRequest, user_id: int) -> HttpResponse:
